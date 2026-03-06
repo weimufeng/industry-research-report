@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 功率半导体行业深度研究报告 | 全景交互图谱</title>
+    
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 引入 Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Tailwind 配置与自定义颜色 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0f172a',    // Slate 900 (稳重工业感)
+                        secondary: '#1d4ed8',  // Blue 700 (科技蓝)
+                        accent: '#10b981',     // Emerald 500 (新能源/高效能)
+                        accent_light: '#d1fae5',
+                        warning: '#f59e0b',    // Amber 500 (高压/碳化硅)
+                        background: '#f8fafc', // Slate 50
+                        surface: '#ffffff',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* <!-- Chosen Palette: Industrial Slate & Energy Emerald/Amber -->
+        <!-- Application Structure Plan: 
+            The SPA is designed as a vertical interactive dashboard, ideal for analytical reading.
+            - Sticky Header: Quick navigation.
+            - Hero: Defines the sector (the "muscle" of electronics managing power).
+            - Section 1 (Value Chain): CSS Grid comparing the dominant IDM model vs. the emerging Fabless+Foundry model.
+            - Section 2 (Market Size): Mixed chart highlighting absolute growth driven by the SiC (Silicon Carbide) inflection point.
+            - Section 3 (Landscape): Doughnut chart showing standard Si market concentration vs. text cards on domestic substitution strategies.
+            - Section 4 (Unit Economics): Horizontal stacked bar dissecting the massive cost difference between Si and SiC wafers.
+            - Section 5 (Barriers): Interactive tabs to navigate the triad of moats (Materials, Topology, Auto-grade Certification).
+            - Section 6 (Capital): Bubble chart plotting company valuations against their 3rd-generation semiconductor capabilities.
+            This architecture moves from macro drivers (EVs, Renewables) to micro economics (SiC wafer costs) and finally to capital allocation.
+        -->
+        <!-- Visualization & Content Choices: 
+            1. Value Chain -> Goal: Compare Models -> Method: Tailwind CSS Flex/Grid. Justification: Clearly contrasts IDM vs Fabless without SVG overhead.
+            2. Market Size -> Goal: Trend -> Method: Chart.js Bar + Line. Justification: Shows how TAM grows steadily while SiC penetration accelerates non-linearly.
+            3. Landscape -> Goal: Proportions -> Method: Chart.js Doughnut. Justification: Quickly visualizes Infineon/ON Semi's oligopoly.
+            4. Unit Economics -> Goal: Breakdown -> Method: Chart.js Horizontal Stacked Bar. Justification: Best way to show why SiC devices are expensive (substrate cost) compared to Si.
+            5. Barriers -> Goal: Organize text -> Method: Vanilla JS Tabs. Justification: Manages dense technical text (AEC-Q101, Trench MOSFETs) elegantly.
+            6. Capital -> Goal: Relationships -> Method: Chart.js Bubble. Justification: Relates market cap, PE ratio, and technological edge in one view.
+        -->
+        <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+        */
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+
+        /* 强制约束的图表容器 (CRITICAL REQUIREMENT) */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px; /* 防止超大屏幕下无限拉伸 */
+            margin-left: auto;
+            margin-right: auto;
+            height: 40vh; /* 响应式高度 */
+            min-height: 320px;
+            max-height: 450px; /* 防止纵向溢出 */
+            background: #ffffff;
+            padding: 1.25rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid #e2e8f0;
+        }
+
+        /* 移动端图表高度微调 */
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 35vh;
+                min-height: 280px;
+                padding: 1rem;
+            }
+        }
+
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 交互式 Tab 样式 */
+        .tab-btn { transition: all 0.2s ease-in-out; }
+        .tab-btn.active {
+            border-left: 4px solid #10b981; /* accent color */
+            background-color: #f1f5f9;
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        /* 卡片悬浮效果 */
+        .hover-elevate { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .hover-elevate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-accent_light selection:text-primary">
+
+    <!-- 顶部导航栏 -->
+    <nav class="fixed top-0 w-full bg-white/90 backdrop-blur-md border-b border-slate-200 z-50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center space-x-2">
+                    <div class="w-6 h-6 rounded bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-white font-bold text-xs">P</div>
+                    <span class="text-xl font-bold text-primary tracking-tight">Power<span class="text-accent">Semi</span> Analytics</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6 text-sm font-medium text-slate-500">
+                    <a href="#value-chain" class="hover:text-secondary transition-colors">价值链</a>
+                    <a href="#market-size" class="hover:text-secondary transition-colors">市场与驱动</a>
+                    <a href="#landscape" class="hover:text-secondary transition-colors">竞争格局</a>
+                    <a href="#unit-econ" class="hover:text-secondary transition-colors">单元经济</a>
+                    <a href="#barriers" class="hover:text-secondary transition-colors">护城河</a>
+                    <a href="#capital" class="hover:text-secondary transition-colors">资本市场</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主体内容 -->
+    <main class="pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-24">
+
+        <!-- Hero Section -->
+        <header class="text-center space-y-6 max-w-4xl mx-auto animate-fade-in">
+            <div class="inline-flex items-center px-3 py-1.5 rounded-full bg-accent_light text-accent text-xs font-bold tracking-widest uppercase mb-2">
+                Electronic Electronics Sector
+            </div>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-primary tracking-tight leading-tight">
+                功率半导体：<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-accent">电气化时代的“心脏”与“肌肉”</span>
+            </h1>
+            <p class="text-lg text-slate-600 leading-relaxed">
+                作为电能转换与控制的核心组件，功率半导体不追求摩尔定律的极致微缩，而是向着高压、高频、低损耗的物理极限冲刺。在新能源汽车（800V平台）与光伏储能的超级红利下，以碳化硅（SiC）和氮化镓（GaN）为代表的第三代半导体正在重塑行业格局。
+            </p>
+        </header>
+
+        <!-- 模块 1: 行业地图与价值链 -->
+        <section id="value-chain" class="scroll-mt-24">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-primary mb-3 flex items-center">
+                    <span class="bg-secondary text-white w-8 h-8 rounded inline-flex items-center justify-center text-lg mr-3">1</span>
+                    行业地图与价值链 (Value Chain)
+                </h2>
+                <p class="text-slate-600 leading-relaxed max-w-4xl">
+                    功率半导体行业的生态结构。传统上，由于器件设计与制造工艺深度耦合，<strong class="text-primary">IDM（垂直整合制造）模式占据绝对主导</strong>。但随着代工厂（Foundry）特色工艺的成熟，Fabless（无晶圆厂设计）模式正在中低端市场崛起。
+                </p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8">
+                <!-- IDM 模式 -->
+                <div class="bg-white rounded-2xl p-6 border-2 border-slate-200 hover:border-secondary transition-colors hover-elevate">
+                    <h3 class="text-xl font-bold text-secondary mb-4 flex justify-between items-center">
+                        <span>IDM 模式 (主导生态)</span>
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">市占率 ~70%</span>
+                    </h3>
+                    <div class="flex flex-col space-y-2">
+                        <div class="bg-slate-50 p-3 rounded border border-slate-200 text-center relative">
+                            <span class="font-semibold text-sm">晶圆衬底/外延 (Substrate & Epi)</span>
+                            <div class="absolute bottom-[-16px] left-1/2 transform -translate-x-1/2 text-slate-400">&#8595;</div>
+                        </div>
+                        <div class="bg-blue-50 p-3 rounded border border-blue-200 text-center relative">
+                            <span class="font-semibold text-sm text-secondary">芯片设计 (Design)</span>
+                            <div class="absolute bottom-[-16px] left-1/2 transform -translate-x-1/2 text-slate-400">&#8595;</div>
+                        </div>
+                        <div class="bg-blue-50 p-3 rounded border border-blue-200 text-center relative">
+                            <span class="font-semibold text-sm text-secondary">晶圆制造 (Front-end Fab)</span>
+                            <div class="absolute bottom-[-16px] left-1/2 transform -translate-x-1/2 text-slate-400">&#8595;</div>
+                        </div>
+                        <div class="bg-blue-50 p-3 rounded border border-blue-200 text-center">
+                            <span class="font-semibold text-sm text-secondary">封装测试 (Back-end)</span>
+                        </div>
+                    </div>
+                    <p class="mt-4 text-xs text-slate-500 bg-slate-50 p-2 rounded">
+                        <strong>核心逻辑：</strong> 功率器件性能不仅靠设计，极大依赖沟槽工艺和背板减薄等特色制造技术。代表企业：Infineon, ST, 华润微。
+                    </p>
+                </div>
+
+                <!-- Fabless 模式 -->
+                <div class="bg-white rounded-2xl p-6 border-2 border-slate-200 hover:border-accent transition-colors hover-elevate">
+                    <h3 class="text-xl font-bold text-accent mb-4 flex justify-between items-center">
+                        <span>Fabless + Foundry 模式 (加速渗透)</span>
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">市占率 ~30%</span>
+                    </h3>
+                    <div class="flex items-stretch justify-between h-[180px] gap-2">
+                        <div class="w-1/3 bg-emerald-50 p-3 rounded border border-emerald-200 flex flex-col justify-center text-center">
+                            <span class="font-semibold text-sm text-accent">Fabless 设计公司</span>
+                            <span class="text-xs text-slate-500 mt-2">专注拓扑结构与客户化定制</span>
+                        </div>
+                        <div class="flex flex-col justify-center text-slate-400 font-bold">&#8644;</div>
+                        <div class="w-2/3 flex flex-col gap-2">
+                            <div class="flex-1 bg-slate-50 p-3 rounded border border-slate-200 flex items-center justify-center text-center">
+                                <span class="font-semibold text-sm text-slate-700">特色工艺代工厂 (如华虹)</span>
+                            </div>
+                            <div class="flex-1 bg-slate-50 p-3 rounded border border-slate-200 flex items-center justify-center text-center">
+                                <span class="font-semibold text-sm text-slate-700">OSAT 独立封测厂</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="mt-4 text-xs text-slate-500 bg-slate-50 p-2 rounded">
+                        <strong>核心逻辑：</strong> 代工厂标准化 IGBT/MOSFET 工艺平台，降低设计公司准入门槛，适合消费电子与部分工控市场。代表企业：斯达半导(演进中), 捷捷微电。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 2: 市场规模与驱动力 -->
+        <section id="market-size" class="scroll-mt-24">
+            <h2 class="text-3xl font-bold text-primary mb-3 flex items-center">
+                <span class="bg-secondary text-white w-8 h-8 rounded inline-flex items-center justify-center text-lg mr-3">2</span>
+                市场规模与核心驱动力 (TAM & Drivers)
+            </h2>
+            <div class="grid lg:grid-cols-5 gap-8 items-start mt-6">
+                <div class="lg:col-span-2 space-y-5">
+                    <p class="text-slate-600">
+                        全球功率半导体市场规模逼近 <strong class="text-primary text-xl">500亿美元</strong>。相较于数字逻辑芯片受消费电子周期影响剧烈，功率半导体的增长曲线更为稳健。
+                    </p>
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <h4 class="font-bold text-primary mb-3 border-b pb-2">三大超级驱动引擎：</h4>
+                        <ul class="space-y-4 text-sm text-slate-600">
+                            <li>
+                                <div class="flex items-center text-accent font-bold mb-1"><span class="mr-2">⚡</span> 新能源汽车 (EV)</div>
+                                从传统燃油车的$80飙升至EV的$400+。特别是800V高压快充平台的普及，直接引爆了 <strong class="text-warning">SiC MOSFET</strong> 的指数级需求。
+                            </li>
+                            <li>
+                                <div class="flex items-center text-emerald-600 font-bold mb-1"><span class="mr-2">☀️</span> 光伏与储能 (Renewables)</div>
+                                逆变器是光伏的核心，硅基 IGBT 需求量极其庞大。
+                            </li>
+                            <li>
+                                <div class="flex items-center text-secondary font-bold mb-1"><span class="mr-2">⚙️</span> 工业自动化与算力基础设施</div>
+                                AI服务器电源（高功率密度）正驱动 GaN（氮化镓）在中低压高频场景的爆发。
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- 图表容器 -->
+                <div class="lg:col-span-3 chart-container">
+                    <canvas id="marketChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 3: 竞争格局 -->
+        <section id="landscape" class="scroll-mt-24 bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+            <h2 class="text-3xl font-bold text-primary mb-6 flex items-center">
+                <span class="bg-secondary text-white w-8 h-8 rounded inline-flex items-center justify-center text-lg mr-3">3</span>
+                竞争格局：欧美日列强与国产突围
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-10 items-center">
+                <!-- 甜甜圈图 -->
+                <div class="chart-container !border-none !shadow-none !p-0">
+                    <canvas id="landscapeChart"></canvas>
+                    <p class="text-center text-xs text-slate-400 mt-2">全球功率分立器件及模块市占率估算</p>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="font-bold text-primary text-lg">存量格局：Infineon 称王</h4>
+                        <p class="text-sm text-slate-600 mt-2">
+                            英飞凌（Infineon）长期占据约20%的市场份额，在硅基IGBT和MOSFET领域具有统治力。安森美（ON Semi）和意法半导体（STMicro）紧随其后。欧美日企业合计占据全球超70%的份额。
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold text-primary text-lg border-t pt-4">增量切入点：国产替代的三级跳</h4>
+                        <div class="mt-3 space-y-3">
+                            <div class="flex items-start">
+                                <span class="bg-slate-100 text-slate-700 text-xs font-bold px-2 py-1 rounded mr-3 mt-0.5 whitespace-nowrap">第一阶</span>
+                                <p class="text-sm text-slate-600"><strong>二极管/低压MOS：</strong> 国产化率已较高，主打成本优势与消费级市场（如家电、手机快充）。</p>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="bg-blue-100 text-secondary text-xs font-bold px-2 py-1 rounded mr-3 mt-0.5 whitespace-nowrap">第二阶</span>
+                                <p class="text-sm text-slate-600"><strong>工业/车规级 IGBT：</strong> 借助中国新能源车产业链爆发，本土企业（时代电气、比亚迪半导、斯达）成功打入主流车企供应链，份额急剧攀升。</p>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="bg-warning/20 text-warning text-xs font-bold px-2 py-1 rounded mr-3 mt-0.5 whitespace-nowrap">第三阶</span>
+                                <p class="text-sm text-slate-600"><strong>碳化硅 (SiC)：</strong> 全球处于同一起跑线。中国企业正从最难的“衬底长晶”环节（如天岳先进）向上游突围。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 4: 商业模式与单元经济 -->
+        <section id="unit-econ" class="scroll-mt-24">
+            <h2 class="text-3xl font-bold text-primary mb-3 flex items-center">
+                <span class="bg-secondary text-white w-8 h-8 rounded inline-flex items-center justify-center text-lg mr-3">4</span>
+                单元经济与商业模型 (Unit Economics)
+            </h2>
+            <p class="text-slate-600 mb-6 max-w-4xl">
+                功率半导体的商业模型具有<strong class="text-primary">长生命周期（Long LTV）</strong>和<strong class="text-primary">高客户获取成本（高 CAC，因需车规认证）</strong>的特点。在利润拆解上，传统的硅(Si)器件与新兴的碳化硅(SiC)器件存在天壤之别。
+            </p>
+
+            <div class="grid lg:grid-cols-2 gap-8 items-center">
+                <!-- 成本拆解水平堆叠图 -->
+                <div class="chart-container">
+                    <canvas id="unitEconChart"></canvas>
+                    <p class="text-center text-xs text-slate-400 mt-2">单片晶圆成本构成结构对比 (Si vs SiC)</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="bg-white p-4 rounded-lg border border-slate-200">
+                        <div class="flex justify-between items-center mb-1">
+                            <h4 class="font-bold text-primary text-sm">收入模型与毛利结构</h4>
+                        </div>
+                        <p class="text-sm text-slate-600">标准品（如二极管）毛利约 15-25%，拼规模效应；高端定制化车规级模块（如高功率 IGBT 模块）毛利可达 35-50%。</p>
+                    </div>
+                    
+                    <div class="bg-amber-50 p-4 rounded-lg border border-amber-200">
+                        <div class="flex justify-between items-center mb-1">
+                            <h4 class="font-bold text-warning text-sm">SiC 的“材料即成本”困境</h4>
+                        </div>
+                        <p class="text-sm text-slate-600">在硅基器件中，晶圆制造（Fab）占据核心成本。但<strong class="text-primary">在 SiC 中，仅仅是一片长晶切片出来的空白衬底，就占了总成本的近 50%。</strong>这是因为 SiC 晶体生长极慢（几天仅长几厘米）且硬度极高（切割损耗大）。谁控制了高良率的 SiC 衬底，谁就掌握了定价权。</p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-lg border border-slate-200">
+                        <div class="flex justify-between items-center mb-1">
+                            <h4 class="font-bold text-primary text-sm">客户粘性 (LTV)</h4>
+                        </div>
+                        <p class="text-sm text-slate-600">车企在选定一款功率模块后，底盘电控系统的软硬件均围绕其设计（Design-in）。切换供应商成本极高，产品生命周期长达 5-10 年，形成极强的现金流护城河。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 5: 技术/准入门槛 -->
+        <section id="barriers" class="scroll-mt-24">
+            <h2 class="text-3xl font-bold text-primary mb-6 flex items-center">
+                <span class="bg-secondary text-white w-8 h-8 rounded inline-flex items-center justify-center text-lg mr-3">5</span>
+                核心护城河：材料、结构与认证
+            </h2>
+
+            <div class="flex flex-col md:flex-row gap-6">
+                <!-- 左侧：Tabs 导航 -->
+                <div class="md:w-1/3 flex flex-col space-y-2">
+                    <button class="tab-btn active text-left px-5 py-4 rounded-lg text-slate-600 hover:bg-slate-50 border border-transparent" onclick="switchTab('moat-1', this)">
+                        <span class="block font-bold text-primary mb-1">器件拓扑与沟槽工艺</span>
+                        <span class="text-xs">平面 vs 沟槽结构的专利墙</span>
+                    </button>
+                    <button class="tab-btn text-left px-5 py-4 rounded-lg text-slate-600 hover:bg-slate-50 border border-transparent" onclick="switchTab('moat-2', this)">
+                        <span class="block font-bold text-primary mb-1">先进封装散热技术</span>
+                        <span class="text-xs">模块级的热管理玄学</span>
+                    </button>
+                    <button class="tab-btn text-left px-5 py-4 rounded-lg text-slate-600 hover:bg-slate-50 border border-transparent" onclick="switchTab('moat-3', this)">
+                        <span class="block font-bold text-primary mb-1">车规级认证网络</span>
+                        <span class="text-xs">AEC-Q101 与上车门槛</span>
+                    </button>
+                </div>
+
+                <!-- 右侧：Tabs 内容区 -->
+                <div class="md:w-2/3 bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-[250px] relative">
+                    <!-- Tab 1 -->
+                    <div id="moat-1" class="tab-content block animate-fade-in">
+                        <div class="w-10 h-10 rounded bg-blue-100 flex items-center justify-center text-secondary mb-4 font-bold text-xl"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg></div>
+                        <h3 class="text-xl font-bold text-primary mb-3">元器件设计：从平面到深沟槽</h3>
+                        <p class="text-slate-600 leading-relaxed text-sm">
+                            功率器件为了降低导通电阻（Rds(on)）和开关损耗，结构不断演进。英飞凌等巨头通过复杂的 <strong>Trench（沟槽栅）结构</strong> 专利锁死了高端市场。在SiC领域，由于晶体各向异性，刻蚀沟槽极难做到平滑，导致良率极低。谁能率先稳定量产非对称沟槽SiC MOSFET，谁就能确立代差优势。
+                        </p>
+                    </div>
+                    <!-- Tab 2 -->
+                    <div id="moat-2" class="tab-content hidden animate-fade-in">
+                        <div class="w-10 h-10 rounded bg-emerald-100 flex items-center justify-center text-accent mb-4 font-bold text-xl"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg></div>
+                        <h3 class="text-xl font-bold text-primary mb-3">模块化封装：热管理的艺术</h3>
+                        <p class="text-slate-600 leading-relaxed text-sm">
+                            芯片再好，如果热量散不出去也会烧毁。先进制程如 <strong>双面银烧结（Silver Sintering）</strong>、直接水冷散热基板（Pin-Fin）等封装技术，是决定最终功率模块输出电流能力的关键。封装环节的 Know-how 和材料科学壁垒，往往被轻视，实则是大厂拉开差距的核心环节。
+                        </p>
+                    </div>
+                    <!-- Tab 3 -->
+                    <div id="moat-3" class="tab-content hidden animate-fade-in">
+                        <div class="w-10 h-10 rounded bg-amber-100 flex items-center justify-center text-warning mb-4 font-bold text-xl"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
+                        <h3 class="text-xl font-bold text-primary mb-3">车规认证系统：时间与生态的护城河</h3>
+                        <p class="text-slate-600 leading-relaxed text-sm">
+                            打入汽车供应链需要通过严苛的 <strong>AEC-Q101</strong> 可靠性标准（如几千小时的高温高湿反偏测试），以及 <strong>IATF 16949</strong> 质量管理体系认证。从产品定型、送样打件、上车路测到最终量产（SOP），周期通常长达 <strong class="text-primary">2-3年</strong>。这构筑了极高的时间壁垒和先发网络效应。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 6: 资本市场表现 -->
+        <section id="capital" class="scroll-mt-24">
+            <h2 class="text-3xl font-bold text-primary mb-3 flex items-center">
+                <span class="bg-secondary text-white w-8 h-8 rounded inline-flex items-center justify-center text-lg mr-3">6</span>
+                资本市场：产能竞赛与第三代半导体溢价
+            </h2>
+            <div class="grid lg:grid-cols-2 gap-8 items-start mt-6">
+                <!-- 气泡图 -->
+                <div class="chart-container">
+                    <canvas id="capitalChart"></canvas>
+                </div>
+                
+                <div class="space-y-6">
+                    <p class="text-slate-600">
+                        功率半导体属于重资产（CapEx-heavy）行业，资本市场估值逻辑高度分化。
+                    </p>
+                    
+                    <div class="border-l-4 border-slate-300 pl-4 py-1">
+                        <h4 class="font-bold text-primary text-sm">硅基成熟市场：周期与现金流定价</h4>
+                        <p class="text-sm text-slate-600 mt-2">
+                            对于传统的硅基分立器件企业，市场按典型的制造业估值（PE约 15-25x），主要跟踪宏观经济周期与产能利用率。通过规模效应降低成本是唯一的制胜之道。
+                        </p>
+                    </div>
+
+                    <div class="border-l-4 border-warning pl-4 py-1">
+                        <h4 class="font-bold text-primary text-sm">SiC/GaN 第三代半导体：成长股溢价</h4>
+                        <p class="text-sm text-slate-600 mt-2">
+                            涉足 碳化硅衬底、外延及车规级模块的企业，在一二级市场享有极高的科技股估值溢价（PE常超 60x，甚至按 PS 估值）。资本押注的是其在新能源车主驱逆变器中的“颠覆性替代”预期。
+                        </p>
+                    </div>
+                    
+                    <div class="border-l-4 border-secondary pl-4 py-1">
+                        <h4 class="font-bold text-primary text-sm">并购逻辑 (M&A) 活跃</h4>
+                        <p class="text-sm text-slate-600 mt-2">
+                            巨头为补齐短板或获取产能，M&A极其频繁。如 Infineon 收购 Cypress 及 Wolfspeed的RF部门，Renesas 收购 Wolfspeed 十年长单以绑定衬底产能。未来，掌握关键上游材料节点将成为核心并购标的。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-primary text-slate-400 py-10 text-center text-sm border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4">
+            <p class="font-semibold text-slate-300 mb-2">PowerSemi Analytics © 2026. Interactive Insight Report.</p>
+            <p class="text-xs max-w-2xl mx-auto opacity-70">
+                本报告内容及图表数据为基于行业研究模型的示意性交互展示，非实际投资建议。主要用于演示复杂信息的单页架构(SPA)呈现方案。
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript 交互与图表逻辑 -->
+    <script>
+        // Chart.js 全局默认配置
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#64748b'; // slate-500
+        Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(15, 23, 42, 0.9)'; // primary color
+        Chart.defaults.plugins.tooltip.titleFont = { size: 13, weight: 'bold' };
+        Chart.defaults.plugins.tooltip.padding = 10;
+        Chart.defaults.plugins.tooltip.cornerRadius = 6;
+        Chart.defaults.responsive = true;
+        Chart.defaults.maintainAspectRatio = false; // 必须为 false 以适应容器
+
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // --- Chart 1: Market Size (Mixed Bar/Line) ---
+            const ctxMarket = document.getElementById('marketChart').getContext('2d');
+            new Chart(ctxMarket, {
+                type: 'bar',
+                data: {
+                    labels: ['2022', '2023', '2024E', '2025E', '2026E', '2028E'],
+                    datasets: [
+                        {
+                            type: 'line',
+                            label: 'SiC 在功率市场渗透率 (%)',
+                            data: [3.5, 5.2, 8.0, 12.5, 18.0, 25.0],
+                            borderColor: '#f59e0b', // warning (amber)
+                            backgroundColor: '#f59e0b',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            yAxisID: 'y1',
+                            pointBackgroundColor: 'white',
+                            pointBorderWidth: 2,
+                            pointRadius: 4
+                        },
+                        {
+                            type: 'bar',
+                            label: '全球功率半导体市场规模 ($B)',
+                            data: [42, 44.5, 47, 51, 55, 62],
+                            backgroundColor: 'rgba(29, 78, 216, 0.7)', // secondary (blue)
+                            borderRadius: 4,
+                            yAxisID: 'y'
+                        }
+                    ]
+                },
+                options: {
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        y: {
+                            type: 'linear', display: true, position: 'left',
+                            title: { display: true, text: '市场规模 ($B)' },
+                            grid: { borderDash: [4, 4], color: '#f1f5f9' },
+                            min: 30
+                        },
+                        y1: {
+                            type: 'linear', display: true, position: 'right',
+                            title: { display: true, text: 'SiC 渗透率 (%)' },
+                            grid: { drawOnChartArea: false },
+                            min: 0, max: 35
+                        },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8 } }
+                    }
+                }
+            });
+
+            // --- Chart 2: Landscape (Doughnut) ---
+            const ctxLandscape = document.getElementById('landscapeChart').getContext('2d');
+            new Chart(ctxLandscape, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Infineon (德)', 'ON Semi (美)', 'STMicro (意/法)', 'Mitsubishi (日)', '国产替代 (中)', '其他'],
+                    datasets: [{
+                        data: [21, 9, 8, 7, 15, 40],
+                        backgroundColor: [
+                            '#1d4ed8', // secondary
+                            '#0f172a', // primary
+                            '#10b981', // accent
+                            '#64748b', // slate
+                            '#f59e0b', // warning
+                            '#e2e8f0'  // light slate
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    cutout: '65%',
+                    plugins: {
+                        legend: { 
+                            position: 'right',
+                            labels: { boxWidth: 12, font: { size: 11 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) { return ` ${context.label}: ${context.parsed}%`; }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // --- Chart 3: Unit Economics (Horizontal Stacked Bar) ---
+            const ctxUnitEcon = document.getElementById('unitEconChart').getContext('2d');
+            new Chart(ctxUnitEcon, {
+                type: 'bar',
+                data: {
+                    labels: ['硅基晶圆 (Si)', '碳化硅晶圆 (SiC)'],
+                    datasets: [
+                        { label: '衬底 (Substrate)', data: [10, 45], backgroundColor: '#f59e0b' }, // warning
+                        { label: '外延生长 (Epi)', data: [10, 25], backgroundColor: '#10b981' }, // accent
+                        { label: '晶圆制造 (Fab)', data: [60, 20], backgroundColor: '#1d4ed8' }, // secondary
+                        { label: '封测及其他 (Back-end)', data: [20, 10], backgroundColor: '#94a3b8' }  // slate
+                    ]
+                },
+                options: {
+                    indexAxis: 'y', // 水平图
+                    scales: {
+                        x: { 
+                            stacked: true, 
+                            title: { display: true, text: '成本结构占比 (%)' },
+                            max: 100 
+                        },
+                        y: { stacked: true, grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 11} } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) { return ` ${context.dataset.label}: ${context.parsed.x}%`; }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // --- Chart 4: Capital Markets (Bubble Chart) ---
+            const ctxCapital = document.getElementById('capitalChart').getContext('2d');
+            new Chart(ctxCapital, {
+                type: 'bubble',
+                data: {
+                    datasets: [
+                        {
+                            label: '纯正 SiC 材料/器件先锋',
+                            data: [
+                                { x: 8, y: 80, r: 15 }, // 高SiC浓度，高估值，体量较小
+                                { x: 15, y: 65, r: 20 }
+                            ],
+                            backgroundColor: 'rgba(245, 158, 11, 0.6)', // amber
+                            borderColor: '#f59e0b'
+                        },
+                        {
+                            label: '传统硅基转轨的 IDM 巨头',
+                            data: [
+                                { x: 85, y: 25, r: 35 }, // 高收入体量，较低PE，技术适中
+                                { x: 60, y: 30, r: 25 }
+                            ],
+                            backgroundColor: 'rgba(29, 78, 216, 0.6)', // blue
+                            borderColor: '#1d4ed8'
+                        },
+                        {
+                            label: '国产替代主导车规厂',
+                            data: [
+                                { x: 30, y: 55, r: 20 }
+                            ],
+                            backgroundColor: 'rgba(16, 185, 129, 0.6)', // emerald
+                            borderColor: '#10b981'
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: { display: true, text: '营业收入体量规模 (相对值)' },
+                            min: 0,
+                            grid: { display: false }
+                        },
+                        y: {
+                            title: { display: true, text: '市盈率 (PE Valuation)' },
+                            min: 10,
+                            grid: { borderDash: [4, 4], color: '#f1f5f9' }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'top', labels: { boxWidth: 10 } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.dataset.label}: PE ${context.parsed.y}x, 体量 ${context.parsed.x}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+        // --- Tabs 交互逻辑 (Vanilla JS) ---
+        window.switchTab = function(tabId, element) {
+            // 隐藏所有 tab-content
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => {
+                content.classList.add('hidden');
+                content.classList.remove('block');
+            });
+            
+            // 移除所有 tab-btn 的 active 状态
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('border-transparent');
+            });
+            
+            // 显示选中的 content 并激活按钮
+            document.getElementById(tabId).classList.remove('hidden');
+            document.getElementById(tabId).classList.add('block');
+            element.classList.add('active');
+            element.classList.remove('border-transparent');
+        };
+    </script>
+</body>
+</html>

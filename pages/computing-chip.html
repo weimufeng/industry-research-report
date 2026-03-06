@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 算力芯片行业深度研究报告 | 全景交互图谱</title>
+    
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 引入 Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Tailwind 配置与自定义颜色 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e1b4b',    // Indigo 900 (深邃科技蓝)
+                        secondary: '#4f46e5',  // Indigo 600 (核心品牌色)
+                        accent: '#06b6d4',     // Cyan 500 (未来感青色)
+                        accent_light: '#cffafe', // Cyan 100
+                        success: '#10b981',    // Emerald 500
+                        warning: '#f59e0b',    // Amber 500
+                        background: '#f8fafc', // Slate 50 (浅色背景底)
+                        surface: '#ffffff',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* <!-- Chosen Palette: Indigo (Deep Tech) & Cyan (AI/Future) on Light Slate Background -->
+        <!-- Application Structure Plan: 
+            The SPA operates as an immersive, continuous-scroll analytical dashboard.
+            - Sticky Nav: Enables quick jumps across the 6 core analytical modules.
+            - Hero: Sets the macro thesis (AI chips as the engines of the AGI era).
+            - Section 1 (Value Chain): Responsive CSS Grid visualizing the ecosystem (IP -> Design -> Foundry -> Packaging -> Cloud Users), emphasizing profit capture points.
+            - Section 2 (Market Size): Mixed Chart (Bar + Line) showing absolute hardware TAM vs the exponential growth of GenAI penetration.
+            - Section 3 (Landscape): Doughnut chart mapping the extreme oligopoly (Nvidia/AMD) alongside text cards evaluating ASIC and domestic (Huawei/Ascend) challengers.
+            - Section 4 (Unit Economics): Horizontal Stacked Bar breaking down the BOM (Silicon, HBM, CoWoS) vs MSRP of a flagship AI GPU, revealing the ~80% gross margin.
+            - Section 5 (Barriers): Interactive tabs dissecting the "impossible triangle" moat: CUDA software lock-in, advanced packaging capacity, and interconnect bandwidth (NVLink).
+            - Section 6 (Capital): Bubble chart mapping Valuation Multiples vs Inference/Training capability, differentiating public giants from private domestic startups.
+        -->
+        <!-- Visualization & Content Choices: 
+            1. Value Chain -> Goal: Organize/Hierarchy -> Method: Tailwind Grid Cards with Unicode arrows. Justification: Clear upstream-downstream flow without relying on SVG.
+            2. Market Size -> Goal: Trend -> Method: Chart.js Bar + Line. Justification: Dual axes capture both total revenue scale and the speed of GenAI structural shift.
+            3. Landscape -> Goal: Compare -> Method: Chart.js Doughnut. Justification: Visually reinforces Nvidia's overwhelming market share in training.
+            4. Unit Economics -> Goal: Breakdown -> Method: Chart.js Horizontal Stacked Bar. Justification: Intuitively demonstrates how much of the selling price is sheer margin vs hardware cost.
+            5. Barriers -> Goal: Organize text/Inform -> Method: Vanilla JS Tabs. Justification: Prevents text fatigue while allowing deep-dives into dense engineering moats.
+            6. Capital -> Goal: Relationships -> Method: Chart.js Bubble. Justification: Correlates technological node (X), valuation (Y), and capital raised (Size).
+        -->
+        <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+        */
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Light background strictly enforced */
+            color: #1e293b;
+        }
+
+        /* 强制约束的图表容器 (CRITICAL REQUIREMENT) */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 40vh; /* 响应式高度 */
+            min-height: 320px;
+            max-height: 450px;
+            background: #ffffff;
+            padding: 1.25rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid #e2e8f0;
+        }
+
+        /* 移动端图表高度适配 */
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 35vh;
+                min-height: 280px;
+                padding: 1rem;
+            }
+        }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 交互式 Tab 样式 */
+        .tab-btn { transition: all 0.2s ease-in-out; }
+        .tab-btn.active {
+            border-left: 4px solid #06b6d4; /* Accent Cyan */
+            background-color: #f1f5f9;
+            color: #1e1b4b; /* Primary Indigo */
+            font-weight: 600;
+        }
+
+        /* 卡片悬浮反馈 */
+        .hover-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .hover-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-accent_light selection:text-primary">
+
+    <!-- 顶部导航栏 -->
+    <nav class="fixed top-0 w-full bg-white/90 backdrop-blur-md border-b border-slate-200 z-50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center space-x-2">
+                    <div class="w-6 h-6 rounded bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-white font-black text-xs">AI</div>
+                    <span class="text-xl font-bold text-primary tracking-tight">Compute<span class="text-accent">Core</span></span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6 text-sm font-medium text-slate-500">
+                    <a href="#value-chain" class="hover:text-secondary transition-colors">价值链</a>
+                    <a href="#market-size" class="hover:text-secondary transition-colors">市场与驱动</a>
+                    <a href="#landscape" class="hover:text-secondary transition-colors">竞争格局</a>
+                    <a href="#unit-econ" class="hover:text-secondary transition-colors">单元经济</a>
+                    <a href="#barriers" class="hover:text-secondary transition-colors">技术护城河</a>
+                    <a href="#capital" class="hover:text-secondary transition-colors">资本市场</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主体内容 -->
+    <main class="pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-24">
+
+        <!-- Hero Section -->
+        <header class="text-center space-y-6 max-w-4xl mx-auto animate-fade-in">
+            <div class="inline-flex items-center px-3 py-1.5 rounded-full bg-accent_light text-secondary text-xs font-bold tracking-widest uppercase mb-2 border border-cyan-200">
+                Semiconductor / Artificial Intelligence
+            </div>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-primary tracking-tight leading-tight">
+                大模型算力芯片：<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-accent">AGI 时代的“数字印钞机”与霸权基石</span>
+            </h1>
+            <p class="text-lg text-slate-600 leading-relaxed mt-6">
+                Scaling Laws（缩放定律）正在重塑全球算力基础设施。从千亿参数的LLM训练到多模态海量推理，算力芯片（GPU/ASIC）不仅是半导体皇冠上的明珠，更是大国博弈的战略高地。本报告深入解构其近乎极端的寡头利润模型与技术壁垒。
+            </p>
+        </header>
+
+        <!-- 模块 1: 行业地图与价值链 -->
+        <section id="value-chain" class="scroll-mt-24">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-primary mb-3 flex items-center">
+                    <span class="bg-primary text-white w-8 h-8 rounded inline-flex items-center justify-center text-lg mr-3">1</span>
+                    行业地图与价值链 (Value Chain)
+                </h2>
+                <p class="text-slate-600 leading-relaxed max-w-4xl">
+                    算力芯片是一场高度分工却又被极少数巨头抽干利润的游戏。这是一条<strong class="text-secondary">“Fabless (无晶圆厂设计) + Foundry (代工) + 先进封装”</strong>的铁三角生态链。芯片设计巨头拿走了全产业链超过 70% 的利润池。
+                </p>
+            </div>
+
+            <!-- CSS Grid 价值链流转 -->
+            <div class="bg-white rounded-2xl p-6 md:p-8 border border-slate-200 shadow-sm relative overflow-hidden">
+                <div class="grid lg:grid-cols-4 gap-6 relative z-10 text-center items-stretch">
+                    
+                    <!-- 环节 1 -->
+                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl flex flex-col hover-card">
+                        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">上游基建</div>
+                        <h3 class="font-bold text-primary mb-2">IP 与 EDA 工具</h3>
+                        <p class="text-xs text-slate-600 flex-grow">提供芯片底层架构指令集与设计软件。处于“卖水人”的最上游。</p>
+                        <div class="mt-3 text-xs bg-white py-1 px-2 border border-slate-100 rounded text-slate-500">
+                            <strong>代表:</strong> ARM, Synopsys, 芯原股份
+                        </div>
+                    </div>
+
+                    <!-- 环节 2 (利润核心) -->
+                    <div class="bg-indigo-50 border-2 border-secondary p-4 rounded-xl flex flex-col transform lg:scale-105 shadow-md">
+                        <div class="text-xs font-bold text-secondary uppercase tracking-wider mb-2">核心中枢 (最高毛利)</div>
+                        <h3 class="font-bold text-primary mb-2 text-lg">AI 芯片设计 (GPU/ASIC)</h3>
+                        <p class="text-xs text-slate-600 flex-grow">负责微架构设计、软件栈(CUDA)生态构建与互联标准制定。赚取超额溢价。</p>
+                        <div class="mt-3 text-xs bg-white py-1 px-2 border border-indigo-100 rounded text-secondary font-semibold">
+                            <strong>代表:</strong> Nvidia, AMD, 华为昇腾
+                        </div>
+                    </div>
+
+                    <!-- 环节 3 -->
+                    <div class="bg-cyan-50 border border-cyan-200 p-4 rounded-xl flex flex-col hover-card">
+                        <div class="text-xs font-bold text-accent uppercase tracking-wider mb-2">制造与先进封装</div>
+                        <h3 class="font-bold text-primary mb-2">Foundry & CoWoS / HBM</h3>
+                        <p class="text-xs text-slate-600 flex-grow">算力芯片的物理瓶颈。2.5D/3D封装和高带宽内存产能决定了全球算力的供给上限。</p>
+                        <div class="mt-3 text-xs bg-white py-1 px-2 border border-cyan-100 rounded text-slate-600">
+                            <strong>代表:</strong> 台积电 (TSMC), SK Hynix
+                        </div>
+                    </div>
+
+                    <!-- 环节 4 -->
+                    <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl flex flex-col hover-card">
+                        <div class="text-xs font-bold text-success uppercase tracking-wider mb-2">终端买单方</div>
+                        <h3 class="font-bold text-primary mb-2">云厂商 (CSP) 与智算中心</h3>
+                        <p class="text-xs text-slate-600 flex-grow">吞噬全球 80% 的高阶算力芯片，用于训练万亿参数模型及云端推理。</p>
+                        <div class="mt-3 text-xs bg-white py-1 px-2 border border-emerald-100 rounded text-slate-600">
+                            <strong>代表:</strong> 微软, AWS, 字节跳动
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 引导箭头 (仅在桌面端显示水平) -->
+                <div class="hidden lg:flex absolute top-1/2 left-0 w-full justify-between px-[22%] pointer-events-none z-0 text-slate-300 text-3xl font-light transform -translate-y-1/2">
+                    <div>&#10142;</div>
+                    <div>&#10142;</div>
+                    <div>&#10142;</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 2: 市场规模与驱动力 -->
+        <section id="market-size" class="scroll-mt-24">
+            <h2 class="text-3xl font-bold text-primary mb-4 flex items-center">
+                <span class="bg-primary text-white w-8 h-8 rounded inline-flex items-center justify-center text-lg mr-3">2</span>
+                市场规模与增长引擎 (TAM/SAM/SOM)
+            </h2>
+            <div class="grid lg:grid-cols-5 gap-10 items-center">
+                <div class="lg:col-span-2 space-y-6">
+                    <p class="text-slate-600">
+                        得益于生成式AI的爆发，数据中心加速计算市场正经历前所未有的扩张，TAM 从百亿美元迅速突破 <strong class="text-secondary text-xl font-bold">1500亿美元</strong> 大关。
+                    </p>
+                    <div class="space-y-4">
+                        <div class="p-4 rounded-lg bg-white border border-slate-200 border-l-4 border-secondary shadow-sm">
+                            <h4 class="font-bold text-primary text-sm">1. Scaling Laws (模型缩放定律)</h4>
+                            <p class="text-sm text-slate-600 mt-1">从 GPT-3 到 GPT-5 级别模型，训练算力需求呈指数级跃升（10x - 100x）。算力即智能的共识驱使巨头不计成本囤积 GPU 集群。</p>
+                        </div>
+                        <div class="p-4 rounded-lg bg-white border border-slate-200 border-l-4 border-accent shadow-sm">
+                            <h4 class="font-bold text-primary text-sm">2. 推理需求的大爆发 (Inference)</h4>
+                            <p class="text-sm text-slate-600 mt-1">随着AI应用（Copilot, 自动驾驶端到端模型）落地，推理算力在整体市场中的占比正从 20% 快速攀升至 60% 以上，推动计算芯片架构多样化。</p>
+                        </div>
+                        <div class="p-4 rounded-lg bg-white border border-slate-200 border-l-4 border-warning shadow-sm">
+                            <h4 class="font-bold text-primary text-sm">3. 主权 AI 与国产替代</h4>
+                            <p class="text-sm text-slate-600 mt-1">地缘政治导致高端算力脱钩。中国市场（SAM）被迫转向内循环，为本土算力芯片（如华为昇腾、海光）让出了数百亿人民币的真实订单 (SOM)。</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- 图表容器 -->
+                <div class="lg:col-span-3 chart-container">
+                    <canvas id="marketChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 3: 竞争格局 -->
+        <section id="landscape" class="scroll-mt-24 bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+            <h2 class="text-3xl font-bold text-primary mb-6 flex items-center">
+                <span class="bg-primary text-white w-8 h-8 rounded inline-flex items-center justify-center text-lg mr-3">3</span>
+                竞争格局：NVIDIA 的铁幕与叛军
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-10 items-center">
+                <!-- 甜甜圈图 -->
+                <div class="chart-container !border-none !shadow-none !p-0">
+                    <canvas id="landscapeChart"></canvas>
+                    <p class="text-center text-xs text-slate-400 mt-2">数据中心 AI 加速芯片全球市场份额估算</p>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="font-bold text-primary text-lg flex items-center"><span class="text-secondary mr-2">&#9632;</span>绝对统治者：NVIDIA</h4>
+                        <p class="text-sm text-slate-600 mt-2">
+                            在千亿参数大模型“训练(Training)”环节，英伟达市占率超 90%。其护城河不仅是硬件算力，更是基于 <strong>CUDA 软件生态</strong> 和 <strong>NVLink 互联网络</strong> 形成的系统级垄断。
+                        </p>
+                    </div>
+                    
+                    <div class="border-t border-slate-100 pt-4">
+                        <h4 class="font-bold text-primary text-lg mb-3">挑战者联盟的切入点</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-start">
+                                <span class="bg-slate-100 text-slate-700 text-xs font-bold px-2 py-1 rounded mr-3 mt-0.5 whitespace-nowrap">AMD</span>
+                                <p class="text-sm text-slate-600">凭借 MI300/400 系列硬件堆料（更大的内存带宽），主攻开源模型与对价格敏感的云厂商推理市场，打破单极格局。</p>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="bg-cyan-50 text-accent text-xs font-bold px-2 py-1 rounded mr-3 mt-0.5 whitespace-nowrap">云厂 ASIC</span>
+                                <p class="text-sm text-slate-600">Google TPU、AWS Trainium 等。CSP 为摆脱对英伟达的“英伟达税”，自研专有芯片处理内部流量，这部分“暗算力”增速极快。</p>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="bg-warning/20 text-warning text-xs font-bold px-2 py-1 rounded mr-3 mt-0.5 whitespace-nowrap">国产替代</span>
+                                <p class="text-sm text-slate-600"><strong>华为昇腾 (Ascend)</strong> 是国内唯一具备万卡集群实战能力的体系。其他初创公司（壁仞、摩尔线程等）在受限的代工节点下，艰难转向推理端及端侧AI求生。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 4: 商业模式与单元经济 -->
+        <section id="unit-econ" class="scroll-mt-24">
+            <h2 class="text-3xl font-bold text-primary mb-3 flex items-center">
+                <span class="bg-primary text-white w-8 h-8 rounded inline-flex items-center justify-center text-lg mr-3">4</span>
+                单元经济：硬件中的软件印钞机 (Unit Economics)
+            </h2>
+            <p class="text-slate-600 mb-6 max-w-4xl">
+                高端 AI GPU 的商业模式本质是<strong>“以硬件形式售卖的底层操作系统”</strong>。其毛利率达到了令人发指的硬件巅峰（75%-85%），这是因为客户购买的不是硅片，而是通过 CUDA 运行先进模型的通行证。
+            </p>
+
+            <div class="grid lg:grid-cols-2 gap-8 items-center">
+                <!-- 成本拆解水平堆叠图 -->
+                <div class="chart-container">
+                    <canvas id="unitEconChart"></canvas>
+                    <p class="text-center text-xs text-slate-400 mt-2">旗舰 AI GPU (以 H100 级别为例) 单卡 MSRP 价值拆解</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="bg-white p-4 rounded-lg border border-slate-200">
+                        <div class="flex justify-between items-center mb-1">
+                            <h4 class="font-bold text-primary text-sm">BOM 成本解构 (硬件底座)</h4>
+                        </div>
+                        <p class="text-sm text-slate-600">硬件制造成本仅占售价的 ~15%。其中，最昂贵的不是逻辑核心芯片，而是 <strong>HBM（高带宽内存）</strong> 和 <strong>TSMC CoWoS 先进封装</strong>的费用。这导致了严重的供应链掣肘。</p>
+                    </div>
+
+                    <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+                        <div class="flex justify-between items-center mb-1">
+                            <h4 class="font-bold text-secondary text-sm">超额毛利 (Gross Margin)</h4>
+                            <span class="text-secondary font-black">~80%</span>
+                        </div>
+                        <p class="text-sm text-slate-600">极高的毛利来源于系统级垄断（生态溢价）。云厂商愿意支付 3 万美元以上的单卡价格，因为它是目前唯一能高效运转大规模 Transformer 模型的方案。</p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-lg border border-slate-200">
+                        <div class="flex justify-between items-center mb-1">
+                            <h4 class="font-bold text-primary text-sm">获客与留存 (CAC & LTV)</h4>
+                        </div>
+                        <p class="text-sm text-slate-600">前期投入数百亿美元研发 CUDA 及库函数。一旦开发者习惯了该平台，代码迁移成本极高。生命周期价值（LTV）极大，客户甚至需要预付款排队“抢购”产能。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 5: 技术/准入门槛 -->
+        <section id="barriers" class="scroll-mt-24">
+            <h2 class="text-3xl font-bold text-primary mb-6 flex items-center">
+                <span class="bg-primary text-white w-8 h-8 rounded inline-flex items-center justify-center text-lg mr-3">5</span>
+                技术准入门槛：算力霸权的“不可能三角”
+            </h2>
+
+            <div class="flex flex-col md:flex-row gap-6">
+                <!-- 左侧：Tabs 导航 -->
+                <div class="md:w-1/3 flex flex-col space-y-2">
+                    <button class="tab-btn active text-left px-5 py-4 rounded-lg text-slate-600 hover:bg-slate-50 border border-transparent" onclick="switchTab('moat-cuda', this)">
+                        <span class="block font-bold text-primary mb-1">1. 软件生态壁垒 (CUDA)</span>
+                        <span class="text-xs">逾 400 万开发者的惯性</span>
+                    </button>
+                    <button class="tab-btn text-left px-5 py-4 rounded-lg text-slate-600 hover:bg-slate-50 border border-transparent" onclick="switchTab('moat-pack', this)">
+                        <span class="block font-bold text-primary mb-1">2. 内存墙与先进封装</span>
+                        <span class="text-xs">HBM3e 与 CoWoS 产能锁定</span>
+                    </button>
+                    <button class="tab-btn text-left px-5 py-4 rounded-lg text-slate-600 hover:bg-slate-50 border border-transparent" onclick="switchTab('moat-link', this)">
+                        <span class="block font-bold text-primary mb-1">3. 超级集群互联网络</span>
+                        <span class="text-xs">NVLink 与 InfiniBand</span>
+                    </button>
+                </div>
+
+                <!-- 右侧：Tabs 内容区 -->
+                <div class="md:w-2/3 bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-[250px] relative">
+                    <!-- Tab 1 -->
+                    <div id="moat-cuda" class="tab-content block animate-fade-in">
+                        <div class="w-10 h-10 rounded bg-indigo-100 flex items-center justify-center text-secondary mb-4 font-bold text-xl">{'{}'}</div>
+                        <h3 class="text-xl font-bold text-primary mb-3">CUDA 软件黑洞</h3>
+                        <p class="text-slate-600 leading-relaxed text-sm">
+                            硬件参数（TFLOPS）的超越是容易的，但底层软件库的差距是绝望的。经过近20年的积累，PyTorch/TensorFlow 等顶级 AI 框架都在针对 CUDA 算子进行极致优化。国内芯片初创公司即使造出了算力媲美 A100 的芯片，也往往因为“算子不支持”、“编译报错”、“跑模型效率减半”而无法落地。
+                        </p>
+                        <div class="mt-4 text-xs font-semibold text-accent flex items-center">
+                            <span class="mr-2">&#10148;</span> 破局希望：Triton 等开源编译器的成熟，试图抹平底层硬件的差异。
+                        </div>
+                    </div>
+                    <!-- Tab 2 -->
+                    <div id="moat-pack" class="tab-content hidden animate-fade-in">
+                        <div class="w-10 h-10 rounded bg-cyan-100 flex items-center justify-center text-accent mb-4 font-bold text-xl">&#9635;</div>
+                        <h3 class="text-xl font-bold text-primary mb-3">被锁死的物理上限：HBM + CoWoS</h3>
+                        <p class="text-slate-600 leading-relaxed text-sm">
+                            大模型训练的瓶颈不在计算，而在“数据传输”（内存墙）。必须将高带宽内存（HBM）与 GPU 核心通过硅中介层极度紧密地封装在一起（即台积电的 CoWoS 技术）。目前全球 <strong>CoWoS 产能和高性能 HBM 份额被少数巨头（Nvidia/AMD）买断</strong>。初创公司即使有设计图纸，也排不到流片和封装的产线。
+                        </p>
+                    </div>
+                    <!-- Tab 3 -->
+                    <div id="moat-link" class="tab-content hidden animate-fade-in">
+                        <div class="w-10 h-10 rounded bg-emerald-100 flex items-center justify-center text-success mb-4 font-bold text-xl">&#8644;</div>
+                        <h3 class="text-xl font-bold text-primary mb-3">单卡时代落幕，万卡集群称王</h3>
+                        <p class="text-slate-600 leading-relaxed text-sm">
+                            训练大模型需要动辄 10,000 张甚至 100,000 张 GPU 并行工作。如果卡与卡之间的数据传输出现毫秒级延迟，整个集群的算力就会暴跌。英伟达独家的 <strong>NVLink 技术（带宽超 900 GB/s）</strong> 结合 InfiniBand 网络，解决了这一痛点。算力芯片的竞争，已经从“单点芯片设计”升维成了“数据中心级系统工程”竞赛。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 6: 资本市场表现 -->
+        <section id="capital" class="scroll-mt-24">
+            <h2 class="text-3xl font-bold text-primary mb-3 flex items-center">
+                <span class="bg-primary text-white w-8 h-8 rounded inline-flex items-center justify-center text-lg mr-3">6</span>
+                资本市场：神坛上的巨无霸与挤泡沫的初创圈
+            </h2>
+            <div class="grid lg:grid-cols-2 gap-8 items-start mt-6">
+                <!-- 气泡图 -->
+                <div class="chart-container">
+                    <canvas id="capitalChart"></canvas>
+                </div>
+                
+                <div class="space-y-6">
+                    <p class="text-slate-600">
+                        算力芯片的资本市场呈现极端的“冰火两重天”。
+                    </p>
+                    
+                    <div class="border-l-4 border-secondary pl-4 py-1">
+                        <h4 class="font-bold text-primary text-sm">二级市场：以信仰定价的寡头</h4>
+                        <p class="text-sm text-slate-600 mt-2">
+                            英伟达不仅打破了半导体的周期律，更以极具爆发力的业绩消化了超高市盈率（PE）。市场将其视为“AI时代的收税官”，资金大量聚集于头部，追求确定性溢价。
+                        </p>
+                    </div>
+
+                    <div class="border-l-4 border-warning pl-4 py-1">
+                        <h4 class="font-bold text-primary text-sm">一级市场：从 PPT 算力到落地大考</h4>
+                        <p class="text-sm text-slate-600 mt-2">
+                            国内早几年涌现的众多 AI 芯片初创公司（GPGPU/ASIC）正面临生死存亡。在制程受限和生态缺失下，一级市场融资大幅降温。投资逻辑从“对标 A100”转向“是否能在边缘端、特定推理场景（如自动驾驶、安防）实现规模化营收”。
+                        </p>
+                    </div>
+                    
+                    <div class="border-l-4 border-accent pl-4 py-1">
+                        <h4 class="font-bold text-primary text-sm">退出通道 (IPO/M&A)</h4>
+                        <p class="text-sm text-slate-600 mt-2">
+                            国内硬科技企业科创板 IPO 门槛收紧，且缺乏持续“造血”能力的项目难以通关。未来，大批国内初创算力企业或将走向 <strong>并购 (M&A)</strong> 结局，被大型互联网公司或通信巨头整合。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-primary text-slate-400 py-10 text-center text-sm border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4">
+            <p class="font-semibold text-slate-300 mb-2">ComputeCore Analytics © 2026. Interactive Insight Report.</p>
+            <p class="text-xs max-w-2xl mx-auto opacity-70">
+                本报告内容及图表数据为基于行业研究模型的示意性交互展示（模拟2026年视角），非实际投资建议。主要用于演示复杂信息的单页架构(SPA)呈现方案。
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript 交互与图表逻辑 -->
+    <script>
+        // Chart.js 全局默认配置
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#64748b'; // slate-500
+        Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(30, 27, 75, 0.9)'; // primary indigo color
+        Chart.defaults.plugins.tooltip.titleFont = { size: 13, weight: 'bold' };
+        Chart.defaults.plugins.tooltip.padding = 10;
+        Chart.defaults.plugins.tooltip.cornerRadius = 6;
+        Chart.defaults.responsive = true;
+        Chart.defaults.maintainAspectRatio = false; // 必须为 false 以适应容器响应式
+
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // --- Chart 1: Market Size (Mixed Bar/Line) ---
+            const ctxMarket = document.getElementById('marketChart').getContext('2d');
+            new Chart(ctxMarket, {
+                type: 'bar',
+                data: {
+                    labels: ['2023', '2024E', '2025E', '2026E', '2027E'],
+                    datasets: [
+                        {
+                            type: 'line',
+                            label: '生成式AI算力占比 (%)',
+                            data: [25, 45, 60, 75, 82],
+                            borderColor: '#06b6d4', // accent (cyan)
+                            backgroundColor: '#06b6d4',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            yAxisID: 'y1',
+                            pointBackgroundColor: 'white',
+                            pointBorderWidth: 2,
+                            pointRadius: 4
+                        },
+                        {
+                            type: 'bar',
+                            label: '数据中心加速计算市场 ($B)',
+                            data: [45, 85, 120, 165, 200],
+                            backgroundColor: 'rgba(79, 70, 229, 0.8)', // secondary (indigo)
+                            borderRadius: 4,
+                            yAxisID: 'y'
+                        }
+                    ]
+                },
+                options: {
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        y: {
+                            type: 'linear', display: true, position: 'left',
+                            title: { display: true, text: '市场规模 ($B)' },
+                            grid: { borderDash: [4, 4], color: '#f1f5f9' },
+                            min: 0
+                        },
+                        y1: {
+                            type: 'linear', display: true, position: 'right',
+                            title: { display: true, text: '生成式AI占比 (%)' },
+                            grid: { drawOnChartArea: false },
+                            min: 0, max: 100
+                        },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8 } }
+                    }
+                }
+            });
+
+            // --- Chart 2: Landscape (Doughnut) ---
+            const ctxLandscape = document.getElementById('landscapeChart').getContext('2d');
+            new Chart(ctxLandscape, {
+                type: 'doughnut',
+                data: {
+                    labels: ['NVIDIA (绝对主导)', 'AMD (第二梯队)', '云厂商自研 ASIC', '国产替代 (华为等)', '其他初创'],
+                    datasets: [{
+                        data: [78, 8, 8, 5, 1],
+                        backgroundColor: [
+                            '#4f46e5', // secondary
+                            '#f59e0b', // warning
+                            '#06b6d4', // accent
+                            '#10b981', // success
+                            '#cbd5e1'  // slate
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    cutout: '65%',
+                    plugins: {
+                        legend: { 
+                            position: 'right',
+                            labels: { boxWidth: 12, font: { size: 11 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) { return ` ${context.label}: ${context.parsed}%`; }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // --- Chart 3: Unit Economics (Horizontal Stacked Bar) ---
+            const ctxUnitEcon = document.getElementById('unitEconChart').getContext('2d');
+            new Chart(ctxUnitEcon, {
+                type: 'bar',
+                data: {
+                    labels: ['高端 AI GPU 单卡售价构成'],
+                    datasets: [
+                        { label: '硅片制造 (Die)', data: [5], backgroundColor: '#94a3b8' }, // slate
+                        { label: '高带宽内存 (HBM)', data: [8], backgroundColor: '#06b6d4' }, // accent
+                        { label: '先进封装 (CoWoS)及周边', data: [4], backgroundColor: '#f59e0b' }, // warning
+                        { label: '超额毛利润 (软件生态溢价)', data: [83], backgroundColor: '#4f46e5' } // secondary
+                    ]
+                },
+                options: {
+                    indexAxis: 'y', // 水平图
+                    scales: {
+                        x: { 
+                            stacked: true, 
+                            title: { display: true, text: '价值占比 (%)' },
+                            max: 100 
+                        },
+                        y: { stacked: true, display: false, grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 11} } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) { return ` ${context.dataset.label}: ${context.parsed.x}%`; }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // --- Chart 4: Capital Markets (Bubble Chart) ---
+            const ctxCapital = document.getElementById('capitalChart').getContext('2d');
+            new Chart(ctxCapital, {
+                type: 'bubble',
+                data: {
+                    datasets: [
+                        {
+                            label: '国际霸主 (二级市场)',
+                            data: [
+                                { x: 95, y: 45, r: 40 }, // Nvidia: 高技术，中高PE，市值巨无霸
+                                { x: 80, y: 35, r: 25 }  // AMD
+                            ],
+                            backgroundColor: 'rgba(79, 70, 229, 0.7)', // indigo
+                            borderColor: '#4f46e5'
+                        },
+                        {
+                            label: '国产核心替代力量',
+                            data: [
+                                { x: 75, y: 65, r: 25 } // 华为昇腾等，享受高溢价预期
+                            ],
+                            backgroundColor: 'rgba(16, 185, 129, 0.7)', // emerald
+                            borderColor: '#10b981'
+                        },
+                        {
+                            label: '国内初创公司 (一级市场)',
+                            data: [
+                                { x: 60, y: 80, r: 12 }, // 技术遇到瓶颈，早期估值泡沫大，融资热度降温
+                                { x: 45, y: 50, r: 8 },
+                                { x: 55, y: 60, r: 10 }
+                            ],
+                            backgroundColor: 'rgba(245, 158, 11, 0.6)', // amber
+                            borderColor: '#f59e0b'
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: { display: true, text: '综合技术生态成熟度 (硬件+CUDA适配+互联)' },
+                            min: 30, max: 100,
+                            grid: { display: false }
+                        },
+                        y: {
+                            title: { display: true, text: '市场估值乘数 (PE/PS 倍数)' },
+                            min: 20,
+                            grid: { borderDash: [4, 4], color: '#f1f5f9' }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'top', labels: { boxWidth: 10 } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.dataset.label}: 技术分 ${context.parsed.x}, 估值倍数 ${context.parsed.y}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+        // --- Tabs 交互逻辑 (Vanilla JS) ---
+        window.switchTab = function(tabId, element) {
+            // 隐藏所有 tab-content
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => {
+                content.classList.add('hidden');
+                content.classList.remove('block');
+            });
+            
+            // 移除所有 tab-btn 的 active 状态
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('border-transparent');
+            });
+            
+            // 显示选中的 content 并激活按钮
+            document.getElementById(tabId).classList.remove('hidden');
+            document.getElementById(tabId).classList.add('block');
+            element.classList.add('active');
+            element.classList.remove('border-transparent');
+        };
+    </script>
+</body>
+</html>
