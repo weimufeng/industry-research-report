@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 光刻胶材料行业深度研究报告 | 全景交互图谱</title>
+    
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 引入 Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Tailwind 配置与自定义颜色 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e1b4b',    // Indigo 900 (Deep Tech)
+                        secondary: '#4338ca',  // Indigo 600
+                        accent: '#06b6d4',     // Cyan 500 (Chemical/Precision)
+                        accent_light: '#cffafe',
+                        success: '#10b981',    // Emerald 500
+                        warning: '#f59e0b',    // Amber 500
+                        background: '#f8fafc', // Slate 50
+                        surface: '#ffffff',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* <!-- Chosen Palette: Indigo (Tech Core) & Cyan (Chemical Precision) -->
+        <!-- Application Structure Plan: 
+            The SPA uses a single-page dashboard format designed for linear exploration while offering non-linear navigation via a sticky header.
+            - Hero: Establishes the core thesis (Photoresist as the 'blood' of Moore's Law).
+            - Module 1 (Value Chain): CSS Flex/Grid layout visualizing the upstream chemical to downstream fab flow, highlighting profit centers.
+            - Module 2 (Market Size): Mixed Chart (Bar + Line) showing volume growth vs. domestic substitution rate.
+            - Module 3 (Landscape): Doughnut chart demonstrating the extreme oligopoly (CR5), paired with market tier cards.
+            - Module 4 (Unit Economics): Horizontal Stacked Bar breaking down formulation costs (Resins, PAGs, Solvents).
+            - Module 5 (Barriers): Interactive tabs to unpack the complex moats (Patents, Know-how, Fab Validation).
+            - Module 6 (Capital): Bubble chart plotting Valuation vs. R&D Node (KrF to EUV) for global and domestic players.
+            This structure guides the user from macro industry structure to micro company-level economics and capital trends.
+        -->
+        <!-- Visualization & Content Choices: 
+            1. Value Chain -> Goal: Organize -> Method: Tailwind CSS Flow Layout. Justification: Clearly shows material dependencies and margin extraction without SVGs.
+            2. Market Size -> Goal: Trend/Inform -> Method: Chart.js Mixed Bar/Line. Justification: Dual axes perfectly capture absolute TAM growth and the key driver (localization rate).
+            3. Landscape -> Goal: Proportions -> Method: Chart.js Doughnut. Justification: Visually reinforces the Japanese/US dominance in advanced nodes.
+            4. Unit Economics -> Goal: Breakdown -> Method: Chart.js Horizontal Stacked Bar. Justification: Intuitively shows cost components per liter of advanced photoresist.
+            5. Barriers -> Goal: Organize text/Inform -> Method: Vanilla JS Tabs. Justification: Prevents wall-of-text fatigue when explaining complex chemical and validation moats.
+            6. Capital -> Goal: Relationships -> Method: Chart.js Bubble Chart. Justification: Correlates technological capability (X-axis) with capital market valuation (Y-axis) and funding size (Bubble size).
+        -->
+        <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+        */
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        /* 强制约束的图表容器 (CRITICAL REQUIREMENT) */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px; /* 控制最大宽度避免横向拉伸 */
+            margin-left: auto;
+            margin-right: auto;
+            height: 40vh; /* 响应式高度 */
+            min-height: 320px;
+            max-height: 450px; /* 防止纵向溢出 */
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid #e2e8f0;
+        }
+
+        /* 移动端图表高度微调 */
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 35vh;
+                min-height: 280px;
+                padding: 1rem;
+            }
+        }
+
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 交互式 Tab 样式 */
+        .tab-btn { transition: all 0.2s ease; }
+        .tab-btn.active {
+            border-left: 4px solid #06b6d4; /* accent color */
+            background-color: #f1f5f9;
+            color: #1e1b4b; /* primary color */
+            font-weight: 600;
+        }
+
+        /* 卡片悬浮特效 */
+        .hover-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .hover-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-accent_light selection:text-primary">
+
+    <!-- 顶部导航栏 -->
+    <nav class="fixed top-0 w-full bg-white/80 backdrop-blur-lg border-b border-slate-200 z-50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center space-x-2">
+                    <div class="w-4 h-4 rounded-full bg-accent"></div>
+                    <span class="text-xl font-bold text-primary tracking-tight">Chem<span class="text-accent">Litho</span> Analytics</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6 text-sm font-medium text-slate-500">
+                    <a href="#value-chain" class="hover:text-primary transition-colors">价值链</a>
+                    <a href="#market-size" class="hover:text-primary transition-colors">市场与驱动</a>
+                    <a href="#landscape" class="hover:text-primary transition-colors">竞争格局</a>
+                    <a href="#unit-econ" class="hover:text-primary transition-colors">单元经济</a>
+                    <a href="#barriers" class="hover:text-primary transition-colors">护城河</a>
+                    <a href="#capital" class="hover:text-primary transition-colors">资本市场</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主体内容 -->
+    <main class="pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-24">
+
+        <!-- Hero Section -->
+        <header class="text-center space-y-6 max-w-4xl mx-auto animate-fade-in">
+            <div class="inline-flex items-center px-3 py-1 rounded-full bg-accent_light text-secondary text-xs font-bold tracking-widest uppercase mb-2">
+                Semiconductor Materials Sector
+            </div>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-primary tracking-tight leading-tight">
+                光刻胶材料：<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-accent">摩尔定律的“血液”与极紫外的“刻刀”</span>
+            </h1>
+            <p class="text-lg text-slate-600 leading-relaxed">
+                作为半导体制造中最核心的配方型电子化学品，光刻胶直接决定了芯片制程的极限。在逆全球化与出口管制的背景下，从高端单体树脂到ArFi/EUV配方的突破，正成为国产半导体产业链跨越“卡脖子”困境的最关键战役。
+            </p>
+        </header>
+
+        <!-- 模块 1: 行业地图与价值链 -->
+        <section id="value-chain" class="scroll-mt-24">
+            <div class="mb-8 max-w-3xl">
+                <h2 class="text-3xl font-bold text-primary mb-3 flex items-center">
+                    <span class="bg-primary text-white w-8 h-8 rounded inline-flex items-center justify-center text-lg mr-3">1</span>
+                    行业地图与价值链 (Value Chain)
+                </h2>
+                <p class="text-slate-600 leading-relaxed">
+                    光刻胶产业链呈典型的“倒金字塔”结构。<strong class="text-primary">上游核心原料（树脂、PAG）</strong>占据了超50%的成本并决定了最终性能，也是目前国产化率最低（<5%）的环节。中游配方厂商是生态核心，通过“Know-how”赚取高额毛利。下游则是极度看重良率、对试错成本极度敏感的晶圆代工厂。
+                </p>
+            </div>
+
+            <!-- 纯 HTML/CSS 构建的价值链 -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm relative">
+                <div class="grid lg:grid-cols-3 gap-6 relative z-10">
+                    
+                    <!-- 上游 -->
+                    <div class="flex flex-col space-y-3">
+                        <div class="bg-slate-50 border-t-4 border-slate-400 p-4 rounded-b-lg hover-card">
+                            <h3 class="font-bold text-slate-700 mb-1">上游：核心原材料</h3>
+                            <p class="text-xs text-slate-500 mb-3">技术壁垒极高，纯度要求达ppt级别（万亿分之一）。</p>
+                            <ul class="space-y-2 text-sm">
+                                <li class="bg-white p-2 border border-slate-100 rounded flex justify-between items-center">
+                                    <span class="font-semibold text-primary">成膜树脂 (Resin)</span>
+                                    <span class="text-xs text-warning bg-warning/10 px-2 py-0.5 rounded">毛利 50%+</span>
+                                </li>
+                                <li class="bg-white p-2 border border-slate-100 rounded flex justify-between items-center">
+                                    <span class="font-semibold text-primary">光引发剂 (PAG)</span>
+                                    <span class="text-xs text-warning bg-warning/10 px-2 py-0.5 rounded">毛利 40%+</span>
+                                </li>
+                                <li class="bg-white p-2 border border-slate-100 rounded flex justify-between items-center">
+                                    <span class="font-semibold text-primary">高纯溶剂/添加剂</span>
+                                    <span class="text-xs text-slate-500">占体积>80%</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 中游 -->
+                    <div class="flex flex-col space-y-3">
+                        <div class="bg-indigo-50 border-t-4 border-secondary p-4 rounded-b-lg hover-card h-full">
+                            <h3 class="font-bold text-secondary mb-1">中游：光刻胶配方制造</h3>
+                            <p class="text-xs text-slate-500 mb-3">核心在于复配“Know-how”与制造环境的极端控制。</p>
+                            <ul class="space-y-2 text-sm">
+                                <li class="bg-white p-2 border border-indigo-100 rounded">
+                                    <span class="font-semibold text-primary block">半导体光刻胶 (价值最高)</span>
+                                    <span class="text-xs text-slate-500">EUV, ArFi, ArF, KrF, i/g线</span>
+                                </li>
+                                <li class="bg-white p-2 border border-indigo-100 rounded">
+                                    <span class="font-semibold text-primary block">面板光刻胶 (FPD)</span>
+                                    <span class="text-xs text-slate-500">TFT正胶, 彩色光刻胶(Color Filter)</span>
+                                </li>
+                                <li class="bg-white p-2 border border-indigo-100 rounded">
+                                    <span class="font-semibold text-primary block">PCB光刻胶 (体量最大)</span>
+                                    <span class="text-xs text-slate-500">干膜, 湿膜, 阻焊油墨</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 下游 -->
+                    <div class="flex flex-col space-y-3">
+                        <div class="bg-cyan-50 border-t-4 border-accent p-4 rounded-b-lg hover-card h-full">
+                            <h3 class="font-bold text-accent mb-1">下游：终端应用场</h3>
+                            <p class="text-xs text-slate-500 mb-3">转换成本极高，验证周期长达1-3年。</p>
+                            <ul class="space-y-2 text-sm">
+                                <li class="bg-white p-2 border border-cyan-100 rounded flex items-center">
+                                    <div class="w-2 h-2 rounded-full bg-accent mr-2"></div>
+                                    <span class="font-medium text-slate-700">晶圆代工厂 (Foundry)</span>
+                                </li>
+                                <li class="bg-white p-2 border border-cyan-100 rounded flex items-center">
+                                    <div class="w-2 h-2 rounded-full bg-accent mr-2"></div>
+                                    <span class="font-medium text-slate-700">存储芯片厂 (IDM)</span>
+                                </li>
+                                <li class="bg-white p-2 border border-cyan-100 rounded flex items-center">
+                                    <div class="w-2 h-2 rounded-full bg-accent mr-2"></div>
+                                    <span class="font-medium text-slate-700">先进封装厂 (OSAT)</span>
+                                </li>
+                            </ul>
+                            <div class="mt-4 text-xs font-semibold text-slate-500 text-center border-t border-cyan-100 pt-2">
+                                生态纽带：与ASML等光刻机厂联合研发验证
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 引导箭头 (仅在桌面端显示水平，移动端隐藏) -->
+                <div class="hidden lg:block absolute top-1/2 left-[31%] w-12 h-0.5 bg-slate-300 z-0"></div>
+                <div class="hidden lg:block absolute top-1/2 right-[31%] w-12 h-0.5 bg-slate-300 z-0"></div>
+            </div>
+        </section>
+
+        <!-- 模块 2: 市场规模与驱动力 -->
+        <section id="market-size" class="scroll-mt-24">
+            <h2 class="text-3xl font-bold text-primary mb-3 flex items-center">
+                <span class="bg-primary text-white w-8 h-8 rounded inline-flex items-center justify-center text-lg mr-3">2</span>
+                市场规模与核心驱动力 (TAM & Drivers)
+            </h2>
+            <div class="grid lg:grid-cols-5 gap-8 items-start mt-6">
+                <div class="lg:col-span-2 space-y-5">
+                    <p class="text-slate-600">
+                        全球半导体光刻胶市场规模约 <strong class="text-primary text-xl">25亿美金</strong>，虽然绝对规模不大，但它撬动了数千亿美元的半导体制造产值。
+                    </p>
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <h4 class="font-bold text-primary mb-3 border-b pb-2">核心增长引擎：</h4>
+                        <ul class="space-y-3 text-sm text-slate-600">
+                            <li><span class="font-bold text-accent">1. 先进制程需求 (技术):</span> AI芯片及HPC驱动制程向3nm/2nm演进，拉动单晶圆EUV及ArFi光刻胶消耗量成倍上升。</li>
+                            <li><span class="font-bold text-accent">2. 国产替代 (政策/地缘):</span> 日本掌控超70%份额。在出口管制压力下，中国晶圆厂积极开放产线供本土材料验证，KrF/ArF国产化迎来爆发期。</li>
+                            <li><span class="font-bold text-accent">3. 3D NAND 堆叠 (结构):</span> 存储器层数向200+层发展，大幅增加了厚膜KrF光刻胶的用量。</li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- 市场趋势图表 -->
+                <div class="lg:col-span-3 chart-container">
+                    <canvas id="marketChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 3: 竞争格局 -->
+        <section id="landscape" class="scroll-mt-24 bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+            <h2 class="text-3xl font-bold text-primary mb-6 flex items-center">
+                <span class="bg-primary text-white w-8 h-8 rounded inline-flex items-center justify-center text-lg mr-3">3</span>
+                竞争格局：存量极度集中，增量寻找裂缝
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-10 items-center">
+                <!-- 甜甜圈图 -->
+                <div class="chart-container !border-none !shadow-none !p-0">
+                    <canvas id="landscapeChart"></canvas>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="font-bold text-primary text-lg">存量市场：日系巨头绝对垄断 (CR5 > 80%)</h4>
+                        <p class="text-sm text-slate-600 mt-2">
+                            以 <strong class="text-secondary">JSR (已被日本国家基金JIC收购)</strong>、<strong class="text-secondary">东京应化 (TOK)</strong>、信越化学 (Shin-Etsu)、住友化学为代表的日本企业，在ArF、EUV等高端领域占据统治地位。它们与ASML深度绑定，形成了密不透风的专利与工艺护城河。
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold text-primary text-lg">增量与切入点：国产替代的破局路径</h4>
+                        <div class="mt-3 space-y-3">
+                            <div class="flex items-start">
+                                <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded mr-3 mt-0.5 whitespace-nowrap">成熟制程</span>
+                                <p class="text-sm text-slate-600"><strong>i/g线及普通KrF：</strong> 技术已基本突破，国内厂商（如彤程新材、晶瑞电材）正快速蚕食份额，重点比拼成本与供应链稳定性。</p>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="bg-warning/20 text-warning text-xs font-bold px-2 py-1 rounded mr-3 mt-0.5 whitespace-nowrap">先进制程</span>
+                                <p class="text-sm text-slate-600"><strong>ArFi / EUV：</strong> 属于“无人区”突破。国内初创及龙头（如徐州博康、上海新阳）正从解决上游单体树脂自供开始，艰难推进Fab厂验证。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 4: 商业模式与单元经济 -->
+        <section id="unit-econ" class="scroll-mt-24">
+            <h2 class="text-3xl font-bold text-primary mb-3 flex items-center">
+                <span class="bg-primary text-white w-8 h-8 rounded inline-flex items-center justify-center text-lg mr-3">4</span>
+                商业模式与单元经济 (Unit Economics)
+            </h2>
+            <p class="text-slate-600 mb-6 max-w-4xl">
+                光刻胶行业是典型的<strong class="text-primary">“高研发前置、高客户获取成本(CAC)、无限生命周期价值(LTV)”</strong>模型。一旦进入晶圆厂的BOM清单（Bill of Materials），除非出现重大质量事故或产线迭代，晶圆厂为了保证数百亿产线的良率稳定，极少主动更换供应商。
+            </p>
+
+            <div class="grid lg:grid-cols-2 gap-8 items-center">
+                <!-- 成本拆解水平堆叠图 -->
+                <div class="chart-container">
+                    <canvas id="unitEconChart"></canvas>
+                    <p class="text-center text-xs text-slate-400 mt-2">高端 ArFi 光刻胶单加仑成本与利润模拟拆解</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="bg-white p-4 rounded-lg border border-slate-200">
+                        <div class="flex justify-between items-center mb-1">
+                            <h4 class="font-bold text-primary text-sm">收入模型 (Revenue Model)</h4>
+                        </div>
+                        <p class="text-sm text-slate-600">消耗品逻辑。随晶圆投片量（Wafer Starts）线性增长。先进节点（如5nm）需要多重曝光（Multi-patterning），导致单片晶圆消耗量指数级上升。</p>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg border border-slate-200">
+                        <div class="flex justify-between items-center mb-1">
+                            <h4 class="font-bold text-primary text-sm">毛利水平 (Gross Margin)</h4>
+                            <span class="text-success text-sm font-bold">50% - 70%</span>
+                        </div>
+                        <p class="text-sm text-slate-600">呈现显著的结构性特征：低端 i/g 线毛利约 20-30%，而高端 ArFi/EUV 毛利可高达 70% 以上，拥有极强的定价权。</p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-lg border border-slate-200">
+                        <div class="flex justify-between items-center mb-1">
+                            <h4 class="font-bold text-primary text-sm">客户获取成本 (CAC)</h4>
+                            <span class="text-warning text-sm font-bold">极高 / 1-3年验证期</span>
+                        </div>
+                        <p class="text-sm text-slate-600">研发打样后，需经过晶圆厂严苛的验证流片（从几十片到数千片），耗时极长，沉没成本巨大。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 5: 技术/准入门槛 -->
+        <section id="barriers" class="scroll-mt-24">
+            <h2 class="text-3xl font-bold text-primary mb-6 flex items-center">
+                <span class="bg-primary text-white w-8 h-8 rounded inline-flex items-center justify-center text-lg mr-3">5</span>
+                技术准入门槛：深不可测的护城河
+            </h2>
+
+            <div class="flex flex-col md:flex-row gap-6">
+                <!-- 左侧：Tabs 导航 -->
+                <div class="md:w-1/3 flex flex-col space-y-2">
+                    <button class="tab-btn active text-left px-5 py-4 rounded-lg text-slate-600 hover:bg-slate-50 border border-transparent" onclick="switchTab('moat-1', this)">
+                        <span class="block font-bold text-primary mb-1">配方与单体专利</span>
+                        <span class="text-xs">成膜树脂与PAG的核心机密</span>
+                    </button>
+                    <button class="tab-btn text-left px-5 py-4 rounded-lg text-slate-600 hover:bg-slate-50 border border-transparent" onclick="switchTab('moat-2', this)">
+                        <span class="block font-bold text-primary mb-1">量产批次稳定性</span>
+                        <span class="text-xs">从实验室到吨级放大的黑盒</span>
+                    </button>
+                    <button class="tab-btn text-left px-5 py-4 rounded-lg text-slate-600 hover:bg-slate-50 border border-transparent" onclick="switchTab('moat-3', this)">
+                        <span class="block font-bold text-primary mb-1">极苛刻的Fab验证</span>
+                        <span class="text-xs">试错成本极高的下游生态</span>
+                    </button>
+                </div>
+
+                <!-- 右侧：Tabs 内容区 -->
+                <div class="md:w-2/3 bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-[250px] relative">
+                    <!-- Tab 1 -->
+                    <div id="moat-1" class="tab-content block animate-fade-in">
+                        <div class="w-10 h-10 rounded bg-indigo-100 flex items-center justify-center text-secondary mb-4 font-bold text-xl">P</div>
+                        <h3 class="text-xl font-bold text-primary mb-3">配方黑盒与底层树脂专利</h3>
+                        <p class="text-slate-600 leading-relaxed">
+                            光刻胶并非简单的混合物，而是涉及复杂光化学反应的精细调配。其核心在于<strong class="text-primary">成膜树脂（控制溶解度）</strong>和<strong class="text-primary">光致产酸剂（PAG，决定感光度）</strong>。日美巨头早在几十年前就织就了密集的专利网。国内企业要突破，不仅要避开配方专利，更卡脖子的是买不到高纯度的上游树脂单体，必须实现“单体-树脂-配方”的纵向一体化。
+                        </p>
+                    </div>
+                    <!-- Tab 2 -->
+                    <div id="moat-2" class="tab-content hidden animate-fade-in">
+                        <div class="w-10 h-10 rounded bg-cyan-100 flex items-center justify-center text-accent mb-4 font-bold text-xl">S</div>
+                        <h3 class="text-xl font-bold text-primary mb-3">量产一致性与杂质控制极限</h3>
+                        <p class="text-slate-600 leading-relaxed">
+                            在实验室调配出1升合格的光刻胶只是第一步（从0到1）。真正的壁垒在于<strong class="text-primary">放大生产（从1到100）</strong>中的批次间一致性。金属离子杂质需控制在1 ppb（十亿分之一）甚至 ppt 级别，这对生产环境、管道材质、过滤膜系统（通常由Pall或Entegris垄断）提出了变态级要求。任何微小波动都会导致Fab厂上万片晶圆报废。
+                        </p>
+                    </div>
+                    <!-- Tab 3 -->
+                    <div id="moat-3" class="tab-content hidden animate-fade-in">
+                        <div class="w-10 h-10 rounded bg-emerald-100 flex items-center justify-center text-success mb-4 font-bold text-xl">V</div>
+                        <h3 class="text-xl font-bold text-primary mb-3">沉没成本极高的晶圆厂验证</h3>
+                        <p class="text-slate-600 leading-relaxed">
+                            下游晶圆代工厂（如台积电、中芯国际）替换光刻胶的意愿天然极低。验证过程需历经：<strong class="text-slate-700">PRS（光阻筛选） -> 小批量流片 -> 风险量产 -> 正式导入</strong>。周期长达1-3年，期间光刻胶企业无任何收入，且需配合晶圆厂不断微调配方。这种“相互绑定”的生态构筑了极高的客户转换成本壁垒。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 6: 资本市场表现 -->
+        <section id="capital" class="scroll-mt-24">
+            <h2 class="text-3xl font-bold text-primary mb-3 flex items-center">
+                <span class="bg-primary text-white w-8 h-8 rounded inline-flex items-center justify-center text-lg mr-3">6</span>
+                资本市场：高估值预期与并购整合
+            </h2>
+            <div class="grid lg:grid-cols-2 gap-8 items-start mt-6">
+                <!-- 气泡图 -->
+                <div class="chart-container">
+                    <canvas id="capitalChart"></canvas>
+                </div>
+                
+                <div class="space-y-6">
+                    <p class="text-slate-600">
+                        资本市场对光刻胶企业的定价，<strong class="text-primary">完全取决于其攻克的节点制程（KrF -> ArF -> EUV）以及上游自产能力。</strong>
+                    </p>
+                    
+                    <div class="border-l-4 border-secondary pl-4 py-1">
+                        <h4 class="font-bold text-primary">一级市场融资热度</h4>
+                        <p class="text-sm text-slate-600 mt-2">
+                            具备ArFi及以上研发能力，或掌握核心树脂合成技术的团队，在一级市场极度受追捧。估值往往不看当前净利润，而是采用 <strong class="text-secondary">P/S（市销率）甚至基于未来市占率的期权定价</strong>，导致初创企业在一级市场呈现高溢价。
+                        </p>
+                    </div>
+
+                    <div class="border-l-4 border-accent pl-4 py-1">
+                        <h4 class="font-bold text-primary">二级市场估值与退出通道</h4>
+                        <p class="text-sm text-slate-600 mt-2">
+                            二级市场对国内光刻胶标的给予了极高的估值容忍度（动态PE常在80x-150x以上）。由于半导体材料具有明显的“小批量、多品种”特征，海外巨头（如杜邦、默克）的发展史就是一部并购史。预计未来国内市场也会从当前的“百花齐放”走向 <strong class="text-accent">M&A（并购重组）</strong>，由平台型材料巨头整合单一环节的初创企业。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-primary text-slate-400 py-10 text-center text-sm border-t border-slate-800 mt-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <p class="font-semibold text-slate-300 mb-2">ChemLitho Analytics © 2026. All Rights Reserved.</p>
+            <p class="text-xs max-w-2xl mx-auto opacity-70">
+                免责声明：本报告由AI生成，用于演示信息架构与前端交互设计。报告中涉及的市场规模、份额比例、估值模型等数据均为基于行业常识的模拟数据，不构成任何真实投资建议。
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript 交互与图表逻辑 -->
+    <script>
+        // 1. Chart.js 全局默认配置
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#64748b'; // slate-500
+        Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(30, 27, 75, 0.9)'; // primary color
+        Chart.defaults.plugins.tooltip.titleFont = { size: 13, weight: 'bold' };
+        Chart.defaults.plugins.tooltip.padding = 10;
+        Chart.defaults.plugins.tooltip.cornerRadius = 6;
+        Chart.defaults.responsive = true;
+        Chart.defaults.maintainAspectRatio = false; // MUST be false to respect container height
+
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // --- Chart 1: Market Size & Penetration (Mixed Chart) ---
+            const ctxMarket = document.getElementById('marketChart').getContext('2d');
+            new Chart(ctxMarket, {
+                type: 'bar',
+                data: {
+                    labels: ['2022', '2023', '2024E', '2025E', '2026E', '2028E'],
+                    datasets: [
+                        {
+                            type: 'line',
+                            label: '国内先进制程(KrF/ArF)自给率 (%)',
+                            data: [3, 5, 8, 15, 25, 40],
+                            borderColor: '#06b6d4', // accent cyan
+                            backgroundColor: '#06b6d4',
+                            borderWidth: 3,
+                            tension: 0.3,
+                            yAxisID: 'y1',
+                            pointBackgroundColor: 'white',
+                            pointBorderWidth: 2,
+                            pointRadius: 4
+                        },
+                        {
+                            type: 'bar',
+                            label: '中国大陆光刻胶市场规模 (亿元)',
+                            data: [85, 92, 105, 120, 145, 180],
+                            backgroundColor: 'rgba(67, 56, 202, 0.7)', // secondary indigo
+                            borderRadius: 4,
+                            yAxisID: 'y'
+                        }
+                    ]
+                },
+                options: {
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        y: {
+                            type: 'linear', display: true, position: 'left',
+                            title: { display: true, text: '市场规模 (亿元)' },
+                            grid: { borderDash: [4, 4], color: '#f1f5f9' }
+                        },
+                        y1: {
+                            type: 'linear', display: true, position: 'right',
+                            title: { display: true, text: '自给率 (%)' },
+                            grid: { drawOnChartArea: false },
+                            min: 0, max: 60
+                        },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8 } }
+                    }
+                }
+            });
+
+            // --- Chart 2: Landscape (Doughnut Chart) ---
+            const ctxLandscape = document.getElementById('landscapeChart').getContext('2d');
+            new Chart(ctxLandscape, {
+                type: 'doughnut',
+                data: {
+                    labels: ['JSR (日)', '东京应化 TOK (日)', '信越化学 (日)', '住友化学 (日)', '杜邦 DuPont (美)', '其他 (含中国)'],
+                    datasets: [{
+                        data: [28, 25, 15, 10, 12, 10],
+                        backgroundColor: [
+                            '#1e1b4b', // primary
+                            '#4338ca', // secondary
+                            '#06b6d4', // accent
+                            '#10b981', // success
+                            '#8b5cf6', // violet
+                            '#cbd5e1'  // slate
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    cutout: '65%',
+                    plugins: {
+                        legend: { 
+                            position: 'right',
+                            labels: { boxWidth: 12, font: { size: 11 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) { return ` ${context.label}: ${context.parsed}%`; }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // --- Chart 3: Unit Economics (Horizontal Stacked Bar) ---
+            const ctxUnitEcon = document.getElementById('unitEconChart').getContext('2d');
+            new Chart(ctxUnitEcon, {
+                type: 'bar',
+                data: {
+                    labels: ['每升高端光刻胶价值拆解'],
+                    datasets: [
+                        { label: '树脂单体 (Resin)', data: [35], backgroundColor: '#4338ca' }, // secondary
+                        { label: '光引发剂 (PAG)', data: [15], backgroundColor: '#06b6d4' }, // accent
+                        { label: '溶剂/添加剂', data: [5], backgroundColor: '#94a3b8' },  // slate
+                        { label: '制造与检测折旧', data: [10], backgroundColor: '#f59e0b' }, // warning
+                        { label: '毛利润 (Know-how溢价)', data: [35], backgroundColor: '#10b981' } // success
+                    ]
+                },
+                options: {
+                    indexAxis: 'y', // Horizontal
+                    scales: {
+                        x: { 
+                            stacked: true, 
+                            display: false, // 隐藏X轴数字，纯示意比例
+                            max: 100 
+                        },
+                        y: { stacked: true, display: false } // 隐藏Y轴标签
+                    },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 11} } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) { return ` ${context.dataset.label}: ${context.parsed.x}%`; }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // --- Chart 4: Capital Markets (Bubble Chart) ---
+            const ctxCapital = document.getElementById('capitalChart').getContext('2d');
+            new Chart(ctxCapital, {
+                type: 'bubble',
+                data: {
+                    datasets: [
+                        {
+                            label: '国内初创(一级市场)',
+                            data: [
+                                { x: 3, y: 30, r: 10 }, // KrF 阶段
+                                { x: 5, y: 80, r: 15 }, // ArF 研发突破
+                                { x: 6, y: 150, r: 20 } // ArFi 量产导入期 (受追捧)
+                            ],
+                            backgroundColor: 'rgba(6, 182, 212, 0.6)', // accent cyan
+                            borderColor: '#06b6d4'
+                        },
+                        {
+                            label: '国内上市龙头',
+                            data: [
+                                { x: 4, y: 120, r: 18 }, // KrF量产，ArF推进中
+                                { x: 5.5, y: 200, r: 25 }
+                            ],
+                            backgroundColor: 'rgba(67, 56, 202, 0.6)', // secondary indigo
+                            borderColor: '#4338ca'
+                        },
+                        {
+                            label: '海外垄断巨头',
+                            data: [
+                                { x: 9, y: 800, r: 35 }, // EUV 绝对统治
+                                { x: 8.5, y: 600, r: 30 }
+                            ],
+                            backgroundColor: 'rgba(30, 27, 75, 0.3)', // primary muted
+                            borderColor: '#1e1b4b'
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: { display: true, text: '制程节点突破 (2=g线, 4=KrF, 6=ArFi, 9=EUV)' },
+                            min: 1, max: 10,
+                            grid: { display: false }
+                        },
+                        y: {
+                            title: { display: true, text: '企业估值水平 (模拟指数)' },
+                            min: 0,
+                            grid: { borderDash: [4, 4], color: '#f1f5f9' }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'top', labels: { boxWidth: 10 } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.dataset.label}: 估值指数 ${context.parsed.y}, 制程进程 ${context.parsed.x}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+        // --- Tabs 切换逻辑 (Vanilla JS) ---
+        window.switchTab = function(tabId, element) {
+            // 隐藏所有 tab-content
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => {
+                content.classList.add('hidden');
+                content.classList.remove('block');
+            });
+            
+            // 移除所有 tab-btn 的 active 状态
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('border-transparent');
+            });
+            
+            // 显示选中的 content 并激活按钮
+            document.getElementById(tabId).classList.remove('hidden');
+            document.getElementById(tabId).classList.add('block');
+            element.classList.add('active');
+            element.classList.remove('border-transparent');
+        };
+
+        // --- 简单滚动监听实现导航栏高亮 (可选增强) ---
+        // 这里提供一个基础的平滑滚动体验，主要依赖 CSS scroll-behavior: smooth
+    </script>
+</body>
+</html>

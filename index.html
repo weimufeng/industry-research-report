@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>行业研究报告 | Industry Research Report</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d0d0f;
+            --surface: #161618;
+            --border: #27272a;
+            --text: #fafafa;
+            --text-muted: #a1a1aa;
+            --accent: #3b82f6;
+            --accent-hover: #60a5fa;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'DM Sans', 'Noto Sans SC', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 4rem 1.5rem;
+        }
+        header {
+            margin-bottom: 3rem;
+        }
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: var(--text);
+        }
+        .author {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+        .subtitle {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .card {
+            display: block;
+            padding: 1.25rem 1.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text);
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .card:hover {
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.06);
+        }
+        .card-title {
+            font-weight: 500;
+            font-size: 1rem;
+        }
+        .card-meta {
+            margin-top: 0.35rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .card-meta a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .card-meta a:hover {
+            color: var(--accent-hover);
+        }
+        footer {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>2026全行业研究报告</h1>
+            <p class="author">魏牧丰</p>
+            <p class="subtitle">Industry Research Report · 深度报告与交互图谱</p>
+        </header>
+        <nav class="list">
+            <a href="pages/electronic-resin.html" class="card">
+                <span class="card-title">2026 电子树脂材料行业深度研究报告</span>
+                
+            </a>
+            <a href="pages/solid-state-batteries.html" class="card">
+                <span class="card-title">2026 固态电池行业深度研究报告</span>
+                
+            </a>
+            <a href="pages/photoresist-materials.html" class="card">
+                <span class="card-title">2026 光刻胶材料行业深度研究报告</span>
+                
+            </a>
+        </nav>
+        <footer>
+            基于模拟数据的行业研究演示框架 | 数据仅供结构展示，不构成投资建议<br><br>作者：魏牧丰
+        </footer>
+    </div>
+</body>
+</html>
