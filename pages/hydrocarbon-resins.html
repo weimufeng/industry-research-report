@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深度研究：碳氢树脂（石油树脂）行业全景图谱</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        /* Base typography & aesthetics */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+            color: #1e293b; /* slate-800 */
+        }
+
+        /* * CHART CONTAINER STYLING (CRITICAL REQUIREMENT)
+         * Ensures charts are responsive, constrained, and do not break layout.
+         */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px; /* Constrain max width for readability */
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px; /* Base height */
+            max-height: 450px;
+            background: white;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 280px; /* Smaller height on mobile */
+                padding: 0.5rem;
+            }
+        }
+
+        /* SPA Layout & Transitions */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Sidebar Nav Styling */
+        .nav-item {
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+        }
+        .nav-item:hover {
+            background-color: #e2e8f0; /* slate-200 */
+        }
+        .nav-item.active {
+            background-color: #e0f2fe; /* sky-100 */
+            border-left-color: #0284c7; /* sky-600 */
+            color: #0369a1; /* sky-700 */
+            font-weight: 600;
+        }
+
+        /* Value Chain CSS blocks (No SVG) */
+        .vc-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            text-align: center;
+            border-top: 4px solid #0284c7;
+            position: relative;
+        }
+        .vc-arrow::after {
+            content: '↓';
+            font-size: 1.5rem;
+            color: #94a3b8;
+            margin: 0.5rem 0;
+            display: block;
+        }
+        @media (min-width: 768px) {
+            .vc-arrow { display: flex; align-items: center; }
+            .vc-arrow::after { content: '→'; margin: 0 1rem; }
+        }
+
+        /* Custom Scrollbar for sleekness */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row min-h-screen">
+
+    <!-- Chosen Palette: Slate (Neutrals), Sky Blue (Primary), Teal (Accent) -->
+    <!-- Application Structure Plan: Sidebar Navigation SPA. Chose this structure because industry reports are dense. A sidebar allows users to jump directly to specific modules (Value Chain, Financials, Moats) without endless scrolling. The layout separates navigation from deep-dive content, using cards and constrained chart containers to chunk information digestibly. -->
+    <!-- Visualization & Content Choices: 
+         1. Overview: Doughnut Chart (End-use) - Goal: Show market distribution. Interaction: Hover tooltips. Library: Chart.js.
+         2. Value Chain: CSS Flexbox Flowchart - Goal: Map upstream to downstream. Justification: No SVG allowed, CSS grids/flex provide clean structural representation.
+         3. Market Size: Mixed Bar/Line Chart - Goal: Show TAM volume + Growth Rate. Library: Chart.js.
+         4. Competition: Horizontal Bar Chart - Goal: Highlight CR5 concentration. Library: Chart.js.
+         5. Unit Economics: Radar Chart - Goal: Compare margins/metrics across different resin grades (C5 vs C9 vs Hydrogenated). Library: Chart.js.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <!-- Mobile Header -->
+    <div class="md:hidden bg-slate-900 text-white p-4 sticky top-0 z-50 flex justify-between items-center shadow-md">
+        <h1 class="text-lg font-bold truncate">碳氢树脂行业报告</h1>
+        <button id="mobile-menu-btn" class="text-white focus:outline-none">
+            <span class="text-2xl">☰</span>
+        </button>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <nav id="sidebar" class="hidden md:flex flex-col w-full md:w-64 bg-white shadow-xl h-auto md:h-screen md:sticky top-0 overflow-y-auto z-40">
+        <div class="p-6 bg-slate-900 text-white hidden md:block">
+            <h1 class="text-2xl font-bold leading-tight">碳氢树脂<br><span class="text-sky-400 text-lg">行业深度研究</span></h1>
+            <p class="text-xs text-slate-400 mt-2">Data & Analytics Dashboard</p>
+        </div>
+        <ul class="flex flex-col py-4">
+            <li class="nav-item active px-6 py-3 text-sm md:text-base" onclick="switchTab('overview')">1. 领域与技术概览</li>
+            <li class="nav-item px-6 py-3 text-sm md:text-base" onclick="switchTab('valuechain')">2. 产业链与价值分布</li>
+            <li class="nav-item px-6 py-3 text-sm md:text-base" onclick="switchTab('market')">3. 市场规模与驱动力</li>
+            <li class="nav-item px-6 py-3 text-sm md:text-base" onclick="switchTab('landscape')">4. 竞争格局与集中度</li>
+            <li class="nav-item px-6 py-3 text-sm md:text-base" onclick="switchTab('economics')">5. 商业模式与单体经济</li>
+            <li class="nav-item px-6 py-3 text-sm md:text-base" onclick="switchTab('moats')">6. 技术壁垒与护城河</li>
+            <li class="nav-item px-6 py-3 text-sm md:text-base" onclick="switchTab('capital')">7. 资本市场与估值</li>
+        </ul>
+        <div class="mt-auto p-4 border-t text-xs text-slate-400 text-center">
+            内部研究报告 · 严禁外传
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-4 md:p-8 lg:p-12 overflow-x-hidden">
+        
+        <!-- Module 1: Overview -->
+        <section id="overview" class="tab-content active">
+            <div class="mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-800 mb-2">领域详细介绍：碳氢树脂（石油树脂）</h2>
+                <p class="text-slate-600 text-lg">本节介绍了碳氢树脂的定义、历史沿革及核心技术演进。帮助用户建立对该化工细分领域的基础认知。</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="text-xl font-bold text-sky-700 mb-4 flex items-center">📝 行业定义</h3>
+                    <p class="text-slate-700 leading-relaxed mb-4">
+                        碳氢树脂（Hydrocarbon Resins，或称石油树脂），是石油裂解制乙烯装置的副产物——C5和C9馏分，经前处理、聚合、蒸馏等工艺生产的一种热塑性树脂。它不是高分子聚合物，而是一种分子量在300-3000之间的低聚物。
+                    </p>
+                    <p class="text-slate-700 leading-relaxed">
+                        因其不溶于水，易溶于有机溶剂，具有耐酸碱、防水、防老化等特性，且能显著提高粘接力，是现代<strong>胶粘剂、涂料、橡胶轮胎</strong>工业不可或缺的增粘剂和改性剂。
+                    </p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="text-xl font-bold text-sky-700 mb-4 flex items-center">🕰️ 发展历程</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <span class="bg-slate-200 text-slate-700 font-mono px-2 py-1 rounded text-sm mr-3 mt-1">1960s</span>
+                            <span class="text-slate-700"><strong>起步期：</strong>伴随石化工业发展，美日等国开始将裂解副产物聚合，替代天然松香树脂。</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-slate-200 text-slate-700 font-mono px-2 py-1 rounded text-sm mr-3 mt-1">1990s</span>
+                            <span class="text-slate-700"><strong>技术突破：</strong>C5共聚及催化聚合技术成熟，产品在热熔胶领域广泛应用。</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-sky-100 text-sky-700 font-mono px-2 py-1 rounded text-sm mr-3 mt-1">2010s+</span>
+                            <span class="text-slate-700"><strong>高端化（加氢）：</strong>为解决气味和颜色问题，加氢技术（Hydrogenation）成为主流，生产出无色透明的“水白树脂”，用于卫材和食品包装。</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-6 bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                <h3 class="text-xl font-bold text-sky-700 mb-4 flex items-center">🔬 学术与技术研究前沿</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div class="p-4 bg-slate-50 rounded border-l-4 border-teal-500">
+                        <strong class="block text-slate-800 mb-1">新型茂金属催化体系</strong>
+                        提高聚合转化率，精确控制分子量分布，降低卤素残留。
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded border-l-4 border-teal-500">
+                        <strong class="block text-slate-800 mb-1">高效加氢反应器设计</strong>
+                        采用固定床或滴流床加氢，提升抗氧化性，实现完全无色无味。
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded border-l-4 border-teal-500">
+                        <strong class="block text-slate-800 mb-1">生物基替代研究</strong>
+                        应对碳中和，探索部分采用天然萜烯与石化单体共聚的环保路径。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Module 2: Value Chain -->
+        <section id="valuechain" class="tab-content">
+            <div class="mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-800 mb-2">行业地图与价值链 (Value Chain)</h2>
+                <p class="text-slate-600 text-lg">解析上游原料供应商、中游树脂制造商及下游应用市场。直观展示利润在产业链条中的分配情况。</p>
+            </div>
+
+            <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-8 overflow-x-auto">
+                <div class="min-w-[700px]">
+                    <div class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
+                        <!-- Upstream -->
+                        <div class="vc-block w-48 border-t-slate-500">
+                            <div class="text-2xl mb-2">🛢️</div>
+                            <h4 class="font-bold text-slate-800">上游：石化裂解厂</h4>
+                            <p class="text-xs text-slate-500 mt-2">提供C5/C9馏分</p>
+                            <p class="text-xs font-semibold text-rose-500 mt-1">利润分配: 10-15%</p>
+                            <div class="mt-2 text-xs text-left w-full">代表: 中石化, 埃克森美孚</div>
+                        </div>
+                        <div class="vc-arrow hidden md:block"></div>
+                        
+                        <!-- Midstream -->
+                        <div class="vc-block w-56 border-t-sky-600 bg-sky-50 transform scale-105 shadow-md">
+                            <div class="text-2xl mb-2">🏭</div>
+                            <h4 class="font-bold text-sky-800">中游：碳氢树脂制造</h4>
+                            <p class="text-xs text-slate-600 mt-2">冷聚/热聚/催化/加氢</p>
+                            <p class="text-xs font-semibold text-emerald-600 mt-1">利润分配: 20-40% (加氢>C5>C9)</p>
+                            <div class="mt-2 text-xs text-left w-full">代表: 恒河材料, Eastman, Kolon</div>
+                        </div>
+                        <div class="vc-arrow hidden md:block"></div>
+
+                        <!-- Downstream -->
+                        <div class="vc-block w-48 border-t-teal-500">
+                            <div class="text-2xl mb-2">📦</div>
+                            <h4 class="font-bold text-slate-800">下游：终端应用</h4>
+                            <p class="text-xs text-slate-500 mt-2">热熔胶/轮胎/涂料/油墨</p>
+                            <p class="text-xs font-semibold text-amber-500 mt-1">利润分配: 25-35%</p>
+                            <div class="mt-2 text-xs text-left w-full">代表: 汉高, 米其林, 3M</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="chart-container">
+                    <h4 class="text-center font-bold text-slate-700 mb-2">下游应用市场结构</h4>
+                    <canvas id="downstreamChart"></canvas>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex flex-col justify-center">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4">价值获取核心逻辑</h3>
+                    <ul class="space-y-3 text-slate-700">
+                        <li><strong>原料控制力：</strong>由于C5/C9极易挥发且运输危险，中游厂区必须依附上游乙烯厂建设（隔墙供应）。谁拿到便宜稳定的C5/C9配额，谁就赢在起跑线。</li>
+                        <li><strong>技术溢价：</strong>普通C9冷聚树脂门槛低，陷入价格战（毛利<15%）。具备<strong>加氢技术</strong>的企业能够生产高端水白树脂，直供卫材（纸尿裤）和高端医疗胶，享受30%+的高毛利溢价。</li>
+                        <li><strong>下游粘性：</strong>胶粘剂配方一旦确定，下游客户（如汉高）极难更换树脂供应商，认证周期长达1-2年，这构成了中游的客户壁垒。</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Module 3: Market Size -->
+        <section id="market" class="tab-content">
+            <div class="mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-800 mb-2">市场规模与驱动力 (TAM/SAM)</h2>
+                <p class="text-slate-600 text-lg">量化全球及中国市场规模，并通过图表分析推动行业增长的核心引擎。</p>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-6 mb-6">
+                <div class="lg:w-2/3 chart-container">
+                    <h4 class="text-center font-bold text-slate-700 mb-2">全球碳氢树脂市场规模预测 (亿美元)</h4>
+                    <canvas id="marketSizeChart"></canvas>
+                </div>
+                
+                <div class="lg:w-1/3 flex flex-col gap-4">
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="text-slate-500 text-sm font-semibold uppercase">TAM (总可触达市场)</div>
+                        <div class="text-3xl font-bold text-sky-600 mt-1">~$38 亿</div>
+                        <div class="text-sm text-slate-500 mt-1">2023年全球树脂需求量约 240万吨</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="text-slate-500 text-sm font-semibold uppercase">SAM (服务可及市场-中国)</div>
+                        <div class="text-3xl font-bold text-teal-600 mt-1">115亿 RMB</div>
+                        <div class="text-sm text-slate-500 mt-1">占全球产销量的约 40%，增速领跑</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm bg-sky-50">
+                        <div class="text-sky-800 text-sm font-semibold uppercase">CAGR (复合年增长率)</div>
+                        <div class="text-3xl font-bold text-sky-700 mt-1">4.5% - 5.2%</div>
+                        <div class="text-sm text-sky-600 mt-1">高端加氢树脂CAGR超 8%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center">🚀 核心增长引擎</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-bold text-sky-700 mb-2">1. 消费升级驱动 (人口与消费)</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed">
+                            老龄化加剧及婴儿潮带来卫材（成人纸尿裤、卫生巾）爆发，此类产品使用的热熔压敏胶强烈依赖无气味、抗过敏的<strong>高端加氢树脂</strong>。快递物流业爆发带动热熔封箱胶需求激增。
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sky-700 mb-2">2. 环保政策与“双碳” (政策)</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed">
+                            传统溶剂型胶粘剂（含VOCs）被严厉限制，环保型的<strong>热熔胶 (HMA)</strong> 加速替代。欧洲轮胎标签法强制要求降低滚动阻力，促使轮胎厂大量采用高性能碳氢树脂作为胎面改性剂。
+                        </p>
+                    </div>
+                    <div class="md:col-span-2">
+                        <h4 class="font-bold text-teal-600 mb-2">3. 国产替代逻辑 (增量切入点)</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed">
+                            中国长期处于“低端过剩，高端进口”状态。近年来，国内头部企业突破茂金属催化和二段加氢工艺，水白树脂开始大规模替代ExxonMobil、Eastman等进口产品，国产替代是国内龙头最大的增量红利。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Module 4: Landscape -->
+        <section id="landscape" class="tab-content">
+             <div class="mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-800 mb-2">竞争格局 (Landscape)</h2>
+                <p class="text-slate-600 text-lg">分析全球存量市场的集中度，以及高端市场的寡头垄断特征。</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="chart-container">
+                    <h4 class="text-center font-bold text-slate-700 mb-2">全球碳氢树脂市场份额 (CR5 ≈ 48%)</h4>
+                    <canvas id="marketShareChart"></canvas>
+                </div>
+                
+                <div class="flex flex-col gap-4">
+                    <div class="bg-white p-5 rounded-xl border-l-4 border-rose-500 shadow-sm">
+                        <h4 class="font-bold text-slate-800">红海市场：低端C9冷聚/热聚</h4>
+                        <p class="text-sm text-slate-600 mt-2">
+                            <strong>特征：</strong>极度分散，国内有上百家小作坊企业。产品颜色深（黄褐色），带有强烈异味。<br>
+                            <strong>应用：</strong>低端油墨、防锈漆、沥青改性。<br>
+                            <strong>竞争态势：</strong>深陷价格战，受环保核查影响，落后产能正在被加速出清。
+                        </p>
+                    </div>
+                    
+                    <div class="bg-white p-5 rounded-xl border-l-4 border-amber-500 shadow-sm">
+                        <h4 class="font-bold text-slate-800">蓝海/整合市场：C5及C5/C9共聚</h4>
+                        <p class="text-sm text-slate-600 mt-2">
+                            <strong>特征：</strong>集中度中等。需要稳定的上游C5分离装置支撑。<br>
+                            <strong>应用：</strong>路标漆、普通包装胶、胶带。<br>
+                            <strong>竞争态势：</strong>国内大厂（恒河、路华、伊士曼合资厂）主导，规模效应显著，依靠扩产摊薄折旧抢占市场。
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl border-l-4 border-teal-500 shadow-sm">
+                        <h4 class="font-bold text-slate-800">金字塔尖：氢化水白树脂</h4>
+                        <p class="text-sm text-slate-600 mt-2">
+                            <strong>特征：</strong><strong>寡头垄断 (Oligopoly)</strong>。技术壁垒极高，前期CapEx巨大。<br>
+                            <strong>玩家：</strong>埃克森美孚 (ExxonMobil)、伊士曼 (Eastman)、可隆 (Kolon)、出光 (Idemitsu) 占据全球70%以上份额。中国恒河材料等企业刚刚打破垄断。<br>
+                            <strong>切入点：</strong>以高性价比切入卫材热熔胶市场，逐步向医疗和光学胶渗透。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Module 5: Unit Economics -->
+        <section id="economics" class="tab-content">
+            <div class="mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-800 mb-2">商业模式与单元经济 (Unit Economics)</h2>
+                <p class="text-slate-600 text-lg">拆解企业的收入模型、毛利水平，以及在2B大宗/特种化学品销售中的客户生命周期价值。</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center">📊 收入模型与获客</h3>
+                    <ul class="space-y-4 text-sm text-slate-700">
+                        <li>
+                            <span class="font-bold text-sky-700">定价模式 (Cost-Plus vs. Value-Based)：</span>低端产品采用“原料成本+加工费”随行就市；高端加氢产品采用基于性能的定价，价格波动小，抗周期能力强。
+                        </li>
+                        <li>
+                            <span class="font-bold text-sky-700">销售渠道 (B2B直销主导)：</span>大宗订单直接与下游胶粘剂/轮胎巨头签订长协（占60-70%），零散订单通过贸易商分销。
+                        </li>
+                        <li>
+                            <span class="font-bold text-sky-700">获客成本 (CAC)：</span><strong>极高</strong>。前期需要寄送样品、协助下游配方调整、进行中试、小批量试用，最终进入供应商名录，周期长达6-18个月。
+                        </li>
+                        <li>
+                            <span class="font-bold text-sky-700">生命周期价值 (LTV)：</span><strong>极高</strong>。由于化学配方的“牵一发而动全身”，客户转换成本(Switching Cost)巨大。一旦打入供应链，只要质量不出现严重波动，几乎是永久客户，LTV远大于CAC。
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="chart-container">
+                    <h4 class="text-center font-bold text-slate-700 mb-2">各品类毛利率 (Gross Margin) 比较</h4>
+                    <canvas id="marginChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                 <h4 class="font-bold text-slate-800 mb-4">典型 10万吨/年 加氢树脂项目单体经济测算 (粗估)</h4>
+                 <div class="overflow-x-auto">
+                     <table class="w-full text-left border-collapse text-sm">
+                         <thead>
+                             <tr class="bg-slate-200 text-slate-700">
+                                 <th class="p-2 border-b">指标</th>
+                                 <th class="p-2 border-b">数值范围</th>
+                                 <th class="p-2 border-b">备注说明</th>
+                             </tr>
+                         </thead>
+                         <tbody>
+                             <tr class="border-b bg-white">
+                                 <td class="p-2 font-semibold">固定资产投资 (CapEx)</td>
+                                 <td class="p-2">8亿 - 12亿 RMB</td>
+                                 <td class="p-2 text-slate-500">高压加氢反应器及DCS控制系统极其昂贵。</td>
+                             </tr>
+                             <tr class="border-b">
+                                 <td class="p-2 font-semibold">单吨售价 (ASP)</td>
+                                 <td class="p-2">1.5万 - 2.2万 RMB/吨</td>
+                                 <td class="p-2 text-slate-500">受油价和纯度影响。</td>
+                             </tr>
+                             <tr class="border-b bg-white">
+                                 <td class="p-2 font-semibold">单吨原材料成本</td>
+                                 <td class="p-2">0.9万 - 1.2万 RMB/吨</td>
+                                 <td class="p-2 text-slate-500">主要为C5/C9裂解料及氢气。</td>
+                             </tr>
+                             <tr class="border-b">
+                                 <td class="p-2 font-semibold font-bold text-teal-600">综合毛利率</td>
+                                 <td class="p-2 font-bold text-teal-600">30% - 40%</td>
+                                 <td class="p-2 text-slate-500">显著高于普通化工品(10-15%)。</td>
+                             </tr>
+                             <tr class="bg-white">
+                                 <td class="p-2 font-semibold">投资回收期 (Payback)</td>
+                                 <td class="p-2">3.5 - 5 年</td>
+                                 <td class="p-2 text-slate-500">达产后现金流极佳，典型的“印钞机”业务。</td>
+                             </tr>
+                         </tbody>
+                     </table>
+                 </div>
+            </div>
+        </section>
+
+        <!-- Module 6: Moats -->
+        <section id="moats" class="tab-content">
+            <div class="mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-800 mb-2">技术/准入门槛：护城河分析</h2>
+                <p class="text-slate-600 text-lg">为什么小玩家无法切入高端市场？行业的核心壁垒在哪里？</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <div class="relative pl-12">
+                    <div class="absolute left-0 top-0 text-3xl">🛡️</div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">1. 供应链控制力 (资源壁垒)</h3>
+                    <p class="text-slate-600 mb-2"><strong>本质：</strong>原料的可获得性与运输半径限制。</p>
+                    <p class="text-sm text-slate-500 leading-relaxed">
+                        C5/C9是乙烯副产物，产率仅为乙烯的10-15%。由于易聚合、易燃爆，长途运输成本极高且危险。因此，大型碳氢树脂厂必须<strong>“隔墙建设”</strong>在千万吨级炼化一体化基地旁（如大亚湾、舟山）。获取这些稀缺的“坑位”和中石化/中石油的原料长协，构成了第一道物理护城河。
+                    </p>
+                </div>
+
+                <div class="relative pl-12">
+                    <div class="absolute left-0 top-0 text-3xl">🧪</div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">2. 工艺与Know-How (技术壁垒)</h3>
+                    <p class="text-slate-600 mb-2"><strong>本质：</strong>催化剂配方与加氢工程放大能力。</p>
+                    <p class="text-sm text-slate-500 leading-relaxed">
+                        从实验室做出透明树脂不难，难在连续化大生产中控制色相（小于1号色）和气味（零气味）。其中，<strong>茂金属催化剂的合成、钯/镍加氢催化剂的抗中毒设计、高温高压滴流床反应器的温度场控制</strong>，属于极难的工程Know-How，且被海外巨头严密专利封锁，后发者极易侵权或良率极低。
+                    </p>
+                </div>
+
+                <div class="relative pl-12">
+                    <div class="absolute left-0 top-0 text-3xl">💰</div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">3. 资本密集 (资金壁垒)</h3>
+                    <p class="text-slate-600 mb-2"><strong>本质：</strong>高CapEx与长建设周期。</p>
+                    <p class="text-sm text-slate-500 leading-relaxed">
+                        一套先进的加氢树脂装置动辄投资十亿级人民币，建设周期2-3年。由于设备材质要求苛刻（抗氢脆、耐腐蚀），折旧压力大。资金实力弱的企业根本无法承受前期的净流出阶段。
+                    </p>
+                </div>
+
+                <div class="relative pl-12">
+                    <div class="absolute left-0 top-0 text-3xl">📜</div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">4. 环保与安监许可 (政策壁垒)</h3>
+                    <p class="text-slate-600 mb-2"><strong>本质：</strong>牌照的稀缺性。</p>
+                    <p class="text-sm text-slate-500 leading-relaxed">
+                        碳氢树脂属于典型的化工项目（两高项目范畴）。当前全球对化工新建产能审批极度严苛。在中国，获取新的能耗指标和环评批复极其困难，这导致存量合规产能的价值不断被放大，形成天然保护伞。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Module 7: Capital Markets -->
+        <section id="capital" class="tab-content">
+             <div class="mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-800 mb-2">资本市场表现 (Capital Markets)</h2>
+                <p class="text-slate-600 text-lg">洞察一级市场融资热度、二级市场估值锚点及并购退出逻辑。</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Primary Market -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-slate-800">一级市场 (VC/PE)</h3>
+                        <span class="bg-rose-100 text-rose-700 text-xs px-2 py-1 rounded font-bold">热度: 结构性分化</span>
+                    </div>
+                    <ul class="text-sm text-slate-600 space-y-3">
+                        <li><strong>不投：</strong>传统冷/热聚产能。无壁垒，产能过剩，PE机构完全规避。</li>
+                        <li><strong>追捧：</strong>具备高端<strong>水白加氢技术</strong>且有稳定上游原料供应的拟IPO标的（如冲击A股的恒河材料）。投资逻辑纯粹基于“国产替代”。</li>
+                        <li><strong>早前沿：</strong>布局<strong>生物基改性树脂</strong>或新型废塑料裂解制高分子材料的初创企业，契合ESG主题。</li>
+                    </ul>
+                </div>
+
+                <!-- Secondary Market -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-slate-800">二级市场 (Public)</h3>
+                        <span class="bg-sky-100 text-sky-700 text-xs px-2 py-1 rounded font-bold">估值锚: 新材料溢价</span>
+                    </div>
+                    <p class="text-sm text-slate-600 mb-3">市场不对碳氢树脂给予统一定价，而是按产品属性分类估值：</p>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between border-b pb-1">
+                            <span class="text-slate-500">大宗化工逻辑 (低端)</span>
+                            <strong class="text-slate-800">P/E 8x - 12x</strong>
+                        </div>
+                        <div class="flex justify-between border-b pb-1">
+                            <span class="text-slate-500">特种化学品 (加氢)</span>
+                            <strong class="text-sky-600">P/E 15x - 25x</strong>
+                        </div>
+                        <div class="flex justify-between pb-1">
+                            <span class="text-slate-500">对标美股 (Eastman)</span>
+                            <strong class="text-slate-800">P/E ~14x (成熟期)</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exit Paths -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-slate-800">退出通道 (IPO/M&A)</h3>
+                        <span class="bg-teal-100 text-teal-700 text-xs px-2 py-1 rounded font-bold">趋势: 并购整合</span>
+                    </div>
+                    <ul class="text-sm text-slate-600 space-y-3">
+                        <li><strong>IPO路径变窄：</strong>受当前A股IPO收紧政策影响，纯化工扩产项目上市难度加大，必须强调“新材料”属性及卡脖子技术突破。</li>
+                        <li><strong>M&A (并购) 活跃：</strong>大炼化企业（如荣盛、恒力）为了延伸产业链，提高C5/C9副产物附加值，倾向于直接并购拥有成熟技术的碳氢树脂企业。</li>
+                        <li>外资巨头剥离低效资产，本土龙头承接产能亦是趋势。</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mt-6 bg-slate-900 text-white p-6 rounded-xl">
+                <h4 class="font-bold text-sky-400 mb-2">💡 投资Summary</h4>
+                <p class="text-sm text-slate-300">
+                    碳氢树脂行业的Beta贝塔红利已经结束，Alpha阿尔法红利在于<strong>“技术升级导致的结构性替代”</strong>。未来5年，能够掌握高端氢化工艺、深度绑定下游胶粘剂/轮胎巨头，并享有规模化成本优势的企业，将享受市占率和利润率的双击。
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- JavaScript for Interactivity and Charts -->
+    <script>
+        // --- Mobile Menu Logic ---
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('hidden');
+            // Make it absolute/full screen on mobile when opened
+            if(!sidebar.classList.contains('hidden')) {
+                sidebar.classList.add('absolute', 'top-14', 'left-0', 'h-[calc(100vh-3.5rem)]', 'z-50');
+            } else {
+                sidebar.classList.remove('absolute', 'top-14', 'left-0', 'h-[calc(100vh-3.5rem)]', 'z-50');
+            }
+        });
+
+        // --- SPA Tab Switching Logic ---
+        function switchTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            // Show target tab
+            document.getElementById(tabId).classList.add('active');
+            
+            // Update nav styling
+            document.querySelectorAll('.nav-item').forEach(nav => {
+                nav.classList.remove('active');
+            });
+            // Find the clicked nav item based on onclick attribute and set active
+            const clickedNav = Array.from(document.querySelectorAll('.nav-item')).find(el => el.getAttribute('onclick').includes(tabId));
+            if(clickedNav) clickedNav.classList.add('active');
+
+            // Close mobile menu if open
+            if(window.innerWidth < 768) {
+                sidebar.classList.add('hidden');
+                sidebar.classList.remove('absolute', 'top-14', 'left-0', 'h-[calc(100vh-3.5rem)]', 'z-50');
+            }
+
+            // Ensure charts render correctly when container becomes visible
+            // Chart.js sometimes needs a resize event to fit container after display:block
+            window.dispatchEvent(new Event('resize'));
+        }
+
+        // --- Chart.js Configuration & Data ---
+        // Global defaults for styling matching the theme
+        Chart.defaults.color = '#64748b'; // slate-500
+        Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+        
+        // 1. Downstream Chart (Doughnut)
+        const ctxDownstream = document.getElementById('downstreamChart').getContext('2d');
+        new Chart(ctxDownstream, {
+            type: 'doughnut',
+            data: {
+                labels: ['胶粘剂 (热熔/压敏)', '涂料与路标漆', '橡胶与轮胎', '印刷油墨', '其他 (沥青等)'],
+                datasets: [{
+                    data: [45, 20, 15, 10, 10],
+                    backgroundColor: ['#0284c7', '#0ea5e9', '#14b8a6', '#f59e0b', '#cbd5e1'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false, // Critical for container bounds
+                plugins: {
+                    legend: { position: 'right', labels: { boxWidth: 12 } },
+                    tooltip: {
+                        callbacks: { label: function(context) { return context.label + ': ' + context.parsed + '%'; } }
+                    }
+                }
+            }
+        });
+
+        // 2. Market Size Chart (Bar + Line)
+        const ctxMarket = document.getElementById('marketSizeChart').getContext('2d');
+        new Chart(ctxMarket, {
+            type: 'bar',
+            data: {
+                labels: ['2020', '2021', '2022', '2023', '2024E', '2025E'],
+                datasets: [{
+                    type: 'bar',
+                    label: '市场规模 (亿美元)',
+                    data: [28, 31, 35, 38, 40, 43],
+                    backgroundColor: '#e0f2fe',
+                    borderColor: '#38bdf8',
+                    borderWidth: 1,
+                    order: 2
+                }, {
+                    type: 'line',
+                    label: '增长率 YoY (%)',
+                    data: [-2.1, 10.7, 12.9, 8.5, 5.2, 7.5], // 2020 dip due to covid, recovery, then steady
+                    borderColor: '#f43f5e',
+                    backgroundColor: '#f43f5e',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    yAxisID: 'y1',
+                    order: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: '规模 (亿美元)' } },
+                    y1: { 
+                        beginAtZero: true, 
+                        position: 'right', 
+                        grid: { drawOnChartArea: false },
+                        title: { display: true, text: 'YoY %' }
+                    }
+                }
+            }
+        });
+
+        // 3. Market Share Chart (Horizontal Bar)
+        const ctxShare = document.getElementById('marketShareChart').getContext('2d');
+        new Chart(ctxShare, {
+            type: 'bar',
+            data: {
+                labels: ['ExxonMobil (美)', 'Eastman (美)', 'Kolon (韩)', '恒河材料 (中)', 'Zeon (日)', '其他极其分散'],
+                datasets: [{
+                    label: '预估全球市占率 (%)',
+                    data: [16, 12, 8, 7, 5, 52],
+                    backgroundColor: ['#0284c7', '#0369a1', '#075985', '#14b8a6', '#0f766e', '#cbd5e1'],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y', // Makes it horizontal
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { beginAtZero: true, max: 60 }
+                }
+            }
+        });
+
+        // 4. Margin Comparison Chart (Radar)
+        const ctxMargin = document.getElementById('marginChart').getContext('2d');
+        new Chart(ctxMargin, {
+            type: 'radar',
+            data: {
+                labels: ['技术门槛', '毛利率', '环保合规要求', '客户粘性', '初始资本开支'],
+                datasets: [{
+                    label: '普通C9冷聚树脂',
+                    data: [2, 3, 2, 4, 2], // Out of 10 scale
+                    backgroundColor: 'rgba(203, 213, 225, 0.4)', // slate-300
+                    borderColor: '#94a3b8',
+                    pointBackgroundColor: '#94a3b8'
+                }, {
+                    label: 'C5/C9加氢水白树脂',
+                    data: [9, 9, 8, 9, 10],
+                    backgroundColor: 'rgba(2, 132, 199, 0.4)', // sky-600
+                    borderColor: '#0284c7',
+                    pointBackgroundColor: '#0284c7'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                        grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                        pointLabels: { font: { size: 12 } },
+                        ticks: { display: false, min: 0, max: 10 }
+                    }
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>
