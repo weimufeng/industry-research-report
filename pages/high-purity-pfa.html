@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深度报告：高纯PFA（半导体级）行业全景解析</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Clean Tech - Slate-50 background, Slate-800 text, Sky-500 and Emerald-500 accents -->
+    <!-- Application Structure Plan: A single-page dashboard with a sticky top navigation bar for smooth scrolling. Divided into 5 logical interactive sections based on the 8 report modules. Uses interactive tabs for tech paths, interactive HTML-based value chain nodes that display details on click, and dynamic Chart.js visualizations to make data consumable. Chosen for a 'dashboard' feel appropriate for an industry report, prioritizing data exploration over linear reading. -->
+    <!-- Visualization & Content Choices:
+    Market Size -> Line Chart -> Shows trend/growth -> Chart.js
+    Market Share -> Bar Chart -> Comparison -> Chart.js
+    Five Forces -> Radar Chart -> Multivariate assessment -> Chart.js
+    Value Chain -> HTML/CSS Grid with Click Events -> Avoids SVG, enables interactivity -> Vanilla JS + DOM
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f8fafc; color: #0f172a; }
+        html { scroll-behavior: smooth; }
+        .chart-container { position: relative; width: 100%; max-width: 800px; margin-left: auto; margin-right: auto; height: 350px; max-height: 400px; }
+        @media (max-width: 768px) { .chart-container { height: 280px; } }
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8); }
+        .tab-active { border-bottom: 2px solid #0ea5e9; color: #0ea5e9; font-weight: 600; }
+        .node-active { border-color: #0ea5e9; background-color: #f0f9ff; box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.1); }
+    </style>
+</head>
+<body class="antialiased">
+
+    <nav class="fixed top-0 w-full glass-card z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-xl font-bold text-slate-800">⚛️ 半导体级高纯PFA分析</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#summary" class="text-slate-600 hover:text-sky-600 text-sm font-medium">执行摘要</a>
+                    <a href="#market" class="text-slate-600 hover:text-sky-600 text-sm font-medium">市场与概况</a>
+                    <a href="#chain" class="text-slate-600 hover:text-sky-600 text-sm font-medium">产业链图谱</a>
+                    <a href="#competition" class="text-slate-600 hover:text-sky-600 text-sm font-medium">竞争格局</a>
+                    <a href="#tech" class="text-slate-600 hover:text-sky-600 text-sm font-medium">技术与投资</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-20 pb-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+
+        <header id="summary" class="pt-8 pb-4">
+            <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 mb-4">高纯PFA（半导体级）行业深度分析报告</h1>
+            <p class="text-lg text-slate-600 max-w-4xl">本报告聚焦半导体制造核心耗材——高纯可溶性聚四氟乙烯（PFA），剖析其在晶圆制造先进制程中的关键作用、市场爆发逻辑及国产替代的历史性投资机遇。</p>
+        </header>
+
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+            <h2 class="text-2xl font-bold text-slate-800 mb-6 border-l-4 border-sky-500 pl-4">一、 执行摘要与行业概况</h2>
+            <p class="text-slate-600 mb-8">本模块提供高纯PFA行业的宏观俯瞰。目前，半导体级高纯PFA行业在全球处于稳健成长期，而在中国市场正处于关键的<b>导入与加速成长期</b>的拐点。受地缘政治及先进制程扩产驱动，具备极高投资价值。</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-slate-50 rounded-xl p-6 border border-slate-100 hover:shadow-md transition-shadow">
+                    <div class="text-sm font-semibold text-sky-600 mb-1">行业所处阶段</div>
+                    <div class="text-2xl font-bold text-slate-800">加速成长期 (国产)</div>
+                    <div class="mt-2 text-sm text-slate-500">全球成熟寡头垄断，国内处于从0到1的突破、即将迈入1到10的放量阶段。</div>
+                </div>
+                <div class="bg-slate-50 rounded-xl p-6 border border-slate-100 hover:shadow-md transition-shadow">
+                    <div class="text-sm font-semibold text-emerald-600 mb-1">投资建议评价</div>
+                    <div class="text-2xl font-bold text-slate-800">强烈推荐配置</div>
+                    <div class="mt-2 text-sm text-slate-500">进入壁垒极高，但一旦通过晶圆厂验证，将享受极高的客户粘性与利润率。</div>
+                </div>
+                <div class="bg-slate-50 rounded-xl p-6 border border-slate-100 hover:shadow-md transition-shadow">
+                    <div class="text-sm font-semibold text-indigo-600 mb-1">核心商业模式</div>
+                    <div class="text-2xl font-bold text-slate-800">技术溢价+验证壁垒</div>
+                    <div class="mt-2 text-sm text-slate-500">依靠极低金属离子析出率(ppt级别)赚取技术垄断利润，而非单纯产能规模。</div>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <h3 class="text-lg font-bold text-slate-800 mb-4">Top 3 驱动行业发展的关键词</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="p-4 border border-sky-200 bg-sky-50 rounded-lg">
+                        <span class="text-2xl block mb-2">🏭</span>
+                        <h4 class="font-bold text-sky-900">1. 先进制程放量</h4>
+                        <p class="text-sm text-sky-800 mt-1">7nm/5nm及以下制程对清洗、刻蚀液纯度要求呈指数级上升，带动高纯PFA管道阀门用量激增。</p>
+                    </div>
+                    <div class="p-4 border border-emerald-200 bg-emerald-50 rounded-lg">
+                        <span class="text-2xl block mb-2">🛡️</span>
+                        <h4 class="font-bold text-emerald-900">2. 自主可控/国产替代</h4>
+                        <p class="text-sm text-emerald-800 mt-1">海外断供风险加剧，国内Fab厂全面开放验证窗口，给予本土PFA树脂企业历史性机遇。</p>
+                    </div>
+                    <div class="p-4 border border-amber-200 bg-amber-50 rounded-lg">
+                        <span class="text-2xl block mb-2">💧</span>
+                        <h4 class="font-bold text-amber-900">3. 痕量金属控制 (PPT级)</h4>
+                        <p class="text-sm text-amber-800 mt-1">从PPB到PPT的杂质控制能力是核心竞争力，决定了产品能否进入核心半导体供应链。</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-slate-50 p-6 rounded-lg border border-slate-200 text-sm text-slate-700">
+                <span class="font-bold">定义与基本属性：</span>高纯PFA（Perfluoroalkoxy）是四氟乙烯与全氟丙基乙烯基醚的共聚物。保留了PTFE的耐腐蚀性，同时具备可熔融加工性。半导体级要求极低的金属离子溶出，主要用于半导体湿法工艺（清洗、刻蚀、CMP）的流体管路、阀门、泵、接头及储罐内衬。
+            </div>
+        </section>
+
+        <section id="market" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+            <h2 class="text-2xl font-bold text-slate-800 mb-6 border-l-4 border-sky-500 pl-4">二、 市场规模与需求分析</h2>
+            <p class="text-slate-600 mb-8">交互图表展示了全球及中国半导体级高纯PFA的市场规模(TAM)预测。随着AI芯片算力需求带动高端晶圆产能扩张，PFA市场将保持强劲的复利增长。</p>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div>
+                    <div class="chart-container">
+                        <canvas id="marketSizeChart"></canvas>
+                    </div>
+                </div>
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">全球市场空间 (TAM)</h3>
+                        <p class="text-slate-600">预计到2028年，全球半导体级PFA树脂市场需求将突破 <span class="font-bold text-sky-600 text-xl">18亿</span> 美元，未来五年复合年增长率（CAGR）约为 <span class="font-bold text-sky-600">12.5%</span>。</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">中国市场容量 (SAM)</h3>
+                        <p class="text-slate-600">中国是最大的半导体设备及材料消费国，预计2028年中国区需求占比将达35%，CAGR超 <span class="font-bold text-emerald-600">18%</span>，增速显著高于全球平均水平。</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">渗透率与竞争阶段</h3>
+                        <div class="w-full bg-slate-200 rounded-full h-4 mt-2">
+                            <div class="bg-sky-500 h-4 rounded-full" style="width: 5%"></div>
+                        </div>
+                        <p class="text-sm text-slate-500 mt-2">当前国内高端半导体级PFA树脂的国产化渗透率 <span class="font-bold text-slate-800">不足 5%</span>。处于爆发前夜，属于典型的“厚雪长坡”高壁垒蓝海市场。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="chain" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+            <h2 class="text-2xl font-bold text-slate-800 mb-6 border-l-4 border-sky-500 pl-4">三、 产业链全景图谱解析</h2>
+            <p class="text-slate-600 mb-6">点击下方产业链各环节区块，查看对应的成本结构、工艺难点及代表性企业。掌握价值链分布是寻找投资标的的关键。</p>
+
+            <div class="flex flex-col lg:flex-row gap-6">
+                <div class="lg:w-2/3">
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div class="font-bold text-slate-500 border-b-2 border-slate-200 pb-2">上游 (原材料)</div>
+                        <div class="font-bold text-slate-500 border-b-2 border-slate-200 pb-2">中游 (合成与纯化)</div>
+                        <div class="font-bold text-slate-500 border-b-2 border-slate-200 pb-2">下游 (部件与应用)</div>
+
+                        <div class="chain-node bg-slate-50 border border-slate-300 rounded-lg p-4 cursor-pointer hover:bg-sky-50 transition-colors" data-target="upstream1" onclick="updateChainInfo('upstream1', this)">
+                            <div class="text-2xl mb-1">🪨</div>
+                            <div class="font-bold text-sm">萤石 / 氢氟酸</div>
+                        </div>
+                        <div class="flex items-center justify-center text-slate-400">➡️</div>
+                        <div class="chain-node bg-slate-50 border border-slate-300 rounded-lg p-4 cursor-pointer hover:bg-sky-50 transition-colors" data-target="midstream1" onclick="updateChainInfo('midstream1', this)">
+                            <div class="text-2xl mb-1">🧪</div>
+                            <div class="font-bold text-sm">超纯聚合工艺</div>
+                        </div>
+                        
+                        <div class="flex items-center justify-center text-slate-400 transform rotate-90 sm:rotate-0">⬇️</div>
+                        <div class="hidden sm:block"></div>
+                        <div class="flex items-center justify-center text-slate-400 transform rotate-90 sm:rotate-0">⬇️</div>
+
+                        <div class="chain-node bg-slate-50 border border-slate-300 rounded-lg p-4 cursor-pointer hover:bg-sky-50 transition-colors" data-target="upstream2" onclick="updateChainInfo('upstream2', this)">
+                            <div class="text-2xl mb-1">⚛️</div>
+                            <div class="font-bold text-sm">TFE / PPVE 单体</div>
+                        </div>
+                        <div class="flex items-center justify-center text-slate-400">➡️</div>
+                        <div class="chain-node bg-slate-50 border border-slate-300 rounded-lg p-4 cursor-pointer hover:bg-sky-50 transition-colors border-2 border-sky-400 shadow-md" data-target="midstream2" onclick="updateChainInfo('midstream2', this)" id="default-node">
+                            <div class="text-2xl mb-1">💎</div>
+                            <div class="font-bold text-sm">高纯PFA树脂</div>
+                            <div class="text-xs text-sky-600 mt-1">核心卡脖子环节</div>
+                        </div>
+
+                        <div class="hidden sm:block"></div>
+                        <div class="flex items-center justify-center text-slate-400">➡️</div>
+                        <div class="flex flex-col gap-4">
+                            <div class="chain-node bg-slate-50 border border-slate-300 rounded-lg p-4 cursor-pointer hover:bg-sky-50 transition-colors" data-target="downstream1" onclick="updateChainInfo('downstream1', this)">
+                                <div class="text-2xl mb-1">⚙️</div>
+                                <div class="font-bold text-sm">半导体流体系统组件</div>
+                                <div class="text-xs text-slate-500">(管/阀/泵)</div>
+                            </div>
+                            <div class="flex items-center justify-center text-slate-400">⬇️</div>
+                            <div class="chain-node bg-slate-50 border border-slate-300 rounded-lg p-4 cursor-pointer hover:bg-sky-50 transition-colors" data-target="downstream2" onclick="updateChainInfo('downstream2', this)">
+                                <div class="text-2xl mb-1">🏭</div>
+                                <div class="font-bold text-sm">晶圆代工厂 (Fabs)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:w-1/3 bg-slate-800 rounded-xl p-6 text-white shadow-inner flex flex-col justify-center min-h-[300px]" id="chain-detail-panel">
+                    <!-- Dynamic Content Area -->
+                </div>
+            </div>
+        </section>
+
+        <section id="competition" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+            <h2 class="text-2xl font-bold text-slate-800 mb-6 border-l-4 border-sky-500 pl-4">四、 竞争格局与护城河</h2>
+            <p class="text-slate-600 mb-8">半导体高纯PFA属于寡头垄断的卖方市场。通过波特五力模型分析可见，供应商（掌握纯化技术的少数化工巨头）拥有极高的议价能力。</p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-center font-bold text-slate-700 mb-4">波特五力模型分析</h3>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="fiveForcesChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-center font-bold text-slate-700 mb-4">全球半导体PFA树脂市场份额预估 (CR4 > 90%)</h3>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="marketShareChart"></canvas>
+                    </div>
+                    <div class="mt-4 p-4 bg-amber-50 rounded border border-amber-200 text-sm text-amber-800">
+                        <b>分析提示：</b> 科慕(Chemours)与大金(Daikin)占据统治地位。目前国内已有少数领先的氟化工企业（如巨化股份、永和股份等）取得技术突破并进入部分下游验证阶段，但规模化供应仍需时日。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tech" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+            <h2 class="text-2xl font-bold text-slate-800 mb-6 border-l-4 border-sky-500 pl-4">五、 技术路径、风险与投资逻辑</h2>
+            <p class="text-slate-600 mb-6">突破高纯PFA的难点不在于基础聚合，而在于极端条件下的杂质控制和应用验证。理解这些技术壁垒和宏观政策，是制定投资策略的前提。</p>
+
+            <div class="mb-8">
+                <div class="flex border-b border-slate-200 mb-4">
+                    <button class="px-4 py-2 text-sm font-medium focus:outline-none tab-active" id="tab-tech" onclick="switchTab('tech')">核心技术壁垒</button>
+                    <button class="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 focus:outline-none" id="tab-risk" onclick="switchTab('risk')">宏观环境与风险</button>
+                    <button class="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 focus:outline-none" id="tab-invest" onclick="switchTab('invest')">关键成功要素(KSF)</button>
+                </div>
+
+                <div id="content-tech" class="block">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="p-5 bg-slate-50 rounded border border-slate-200">
+                            <h4 class="font-bold text-sky-700 mb-2">1. 聚合环境控制（从源头杜绝）</h4>
+                            <p class="text-sm text-slate-600">必须使用全塑化（无金属接触）的反应釜或特殊涂层设备。环境需达到极高洁净度，单体（TFE/PPVE）纯度要求达到99.999%以上，防止聚合过程引入金属离子。</p>
+                        </div>
+                        <div class="p-5 bg-slate-50 rounded border border-slate-200">
+                            <h4 class="font-bold text-sky-700 mb-2">2. 后处理端氟化消除不稳定端基</h4>
+                            <p class="text-sm text-slate-600">普通PFA聚合后带有不稳定端基，高温下易产生氟化氢等杂质。高端技术需通过高温氟气处理，将端基全部转化为极稳定的三氟甲基，此工艺危险系数高且为海外专利封锁重灾区。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="content-risk" class="hidden">
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <span class="text-red-500 mr-2">⚠️</span>
+                            <div>
+                                <span class="font-bold text-slate-800">PFAS环保法规风险：</span>
+                                <p class="text-sm text-slate-600">欧美正酝酿限制“永久化学品”PFAS法案。虽然含氟聚合物（PFA为代表）通常被认为符合“低关注度聚合物”标准可能被豁免，但环保合规成本急剧上升不可避免。</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-amber-500 mr-2">⚖️</span>
+                            <div>
+                                <span class="font-bold text-slate-800">长周期验证风险：</span>
+                                <p class="text-sm text-slate-600">半导体客户极度风险厌恶。材料替换验证周期长达1-3年。从材料测试、流体部件试生产、到Fab厂上机跑片，任一环节数据异常即告失败，存在较大的时间沉没成本。</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-500 mr-2">🌐</span>
+                            <div>
+                                <span class="font-bold text-slate-800">地缘政治与贸易摩擦：</span>
+                                <p class="text-sm text-slate-600">海外断供是国内PFA产业链发展的最大催化剂，但如果国际贸易环境缓和或海外巨头主动降价倾销，将对国内处于培育期的产能造成冲击。</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div id="content-invest" class="hidden">
+                    <div class="flex flex-col md:flex-row gap-6">
+                        <div class="flex-1 bg-gradient-to-br from-slate-800 to-slate-900 text-white p-6 rounded-xl shadow-lg">
+                            <h4 class="text-lg font-bold mb-4 text-sky-300">行业估值与投资逻辑</h4>
+                            <p class="text-sm mb-4 leading-relaxed">
+                                <b>估值方法：</b> 研发期企业适用 P/S (市销率) 或 EV/Sales；具备稳定量产能力后转向 P/E (市盈率)。由于极高壁垒，半导体材料级标的通常享有显著估值溢价 (40x - 60x P/E)。
+                            </p>
+                            <p class="text-sm leading-relaxed">
+                                <b>差异化观点：</b> 市场普遍关注产能释放，但<b>核心陷阱在于“伪产能”</b>。很多宣称的“千吨级PFA产能”实际只能降级用于普通防腐领域。投资应死盯“产品端基数量”及“下游Fab厂实质性验证订单”，寻找拥有闭环纯化工艺能力的“真半导体级”标的。
+                            </p>
+                        </div>
+                        <div class="flex-1 space-y-3">
+                            <div class="bg-sky-50 p-3 rounded border border-sky-100">
+                                <span class="font-bold text-sky-800">KSF 1: 顶配的纯化工艺团队</span>
+                                <div class="text-xs text-slate-600 mt-1">不仅是合成，核心在于后处理提纯与痕量检测能力。</div>
+                            </div>
+                            <div class="bg-emerald-50 p-3 rounded border border-emerald-100">
+                                <span class="font-bold text-emerald-800">KSF 2: 绑定下游头部客户</span>
+                                <div class="text-xs text-slate-600 mt-1">具备与国内设备大厂或Fab厂联合攻关验证的渠道资源。</div>
+                            </div>
+                            <div class="bg-indigo-50 p-3 rounded border border-indigo-100">
+                                <span class="font-bold text-indigo-800">KSF 3: 产业链一体化布局</span>
+                                <div class="text-xs text-slate-600 mt-1">从氢氟酸、R22到TFE/PPVE单体实现自给，抵抗周期性原材料价格波动。</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="text-center text-slate-500 text-sm py-8 border-t border-slate-200">
+            <p>免责声明：本报告由虚拟AI生成，模拟高纯PFA产业研究逻辑。数据及预测为演示用途，不构成任何真实投资建议。</p>
+        </footer>
+
+    </main>
+
+    <script>
+        // Data Configuration for Value Chain Details
+        const chainData = {
+            upstream1: { title: "萤石与氢氟酸", desc: "氟化工的源头矿产资源。", details: ["话语权：资源导向，国内储量丰富。", "价格波动影响：基础原料，受环保限产影响大。", "代表企业：巨化股份、多氟多等（氟化氢环节）。"] },
+            upstream2: { title: "TFE / PPVE 单体", desc: "合成PFA的关键单体。", details: ["核心难点：PPVE（全氟丙基乙烯基醚）的合成壁垒极高。", "市场状态：全球仅少数企业掌握高纯PPVE量产技术。", "成本占比：约占直接材料成本的 60%-70%。"] },
+            midstream1: { title: "超纯聚合工艺", desc: "洁净室内的聚合反应。", details: ["要求：全非金属化设备接触，避免引入重金属。", "状态：悬浮聚合或乳液聚合。", "壁垒：配方机密，反应条件的精准控制。"] },
+            midstream2: { title: "高纯PFA树脂制备", desc: "产业链核心卡脖子环节（利润丰厚）。", details: ["工艺：高温氟化处理端基，消除不稳定因素。", "技术指标：金属离子总含量 < 1ppb，甚至达 ppt 级别。", "毛利率：半导体级产品毛利率通常可达 50% - 70% 以上。"] },
+            downstream1: { title: "流体系统组件制造", desc: "将树脂加工成管材、阀体、接头。", details: ["工艺：洁净室注塑、挤出加工。", "壁垒：加工过程的二次污染控制，模具设计。", "代表企业：Entegris, 华林科纳, 晶帆半导体等。"] },
+            downstream2: { title: "晶圆代工厂 (Fabs)", desc: "最终应用终端。", details: ["应用场景：清洗设备、湿法刻蚀、CMP抛光液输送系统。", "决策路径：不看重单价，极度看重稳定性、良率影响。", "代表客户：TSMC, 中芯国际, 长江存储等。"] }
+        };
+
+        function updateChainInfo(nodeId, element) {
+            document.querySelectorAll('.chain-node').forEach(el => el.classList.remove('node-active', 'border-sky-400', 'border-2', 'shadow-md'));
+            element.classList.add('node-active', 'border-sky-400', 'border-2', 'shadow-md');
+
+            const data = chainData[nodeId];
+            const panel = document.getElementById('chain-detail-panel');
+            
+            panel.innerHTML = `
+                <div class="animate-pulse flex space-x-4 mb-2">
+                  <div class="h-4 bg-slate-600 rounded w-1/4"></div>
+                </div>
+            `;
+
+            setTimeout(() => {
+                let listHtml = data.details.map(item => `<li class="mb-2 text-sm text-slate-300 relative pl-4 before:content-['▹'] before:absolute before:left-0 before:text-sky-400">${item}</li>`).join('');
+                panel.innerHTML = `
+                    <h3 class="text-xl font-bold text-sky-400 mb-2">${data.title}</h3>
+                    <p class="text-sm text-slate-300 mb-4 pb-4 border-b border-slate-700">${data.desc}</p>
+                    <ul class="list-none m-0 p-0">${listHtml}</ul>
+                `;
+            }, 150);
+        }
+
+        function switchTab(tabId) {
+            ['tech', 'risk', 'invest'].forEach(id => {
+                document.getElementById('tab-' + id).classList.remove('tab-active', 'text-slate-500');
+                if(id !== tabId) document.getElementById('tab-' + id).classList.add('text-slate-500');
+                document.getElementById('content-' + id).classList.add('hidden');
+                document.getElementById('content-' + id).classList.remove('block');
+            });
+            document.getElementById('tab-' + tabId).classList.add('tab-active');
+            document.getElementById('tab-' + tabId).classList.remove('text-slate-500');
+            document.getElementById('content-' + tabId).classList.remove('hidden');
+            document.getElementById('content-' + tabId).classList.add('block');
+        }
+
+        function initCharts() {
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { font: { family: 'system-ui' }, color: '#475569' } },
+                    tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', titleFont: { size: 13 }, bodyFont: { size: 13 }, padding: 10, cornerRadius: 8 }
+                }
+            };
+
+            const ctxSize = document.getElementById('marketSizeChart').getContext('2d');
+            new Chart(ctxSize, {
+                type: 'line',
+                data: {
+                    labels: ['2021', '2022', '2023', '2024(E)', '2025(E)', '2026(E)', '2027(E)', '2028(E)'],
+                    datasets: [
+                        { label: '全球TAM (百万美元)', data: [850, 980, 1050, 1180, 1320, 1480, 1650, 1850], borderColor: '#0ea5e9', backgroundColor: 'rgba(14, 165, 233, 0.1)', borderWidth: 3, tension: 0.4, fill: true },
+                        { label: '中国区SAM预测 (百万美元)', data: [220, 260, 290, 340, 410, 490, 580, 680], borderColor: '#10b981', borderDash: [5, 5], borderWidth: 3, tension: 0.4, fill: false }
+                    ]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { color: '#64748b' } },
+                        x: { grid: { display: false }, ticks: { color: '#64748b' } }
+                    }
+                }
+            });
+
+            const ctxForces = document.getElementById('fiveForcesChart').getContext('2d');
+            new Chart(ctxForces, {
+                type: 'radar',
+                data: {
+                    labels: ['现有竞争强度', '潜在进入者威胁', '替代品威胁', '供应商议价能力', '客户议价能力'],
+                    datasets: [{
+                        label: '半导体高纯PFA行业壁垒评估',
+                        data: [7, 2, 3, 9, 6],
+                        backgroundColor: 'rgba(14, 165, 233, 0.2)',
+                        borderColor: '#0ea5e9',
+                        pointBackgroundColor: '#0ea5e9',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#0ea5e9'
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        r: { 
+                            angleLines: { color: '#e2e8f0' }, 
+                            grid: { color: '#e2e8f0' }, 
+                            pointLabels: { font: { size: 12 }, color: '#475569' },
+                            ticks: { display: false, min: 0, max: 10 }
+                        }
+                    }
+                }
+            });
+
+            const ctxShare = document.getElementById('marketShareChart').getContext('2d');
+            new Chart(ctxShare, {
+                type: 'bar',
+                data: {
+                    labels: ['Chemours (美)', 'Daikin (日)', '3M/Dyneon (美/德)', 'Solvay (比)', '中国内资企业总计'],
+                    datasets: [{
+                        label: '全球市场份额预估 (%)',
+                        data: [45, 30, 12, 8, 3],
+                        backgroundColor: ['#0284c7', '#0ea5e9', '#38bdf8', '#7dd3fc', '#10b981'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    indexAxis: 'y',
+                    scales: {
+                        x: { beginAtZero: true, max: 50, grid: { color: '#f1f5f9' }, ticks: { color: '#64748b' } },
+                        y: { grid: { display: false }, ticks: { color: '#475569', font: { weight: 'bold' } } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        window.onload = () => {
+            initCharts();
+            updateChainInfo('midstream2', document.getElementById('default-node'));
+        };
+    </script>
+</body>
+</html>

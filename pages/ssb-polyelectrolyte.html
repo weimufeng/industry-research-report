@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>固态电池高分子电解质基体行业深度报告 2026</title>
+    
+    <!-- Chosen Palette: Clean Tech Corporate (Slate Backgrounds, Indigo & Cyan Accents for Tech feel, Emerald for growth) -->
+    <!-- Application Structure Plan: A single-page dashboard with a sticky side/top navigation. Content is chunked into the 8 requested modules. Charts are used for data-heavy sections (Market, Tech, Competition). Interactive CSS/JS elements (tabs, hover cards) are used for Value Chain and Risks to reduce cognitive load and encourage exploration. This structure allows linear reading or jump-to-section navigation, mimicking a professional interactive slide deck. -->
+    <!-- Visualization & Content Choices: 
+         1. Exec Summary: HTML/CSS Stat Cards -> Goal: Quick insights -> Justification: Immediate impact.
+         2. Market Analysis: Chart.js Combo (Bar+Line) -> Goal: Show TAM and Growth -> Justification: Best for time-series data.
+         3. Value Chain: HTML/CSS Flex Layout + JS Interaction -> Goal: Map the ecosystem -> Justification: Avoids SVG/Mermaid, highly interactive.
+         4. Competition: Chart.js Doughnut -> Goal: Show Market Share -> Justification: Clear breakdown of concentration.
+         5. Tech Roadmap: Chart.js Radar -> Goal: Compare PEO/PVDF/Composite -> Justification: Multi-variable tech comparison. 
+         Library: Chart.js (NO SVG/Mermaid used).
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        /* Smooth scrolling */
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; }
+        
+        /* Chart Container Requirements */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px; /* Limits max width for readability */
+            margin-left: auto;
+            margin-right: auto;
+            height: 40vh;
+            min-height: 300px;
+            max-height: 450px;
+        }
+
+        /* Responsive height adjustments */
+        @media (min-width: 768px) {
+            .chart-container { height: 350px; }
+        }
+        @media (min-width: 1024px) {
+            .chart-container { height: 400px; }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        .nav-link.active {
+            border-left: 4px solid #4f46e5;
+            color: #4f46e5;
+            background-color: #e0e7ff;
+            font-weight: 600;
+        }
+
+        /* Value Chain CSS Boxes */
+        .vc-box {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .vc-box:hover, .vc-box.active {
+            border-color: #4f46e5;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .vc-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased">
+
+    <!-- Top Navigation for Mobile, Sidebar for Desktop -->
+    <div class="flex flex-col md:flex-row min-h-screen">
+        
+        <!-- Sidebar Navigation -->
+        <nav class="w-full md:w-64 bg-white shadow-lg md:fixed h-auto md:h-screen overflow-y-auto z-50">
+            <div class="p-6">
+                <h1 class="text-2xl font-bold text-indigo-700 leading-tight">固态电池<br><span class="text-lg text-slate-600">高分子电解质报告</span></h1>
+                <p class="text-xs text-slate-400 mt-2">2026年深度行业洞察</p>
+            </div>
+            <ul class="flex flex-row md:flex-col overflow-x-auto md:overflow-hidden whitespace-nowrap md:whitespace-normal pb-4 md:pb-0 px-2" id="nav-menu">
+                <li><a href="#exec-summary" class="nav-link block px-6 py-3 text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors active">一、 执行摘要</a></li>
+                <li><a href="#overview" class="nav-link block px-6 py-3 text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors">二、 行业概况</a></li>
+                <li><a href="#market" class="nav-link block px-6 py-3 text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors">三、 市场规模</a></li>
+                <li><a href="#value-chain" class="nav-link block px-6 py-3 text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors">四、 产业链图谱</a></li>
+                <li><a href="#competition" class="nav-link block px-6 py-3 text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors">五、 竞争格局</a></li>
+                <li><a href="#technology" class="nav-link block px-6 py-3 text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors">六、 技术路径</a></li>
+                <li><a href="#environment" class="nav-link block px-6 py-3 text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors">七、 宏观风险</a></li>
+                <li><a href="#investment" class="nav-link block px-6 py-3 text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors">八、 投资逻辑</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 md:ml-64 p-6 md:p-12">
+            
+            <header class="mb-12 border-b pb-6">
+                <h2 class="text-4xl font-extrabold text-slate-900 tracking-tight">高分子电解质基体：从半固态到全固态的破局之匙</h2>
+                <p class="mt-4 text-lg text-slate-600">本报告全面剖析固态电池高分子（聚合物）电解质基体赛道，涵盖市场数据、技术演进及投资战略。</p>
+            </header>
+
+            <!-- 模块一：执行摘要 -->
+            <section id="exec-summary" class="mb-16 pt-4">
+                <div class="mb-6">
+                    <h3 class="text-2xl font-bold text-indigo-700 flex items-center"><span class="mr-2">&#128204;</span> 一、 执行摘要 (Executive Summary)</h3>
+                    <p class="text-slate-600 mt-2">本部分浓缩了本报告的最核心发现，揭示高分子电解质行业当前的生命周期位置、投资价值及核心驱动要素。</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-100 hover:shadow-md transition-shadow">
+                        <div class="text-emerald-500 text-3xl mb-2">&#128640;</div>
+                        <h4 class="font-bold text-slate-800 text-lg mb-2">核心结论：成长期初期</h4>
+                        <p class="text-sm text-slate-600">行业正处于从“导入期”向“成长期”跨越的拐点。随着半固态电池在新能源汽车的规模化装车，高分子基体（特别是PEO及原位固化技术）需求开始爆发，全固态技术仍在蓄力突破。</p>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-100 hover:shadow-md transition-shadow">
+                        <div class="text-indigo-500 text-3xl mb-2">&#128176;</div>
+                        <h4 class="font-bold text-slate-800 text-lg mb-2">投资建议：战略性超配</h4>
+                        <p class="text-sm text-slate-600"><strong>强烈建议布局。</strong> 该环节具有高技术壁垒和配方粘性。在资本市场，拥有“复合电解质改性技术”及“原位聚合量产工艺”的企业具备获取超额溢价（Alpha）的能力。</p>
+                    </div>
+                    <div class="bg-indigo-600 rounded-xl shadow-sm p-6 text-white hover:bg-indigo-700 transition-colors">
+                        <div class="text-3xl mb-2">&#128273;</div>
+                        <h4 class="font-bold text-lg mb-2">Top 3 关键词</h4>
+                        <ul class="text-sm space-y-2 font-medium">
+                            <li>1. 原位固化 (In-situ Polymerization)</li>
+                            <li>2. 复合路线 (Polymer-Ceramic Composite)</li>
+                            <li>3. 降本规模化 (Cost Parity at Scale)</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 模块二：行业概况 -->
+            <section id="overview" class="mb-16 pt-4">
+                <div class="mb-6">
+                    <h3 class="text-2xl font-bold text-indigo-700 flex items-center"><span class="mr-2">&#128214;</span> 二、 行业概况与基本属性 (Industry Overview)</h3>
+                    <p class="text-slate-600 mt-2">明确研究边界，梳理高分子电解质基体过去二十年的技术迭代路径及行业内在的盈利逻辑。</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 mb-6">
+                    <h4 class="font-semibold text-slate-800 border-b pb-2 mb-4">定义与分类边界</h4>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        <strong>研究对象：</strong> 本报告聚焦于固态及半固态电池中，用于传导锂离子的<strong class="text-indigo-600">高分子（聚合物）基体材料</strong>。主要包括聚环氧乙烷(PEO)、聚偏氟乙烯(PVDF)、聚丙烯腈(PAN)、聚甲基丙烯酸甲酯(PMMA)及其衍生物。
+                        <br><br>
+                        <strong>分类维度：</strong> 当前市场主流分为 <strong>“纯聚合物电解质 (SPE)”</strong> 和 <strong>“聚合物-无机复合电解质 (CPE)”</strong>。鉴于纯高分子在室温下离子电导率受限，CPE（即高分子作为柔性基体，掺杂无机固态电解质粉末）是目前产业化的绝对主流。
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                        <h4 class="font-semibold text-slate-800 border-b pb-2 mb-4">发展历程</h4>
+                        <ul class="relative border-l border-slate-200 ml-3 space-y-4">
+                            <li class="pl-4">
+                                <div class="absolute w-3 h-3 bg-slate-300 rounded-full -left-[6.5px] top-1"></div>
+                                <p class="text-xs text-slate-500 font-bold">1970s - 1990s (萌芽期)</p>
+                                <p class="text-sm text-slate-700">Wright发现PEO的离子导电性，Armand提出全固态聚合物电池概念。实验室验证阶段。</p>
+                            </li>
+                            <li class="pl-4">
+                                <div class="absolute w-3 h-3 bg-slate-300 rounded-full -left-[6.5px] top-1"></div>
+                                <p class="text-xs text-slate-500 font-bold">2000s - 2015s (技术沉淀期)</p>
+                                <p class="text-sm text-slate-700">Bolloré在欧洲推出基于PEO的蓝天计划电动车，但需加热至60℃以上运行，普及受阻。</p>
+                            </li>
+                            <li class="pl-4">
+                                <div class="absolute w-3 h-3 bg-indigo-500 rounded-full -left-[6.5px] top-1"></div>
+                                <p class="text-xs text-indigo-600 font-bold">2020s 至今 (产业化爆发期)</p>
+                                <p class="text-sm text-slate-700">“原位聚合”技术突破，半固态电池开始上车（如蔚来150kWh电池包）。复合电解质成为共识。</p>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                        <h4 class="font-semibold text-slate-800 border-b pb-2 mb-4">商业模式拆解</h4>
+                        <div class="space-y-4 text-sm text-slate-700">
+                            <p>产业链核心环节的盈利驱动力正发生转变：</p>
+                            <div class="flex items-start">
+                                <span class="text-indigo-500 mr-2">&#10003;</span>
+                                <div><strong>技术溢价 (专利配方):</strong> 现阶段核心利润来源。电解质盐（如LiTFSI）及特种聚合物改性（接枝、共聚）高度依赖know-how，享有极高毛利。</div>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-indigo-500 mr-2">&#10003;</span>
+                                <div><strong>生态绑定 (定制化研发):</strong> 基体厂商不卖标准品，而是与电池厂（如卫蓝、清陶）深度绑定，共同开发原位固化配方，形成高客户转换成本。</div>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-indigo-500 mr-2">&#10003;</span>
+                                <div><strong>规模效应 (制造红利):</strong> 未来3-5年，随着半固态出货量从GWh向TWh迈进，商业模式将逐步向“资产周转率+成本控制”倾斜。</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 模块三：市场规模 -->
+            <section id="market" class="mb-16 pt-4">
+                <div class="mb-6">
+                    <h3 class="text-2xl font-bold text-indigo-700 flex items-center"><span class="mr-2">&#128200;</span> 三、 市场规模与需求分析 (Market Analysis)</h3>
+                    <p class="text-slate-600 mt-2">通过数据洞察固态/半固态高分子基体的市场空间（TAM）及底层的渗透率驱动逻辑。</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 mb-6">
+                    <div class="flex flex-col md:flex-row justify-between items-end mb-4">
+                        <div>
+                            <h4 class="font-semibold text-slate-800">全球固态电池高分子基体市场空间预测 (亿元)</h4>
+                            <p class="text-xs text-slate-500">2023-2030E，包含半固态原位聚合液及全固态聚合物薄膜</p>
+                        </div>
+                        <div class="mt-2 md:mt-0 text-right">
+                            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">预期 CAGR (2024-2030)</span>
+                            <div class="text-2xl font-black text-emerald-500">68.4%</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Chart Container for Market Data -->
+                    <div class="chart-container">
+                        <canvas id="marketChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-indigo-50 p-6 rounded-xl border border-indigo-100">
+                        <h4 class="font-bold text-indigo-800 mb-3">驱动因素 (底层逻辑)</h4>
+                        <ul class="text-sm text-indigo-900 space-y-2">
+                            <li><strong class="text-indigo-700">1. 极致安全需求 (痛点替换):</strong> 传统液态电解液存在热失控易燃风险。高分子基体不仅闪点高，其柔韧性也能有效抑制锂枝晶刺穿隔膜，这是第一驱动力。</li>
+                            <li><strong class="text-indigo-700">2. 高能量密度适配:</strong> 高分子/无机复合电解质能更好地适配高电压正极和金属锂负极，助力电池突破 350 Wh/kg 甚至 400 Wh/kg 门槛。</li>
+                            <li><strong class="text-indigo-700">3. 低空经济等新场景打开:</strong> eVTOL (飞行汽车) 对电池重量和安全性要求极高，液态电池无法满足，高分子固态电池成为唯一可行解。</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                        <h4 class="font-bold text-slate-800 mb-3">渗透率分析：爆发前夜</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed">
+                            目前（2025-2026年）行业整体处于<strong class="text-rose-500">爆发前夜 (渗透率 < 5%)</strong>。
+                            <br><br>
+                            主要以半固态电池形式（电解液含量在5%-10%）切入高端电动车（如蔚来、智己）。随着供应链成熟、新型单体聚合物（如特种氟树脂）成本从百万/吨降至十万/吨级别，预计到2030年，在高端乘用车及低空经济市场的渗透率将快速攀升至 <strong class="text-emerald-500">15% - 20%</strong>。尚未进入红海价格战阶段。
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 模块四：产业链图谱 -->
+            <section id="value-chain" class="mb-16 pt-4">
+                <div class="mb-6">
+                    <h3 class="text-2xl font-bold text-indigo-700 flex items-center"><span class="mr-2">&#9881;</span> 四、 产业链全景图谱 (Value Chain Analysis)</h3>
+                    <p class="text-slate-600 mt-2">深度拆解上中下游环节。点击下方模块了解话语权、BOM成本及采购路径分析。</p>
+                </div>
+
+                <!-- Interactive Value Chain Map (HTML/CSS) -->
+                <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-6 bg-slate-50 p-6 rounded-xl">
+                    
+                    <!-- Upstream -->
+                    <div class="vc-box bg-white p-4 rounded-lg shadow w-full md:w-1/3 text-center" onclick="showVcDetails('up')">
+                        <div class="text-indigo-500 font-bold mb-1">上游 (Upstream)</div>
+                        <div class="text-sm text-slate-700">化工单体 / 锂盐 / 助剂</div>
+                        <div class="text-xs text-slate-400 mt-2 hover:text-indigo-400">点击查看详情 &rarr;</div>
+                    </div>
+
+                    <div class="vc-arrow hidden md:block">&#10142;</div>
+                    <div class="vc-arrow md:hidden transform rotate-90">&#10142;</div>
+
+                    <!-- Midstream -->
+                    <div class="vc-box bg-white p-4 rounded-lg shadow w-full md:w-1/3 text-center active" onclick="showVcDetails('mid')" id="vc-mid-box">
+                        <div class="text-emerald-500 font-bold mb-1">中游 (Midstream)</div>
+                        <div class="text-sm text-slate-700">高分子电解质基体制造</div>
+                        <div class="text-xs text-slate-400 mt-2 hover:text-emerald-400">点击查看详情 &rarr;</div>
+                    </div>
+
+                    <div class="vc-arrow hidden md:block">&#10142;</div>
+                    <div class="vc-arrow md:hidden transform rotate-90">&#10142;</div>
+
+                    <!-- Downstream -->
+                    <div class="vc-box bg-white p-4 rounded-lg shadow w-full md:w-1/3 text-center" onclick="showVcDetails('down')">
+                        <div class="text-orange-500 font-bold mb-1">下游 (Downstream)</div>
+                        <div class="text-sm text-slate-700">固态电芯 / 终端应用</div>
+                        <div class="text-xs text-slate-400 mt-2 hover:text-orange-400">点击查看详情 &rarr;</div>
+                    </div>
+                </div>
+
+                <!-- Interactive Content Box -->
+                <div id="vc-details" class="bg-white p-6 rounded-xl border border-emerald-200 shadow-sm min-h-[200px]">
+                    <h4 class="font-bold text-emerald-600 mb-3 text-lg" id="vc-title">中游：高分子电解质基体制造 (核心工艺与BOM)</h4>
+                    <div class="text-sm text-slate-700 space-y-3" id="vc-content">
+                        <p><strong>工艺流程：</strong> 目前存在两种主流路线。一是<strong>“涂布成膜法”</strong>，将高分子、锂盐、溶剂混合涂布在隔膜上烘干；二是<strong>“原位聚合法”</strong>，将液态前驱体（单体+引发剂）注入电芯内部，通过加热或紫外辐射，在电芯内部交联固化形成网络高分子基体。</p>
+                        <p><strong>成本结构 (BOM拆解)：</strong> 在聚合物固态电解质中，成本大头不在基础聚合物（如PEO树脂成本仅占10-15%），而在于<strong>新型锂盐（如LiTFSI, 占成本40-50%）</strong>以及添加剂（如LLZTO无机粉末、引发剂，占30%）。</p>
+                        <p><strong>话语权判断：</strong> 中游目前处于产能爬坡期。单纯做膜的壁垒正在降低，真正的核心护城河在于掌握配方（高分子单体修饰及与原位聚合工艺的匹配），能提供一揽子解决方案的材料企业利润最丰厚。</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 模块五：竞争格局 -->
+            <section id="competition" class="mb-16 pt-4">
+                <div class="mb-6">
+                    <h3 class="text-2xl font-bold text-indigo-700 flex items-center"><span class="mr-2">&#9876;</span> 五、 竞争格局与护城河 (Competitive Landscape)</h3>
+                    <p class="text-slate-600 mt-2">评估行业集中度，识别关键玩家的竞争壁垒及波特五力模型分析。</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Doughnut Chart for Concentration -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex flex-col items-center">
+                        <h4 class="font-semibold text-slate-800 self-start mb-2">全球固态高分子基体市场集中度 (2025E)</h4>
+                        <p class="text-xs text-slate-500 self-start mb-4">高度集中，处于寡头垄断初期状态 (CR5 > 65%)</p>
+                        <div class="chart-container w-full max-w-[400px]">
+                            <canvas id="compChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                            <h4 class="font-bold text-slate-800 mb-2">五力模型分析</h4>
+                            <ul class="text-sm text-slate-600 space-y-2">
+                                <li><strong>现有竞争 (中等)：</strong> 玩家较少，但技术路线存在分歧，都在抢占整车厂一供位置。</li>
+                                <li><strong>潜在进入者 (低)：</strong> 壁垒极高。化工合成、电化学配方及与电池厂的认证周期（长达2-3年）阻挡了大多数新玩家。</li>
+                                <li><strong>替代品压力 (高)：</strong> 面临硫化物和氧化物全固态体系的远期竞争，高分子基体必须在室温电导率上取得突破才能稳固地位。</li>
+                                <li><strong>上下游议价力：</strong> 对上游（特种锂盐双寡头）议价力弱；对下游（电池厂）具备一定技术溢价的话语权。</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+                            <h4 class="font-bold text-slate-800 mb-2">重点企业画像与护城河</h4>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-sm">
+                                    <thead class="bg-slate-50 text-slate-600 text-xs uppercase">
+                                        <tr><th>企业类型</th><th>代表厂商</th><th>核心壁垒/路径</th></tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 text-slate-700">
+                                        <tr><td class="py-2 font-medium">海外化工巨头</td><td>Solvay, Arkema</td><td>底层聚合物专利(PVDF/PTFE衍生物)、极强的一致性制造能力。</td></tr>
+                                        <tr><td class="py-2 font-medium">国内电解液龙头</td><td>天赐材料, 新宙邦</td><td>成本控制、LiTFSI自供能力、渠道协同效应强。</td></tr>
+                                        <tr><td class="py-2 font-medium">创新型基体专精</td><td>璞泰来, 瑞泰新材</td><td>高分子合成修饰能力、原位聚合定制化配方绑定头部电芯厂。</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 模块六：技术路径 -->
+            <section id="technology" class="mb-16 pt-4">
+                <div class="mb-6">
+                    <h3 class="text-2xl font-bold text-indigo-700 flex items-center"><span class="mr-2">&#128293;</span> 六、 技术路径与研发趋势 (Technology Roadmap)</h3>
+                    <p class="text-slate-600 mt-2">量化对比主流聚合物基体技术指标，探讨可能在3-5年内改变格局的颠覆性技术方向。</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center mb-6">
+                    <!-- Radar Chart for Tech Comparison -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                        <h4 class="font-semibold text-slate-800 mb-2">主流高分子基体技术六维评估矩阵</h4>
+                        <div class="chart-container">
+                            <canvas id="techRadar"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="bg-white p-5 rounded-xl border-l-4 border-indigo-500 shadow-sm">
+                            <h4 class="font-bold text-slate-800 mb-1">1. PEO (聚环氧乙烷) 体系</h4>
+                            <p class="text-sm text-slate-600">最早商业化。<strong>优势：</strong>与锂盐络合能力强，柔韧性极佳，极易成膜加工。<strong>劣势：</strong>室温离子电导率极差（需60℃加热），抗高电压能力弱（无法匹配高镍正极）。</p>
+                        </div>
+                        <div class="bg-white p-5 rounded-xl border-l-4 border-cyan-500 shadow-sm">
+                            <h4 class="font-bold text-slate-800 mb-1">2. PVDF / 氟系聚合物</h4>
+                            <p class="text-sm text-slate-600">目前半固态主流。<strong>优势：</strong>电化学窗口宽（可匹配高压正极），机械强度高。<strong>劣势：</strong>存在界面副反应问题，加工成膜难度略高于PEO。</p>
+                        </div>
+                        <div class="bg-indigo-50 p-5 rounded-xl border-l-4 border-emerald-500 shadow-sm">
+                            <h4 class="font-bold text-indigo-900 mb-1">3. 复合聚合物路线 (颠覆性趋势)</h4>
+                            <p class="text-sm text-indigo-800">未来3-5年的破局点。“Polymer in Ceramic” 或 “Ceramic in Polymer”。利用聚合物提供柔韧性和界面润湿，利用无机固态（LATP, LLZTO）打通离子传输高速公路并提高防火性能。攻克“相容性”壁垒的企业将主导市场。</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 模块七：政策与风险 -->
+            <section id="environment" class="mb-16 pt-4">
+                <div class="mb-6">
+                    <h3 class="text-2xl font-bold text-indigo-700 flex items-center"><span class="mr-2">&#9888;</span> 七、 政策环境与宏观风险 (External Environment & Risks)</h3>
+                    <p class="text-slate-600 mt-2">分析政策推力及潜在的“黑天鹅/灰犀牛”风险因素，提醒投资者关注非技术性变量。</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Policy -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                        <h4 class="text-lg font-bold text-slate-800 mb-4 flex items-center"><span class="text-emerald-500 mr-2">&#127919;</span> 政策导向与标准</h4>
+                        <ul class="space-y-4">
+                            <li class="flex items-start">
+                                <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-1 rounded mr-3 mt-0.5">产业基金</span>
+                                <p class="text-sm text-slate-700">中日韩及欧美政府均出台百亿级固态电池专项研发补贴。中国《新能源汽车产业发展规划》明确提出加快固态电池研发及产业化。</p>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-1 rounded mr-3 mt-0.5">行业标准</span>
+                                <p class="text-sm text-slate-700">国家与行业级《固态电池测试规范》逐步落地。高分子材料的阻燃等级、挥发性有机物(VOC)释放将面临极严格的准入门槛。</p>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Risks (Interactive Accordion logic applied via standard visible blocks for SPA simplicity) -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-rose-100">
+                        <h4 class="text-lg font-bold text-slate-800 mb-4 flex items-center"><span class="text-rose-500 mr-2">&#9888;</span> 核心风险提示</h4>
+                        <div class="space-y-3">
+                            <div class="p-3 bg-rose-50 rounded-lg hover:bg-rose-100 transition-colors">
+                                <h5 class="font-bold text-rose-800 text-sm mb-1">1. 技术迭代“跳票”风险</h5>
+                                <p class="text-xs text-rose-700">全固态聚合物室温电导率若迟迟无法突破，可能导致整车厂失去耐心，转向液态电池的持续迭代（如高硅负极体系）。</p>
+                            </div>
+                            <div class="p-3 bg-rose-50 rounded-lg hover:bg-rose-100 transition-colors">
+                                <h5 class="font-bold text-rose-800 text-sm mb-1">2. 硫化物路线的降维打击</h5>
+                                <p class="text-xs text-rose-700">一旦硫化物固态电解质突破成本和空气稳定性瓶颈，高分子路线可能沦为“过渡方案”或仅局限于低端市场。</p>
+                            </div>
+                            <div class="p-3 bg-rose-50 rounded-lg hover:bg-rose-100 transition-colors">
+                                <h5 class="font-bold text-rose-800 text-sm mb-1">3. 原材料价格波动</h5>
+                                <p class="text-xs text-rose-700">核心材料LiTFSI的上游化工原料（如双氟磺酰亚胺）价格若剧烈波动，将严重挤压中游基体制造环节的毛利率。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 模块八：投资逻辑 -->
+            <section id="investment" class="mb-16 pt-4">
+                <div class="mb-6">
+                    <h3 class="text-2xl font-bold text-indigo-700 flex items-center"><span class="mr-2">&#128188;</span> 八、 结论与投资逻辑 (Investment Thesis)</h3>
+                    <p class="text-slate-600 mt-2">总结行业关键成功要素(KSF)，探讨估值体系及市场共识之外的差异化投资视角。</p>
+                </div>
+
+                <div class="bg-indigo-800 rounded-2xl p-8 text-white shadow-xl relative overflow-hidden">
+                    <!-- Decor element -->
+                    <div class="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-white opacity-5"></div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
+                        
+                        <div>
+                            <h4 class="text-xl font-bold text-indigo-200 border-b border-indigo-600 pb-2 mb-4">关键成功要素 (KSF)</h4>
+                            <ul class="space-y-3 text-sm">
+                                <li class="flex items-start">
+                                    <span class="text-indigo-400 mr-2">&#9656;</span>
+                                    <span><strong>分子设计能力：</strong>打破原厂专利封锁，通过单体改性实现离子电导率与机械强度的平衡。</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-indigo-400 mr-2">&#9656;</span>
+                                    <span><strong>工程放大壁垒：</strong>原位聚合的均一性控制；复合隔膜的高速涂布良率。工艺决定成本底线。</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h4 class="text-xl font-bold text-indigo-200 border-b border-indigo-600 pb-2 mb-4">行业估值水平</h4>
+                            <p class="text-sm mb-3">高分子基体仍处0到1的商业化早期，不适用P/E法。</p>
+                            <div class="bg-indigo-900/50 p-3 rounded">
+                                <p class="text-xs text-indigo-300 uppercase tracking-wide">主流方法</p>
+                                <p class="font-bold">P/S (市销率) & 远期 EV/EBITDA</p>
+                                <p class="text-xs mt-1 text-slate-300">当前优质标的享有较高成长溢价，处于估值体系历史中高分位，靠未来三年业绩高增消化。</p>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-2 lg:col-span-1 bg-white text-slate-800 p-5 rounded-xl">
+                            <h4 class="text-lg font-bold text-indigo-700 mb-2 flex items-center">&#128161; 差异化观点 (陷阱与机会)</h4>
+                            <p class="text-xs font-bold text-rose-500 mb-1">市场共识陷阱：</p>
+                            <p class="text-sm text-slate-600 mb-3">市场普遍认为“得配方者得天下”，但忽视了<strong>“测试验证周期陷阱”</strong>。许多纸面参数优异的初创公司，因无法熬过车企2-3年冗长的验证周期而资金链断裂。</p>
+                            <p class="text-xs font-bold text-emerald-600 mb-1">超预期机会：</p>
+                            <p class="text-sm text-slate-600">忽视主赛道竞争，转而投资<strong>“卖铲人”</strong>。为高分子基体提供交联剂、特种单体引发剂、精细氟化工材料的上游隐形冠军，往往具备更高的确定性和业绩弹性。</p>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        // Set up active state for navigation based on scroll
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 150) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').substring(1) === current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // ---------------------------------------------------------
+        // Chart.js Implementations
+        // ---------------------------------------------------------
+
+        // Global Chart Defaults
+        Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+        Chart.defaults.color = '#64748b'; // Tailwind slate-500
+
+        // 1. Market Size Combo Chart (Bar + Line)
+        const ctxMarket = document.getElementById('marketChart').getContext('2d');
+        const marketChart = new Chart(ctxMarket, {
+            type: 'bar',
+            data: {
+                labels: ['2023', '2024', '2025E', '2026E', '2028E', '2030E'],
+                datasets: [
+                    {
+                        type: 'line',
+                        label: '同比增速 YoY (%)',
+                        data: [15, 45, 120, 85, 60, 45],
+                        borderColor: '#10b981', // emerald-500
+                        backgroundColor: '#10b981',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        yAxisID: 'y1',
+                        pointRadius: 4,
+                        pointBackgroundColor: '#fff'
+                    },
+                    {
+                        type: 'bar',
+                        label: '市场空间 (亿元)',
+                        data: [12, 18, 40, 74, 190, 400],
+                        backgroundColor: 'rgba(79, 70, 229, 0.8)', // indigo-600
+                        borderRadius: 4,
+                        yAxisID: 'y'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: { position: 'top', labels: { usePointStyle: true } },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleFont: { size: 13 },
+                        bodyFont: { size: 13 },
+                        padding: 10,
+                        cornerRadius: 8
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: '市场规模 (亿元)' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        grid: { drawOnChartArea: false },
+                        title: { display: true, text: '增速 (%)' }
+                    }
+                }
+            }
+        });
+
+        // 2. Competition Concentration Chart (Doughnut)
+        const ctxComp = document.getElementById('compChart').getContext('2d');
+        const compChart = new Chart(ctxComp, {
+            type: 'doughnut',
+            data: {
+                labels: ['头部跨国化企 (Solvay/Arkema等)', '国内电解液龙头 (天赐/新宙邦等)', '细分赛道创新企业', '其他长尾厂商'],
+                datasets: [{
+                    data: [35, 30, 20, 15],
+                    backgroundColor: [
+                        '#4f46e5', // indigo-600
+                        '#0ea5e9', // sky-500
+                        '#10b981', // emerald-500
+                        '#cbd5e1'  // slate-300
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#ffffff',
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { padding: 20, font: { size: 12 } } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return ' ' + context.label + ': ' + context.parsed + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 3. Technology Radar Chart
+        const ctxRadar = document.getElementById('techRadar').getContext('2d');
+        const techRadarChart = new Chart(ctxRadar, {
+            type: 'radar',
+            data: {
+                labels: [
+                    '室温离子导电率', '电化学窗口(耐高压)', '机械强度(抑枝晶)', 
+                    '加工成本与规模化', '界面相容性', '热稳定性(阻燃)'
+                ],
+                datasets: [
+                    {
+                        label: '纯PEO基',
+                        data: [2, 3, 4, 9, 8, 5],
+                        fill: true,
+                        backgroundColor: 'rgba(203, 213, 225, 0.4)', // slate
+                        borderColor: '#94a3b8',
+                        pointBackgroundColor: '#94a3b8',
+                    },
+                    {
+                        label: '纯PVDF/氟系',
+                        data: [4, 8, 7, 6, 5, 7],
+                        fill: true,
+                        backgroundColor: 'rgba(6, 182, 212, 0.2)', // cyan
+                        borderColor: '#06b6d4',
+                        pointBackgroundColor: '#06b6d4',
+                    },
+                    {
+                        label: '聚合物-无机复合(CPE)',
+                        data: [8, 8, 9, 5, 7, 9],
+                        fill: true,
+                        backgroundColor: 'rgba(79, 70, 229, 0.4)', // indigo
+                        borderColor: '#4f46e5',
+                        pointBackgroundColor: '#4f46e5',
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                        grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                        pointLabels: { font: { size: 12 } },
+                        ticks: { display: false, min: 0, max: 10 }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'bottom' },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    }
+                }
+            }
+        });
+
+        // ---------------------------------------------------------
+        // Interactive Logic for Value Chain
+        // ---------------------------------------------------------
+        const vcData = {
+            up: {
+                title: "上游：单体原料、锂盐与助剂",
+                colorClass: "text-indigo-600",
+                bgBorder: "border-indigo-200",
+                content: `
+                    <p><strong>关键构成：</strong> 基础化工原料（环氧乙烷、偏氟乙烯等单体），新型锂盐（双三氟甲烷磺酰亚胺锂 <strong>LiTFSI</strong>、双氟磺酰亚胺锂 <strong>LiFSI</strong>），以及交联剂、光/热引发剂。</p>
+                    <p><strong>话语权分析：</strong> 上游拥有<strong class="text-indigo-600">极强定价权</strong>。特种单体和新型锂盐的核心合成技术壁垒极高，被外企（如索尔维）及国内精细化工龙头垄断。高纯度LiTFSI目前供不应求。</p>
+                    <p><strong>投资价值：</strong> 隐形红利环节。无论中游走哪种基体路线，对上游高性能锂盐和原位聚合引发剂的需求都是刚性的，属于典型的“卖水人”逻辑。</p>
+                `
+            },
+            mid: {
+                title: "中游：高分子电解质基体制造 (核心环节)",
+                colorClass: "text-emerald-600",
+                bgBorder: "border-emerald-200",
+                content: `
+                    <p><strong>工艺路线：</strong> 当前分为“薄膜涂布”（异位）和“原位聚合”。原位聚合因解决了固固界面接触阻抗问题，成为半固态电池的首选工艺。</p>
+                    <p><strong>BOM拆解：</strong> 一张复合膜/原位液的成本中，新型锂盐占据约 40-50%，基础聚合物树脂占 10-15%，添加剂（含固态无机粉体）占 20-30%，制造及其他占剩余部分。</p>
+                    <p><strong>竞争壁垒：</strong> 不在于买树脂加工，而在于“配方定制能力”。中游厂商必须掌握高分子改性技术（如共聚、接枝），并根据下游不同电芯厂的需求进行定制研发（高客户粘性）。</p>
+                `
+            },
+            down: {
+                title: "下游：固态/半固态电芯制造与终端应用",
+                colorClass: "text-orange-600",
+                bgBorder: "border-orange-200",
+                content: `
+                    <p><strong>最终客户：</strong> 动力电池巨头（宁德时代、比亚迪），固态电池新势力（卫蓝新能源、清陶能源、赣锋锂电），以及终端EV车企（蔚来、上汽智己）。</p>
+                    <p><strong>采购决策路径：</strong> 强技术绑定模式。电池厂不会在市场上采购“通用型电解质膜”，而是从研发阶段起，与中游材料厂联合开发，一旦验证通过进入BOM清单，极难替换（生命周期绑定）。</p>
+                    <p><strong>驱动场景：</strong> 短期由高端新能源车（解决里程焦虑与安全痛点）买单，中长期增量市场在于 eVTOL（低空飞行器）、高能无人机及消费电子。</p>
+                `
+            }
+        };
+
+        function showVcDetails(section) {
+            // Update active state of boxes
+            document.querySelectorAll('.vc-box').forEach(box => box.classList.remove('active'));
+            const activeBox = event.currentTarget || document.getElementById(`vc-${section}-box`);
+            if(activeBox) activeBox.classList.add('active');
+
+            // Update content box
+            const detailsBox = document.getElementById('vc-details');
+            const titleEl = document.getElementById('vc-title');
+            const contentEl = document.getElementById('vc-content');
+
+            const data = vcData[section];
+            
+            // Subtle transition effect
+            detailsBox.style.opacity = 0;
+            setTimeout(() => {
+                // Update classes and content
+                titleEl.className = `font-bold mb-3 text-lg ${data.colorClass}`;
+                detailsBox.className = `bg-white p-6 rounded-xl border ${data.bgBorder} shadow-sm min-h-[200px] transition-opacity duration-300`;
+                
+                titleEl.innerHTML = data.title;
+                contentEl.innerHTML = data.content;
+                
+                detailsBox.style.opacity = 1;
+            }, 150);
+        }
+    </script>
+</body>
+</html>

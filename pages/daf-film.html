@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深度洞察：半导体封装DAF膜行业全景报告</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        stone: {
+                            50: '#fafaf9',
+                            100: '#f5f5f4',
+                            200: '#e7e5e4',
+                            300: '#d6d3d1',
+                            400: '#a8a29e',
+                            500: '#78716c',
+                            600: '#57534e',
+                            700: '#44403c',
+                            800: '#292524',
+                            900: '#1c1917',
+                        },
+                        accent: {
+                            teal: '#0d9488', // Teal-600 for positive/tech
+                            amber: '#d97706', // Amber-600 for warnings/risks
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* <!-- Chosen Palette: Warm Neutrals with Teal & Amber Accents -->
+        <!-- Application Structure Plan: A single-page scrolling dashboard. Starts with a high-impact executive summary, flows into foundational knowledge, deep dives into market data (interactive charts), explains the complex value chain via a hover-interactive diagram, compares players via radar chart, and concludes with future tech and investment logic. This linear but interactive flow guides the user from macro understanding to micro investment decisions. -->
+        <!-- Visualization & Content Choices: 
+            - Market Size: Bar Chart (Chart.js) -> Shows growth trend clearly over time.
+            - Value Chain: Interactive HTML Flexbox Diagram -> Avoids SVG, allows hover-to-discover logic to declutter complex supply chain info.
+            - Competition: Radar Chart (Chart.js) -> Best way to compare multiple entities across different qualitative/quantitative metrics (Tech, Cost, Local support).
+            - Tech Roadmap: Tabbed interface -> Keeps page clean while allowing deep dives into specific technologies.
+        -->
+        <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+        */
+
+        body {
+            background-color: #fafaf9; /* stone-50 */
+            color: #292524; /* stone-800 */
+        }
+
+        /* Mandatory Chart Container Styling */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px; /* Constrain max width for readability */
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px; /* Base height */
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+
+        /* Custom Timeline CSS (No SVG) */
+        .timeline-container {
+            position: relative;
+            padding-left: 2rem;
+            border-left: 2px solid #d6d3d1; /* stone-300 */
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: -2.35rem;
+            top: 0.25rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #0d9488; /* accent-teal */
+            border: 2px solid #fafaf9;
+        }
+
+        /* Hide scrollbar for clean horizontal scrolling areas if needed */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-stone-50/90 backdrop-blur-md border-b border-stone-200 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center overflow-x-auto no-scrollbar">
+                <div class="flex-shrink-0 font-bold text-xl text-stone-800 mr-8 whitespace-nowrap">
+                    DAF Insights
+                </div>
+                <div class="flex space-x-6 text-sm font-medium text-stone-600">
+                    <a href="#exec" class="hover:text-accent-teal whitespace-nowrap">执行摘要</a>
+                    <a href="#overview" class="hover:text-accent-teal whitespace-nowrap">行业概况</a>
+                    <a href="#market" class="hover:text-accent-teal whitespace-nowrap">市场分析</a>
+                    <a href="#valuechain" class="hover:text-accent-teal whitespace-nowrap">产业链</a>
+                    <a href="#competition" class="hover:text-accent-teal whitespace-nowrap">竞争格局</a>
+                    <a href="#tech" class="hover:text-accent-teal whitespace-nowrap">技术路径</a>
+                    <a href="#investment" class="hover:text-accent-teal whitespace-nowrap">投资逻辑</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
+
+        <!-- 1. 执行摘要 -->
+        <section id="exec" class="scroll-mt-20">
+            <div class="bg-white rounded-2xl p-8 shadow-sm border border-stone-200 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-accent-teal/10 rounded-bl-full -z-10"></div>
+                
+                <h1 class="text-3xl md:text-4xl font-bold mb-4 text-stone-900">半导体封装 DAF 膜行业深度报告</h1>
+                <p class="text-stone-500 mb-8 text-lg">2026年度洞察 | 聚焦核心材料国产化破局之路</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- 核心结论 -->
+                    <div class="bg-stone-50 p-6 rounded-xl border border-stone-100">
+                        <div class="flex items-center mb-3">
+                            <span class="text-2xl mr-2">📊</span>
+                            <h3 class="text-lg font-bold text-stone-800">生命周期阶段</h3>
+                        </div>
+                        <p class="text-stone-600 text-sm mb-4">本节总结了DAF膜行业目前所处的宏观生命周期位置，帮助判断整体市场活力。</p>
+                        <div class="flex items-end space-x-2">
+                            <span class="text-3xl font-extrabold text-accent-teal">成长期转成熟期</span>
+                        </div>
+                        <p class="text-sm mt-2 text-stone-600">传统2D封装用DAF趋于成熟，但受益于3D NAND堆叠和先进封装需求，高端DAF及NCF正处于高速成长期。</p>
+                    </div>
+
+                    <!-- 投资建议 -->
+                    <div class="bg-stone-50 p-6 rounded-xl border border-stone-100">
+                        <div class="flex items-center mb-3">
+                            <span class="text-2xl mr-2">💡</span>
+                            <h3 class="text-lg font-bold text-stone-800">投资评价</h3>
+                        </div>
+                        <p class="text-stone-600 text-sm mb-4">基于当前市场环境和国产化进程给出的核心战略建议。</p>
+                        <div class="flex items-end space-x-2">
+                            <span class="text-3xl font-extrabold text-stone-800">高度推荐</span>
+                            <span class="text-sm text-stone-500 mb-1">(结构性机会)</span>
+                        </div>
+                        <p class="text-sm mt-2 text-stone-600">具有极高的技术壁垒。投资重点应放在具备底层树脂合成能力、且已进入头部封测厂验证体系的国产材料龙头。</p>
+                    </div>
+
+                    <!-- Top 3 关键词 -->
+                    <div class="bg-stone-50 p-6 rounded-xl border border-stone-100">
+                        <div class="flex items-center mb-3">
+                            <span class="text-2xl mr-2">🔑</span>
+                            <h3 class="text-lg font-bold text-stone-800">驱动关键词</h3>
+                        </div>
+                        <p class="text-stone-600 text-sm mb-4">未来3-5年主导行业发展的三个最核心变量。</p>
+                        <div class="flex flex-col space-y-2 mt-4">
+                            <span class="px-3 py-1 bg-white border border-stone-200 rounded-full text-sm font-medium text-center shadow-sm"># 先进封装 (Advanced Pkg)</span>
+                            <span class="px-3 py-1 bg-white border border-stone-200 rounded-full text-sm font-medium text-center shadow-sm"># 存储多层堆叠 (3D NAND)</span>
+                            <span class="px-3 py-1 bg-white border border-accent-teal/30 text-accent-teal rounded-full text-sm font-medium text-center shadow-sm"># 国产替代 (Localization)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. 行业概况与基本属性 -->
+        <section id="overview" class="scroll-mt-20">
+            <h2 class="text-2xl font-bold mb-2 border-b-2 border-accent-teal inline-block pb-1">行业概况与基本属性</h2>
+            <p class="text-stone-600 mb-6">了解DAF膜的定义、发展演进及其在半导体产业链中独特的商业变现模式。</p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-xl font-semibold mb-3">定义与研究边界</h3>
+                    <div class="bg-white p-5 rounded-lg border border-stone-200 shadow-sm mb-6">
+                        <p class="text-stone-700 leading-relaxed">
+                            <strong>DAF (Die Attach Film - 芯片固晶膜)</strong> 是一种绝缘（或导电）的胶膜材料，主要用于半导体封装过程中，将硅芯片（Die）牢固地粘接在基板（Substrate）或引线框架（Leadframe）上。
+                        </p>
+                        <p class="text-stone-700 leading-relaxed mt-2">
+                            本报告边界：聚焦于<strong>薄膜形态</strong>的固晶材料（包含标准DAF、CDAF及升级版的NCF），不包含传统的液态银胶/环氧树脂胶。
+                        </p>
+                    </div>
+
+                    <h3 class="text-xl font-semibold mb-3">商业模式拆解</h3>
+                    <div class="bg-white p-5 rounded-lg border border-stone-200 shadow-sm flex flex-col justify-center space-y-4">
+                        <div class="flex items-center justify-between border-b border-stone-100 pb-2">
+                            <span class="font-medium">核心驱动力</span>
+                            <span class="text-accent-teal font-bold">技术溢价 (Know-how)</span>
+                        </div>
+                        <div class="flex items-center justify-between border-b border-stone-100 pb-2">
+                            <span class="font-medium">毛利率水平</span>
+                            <span class="text-stone-600">高端产品 > 50%</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="font-medium">客户粘性</span>
+                            <span class="text-stone-600">极高 (验证周期1-2年，不轻易更换)</span>
+                        </div>
+                        <p class="text-xs text-stone-500 mt-2">行业不靠低价走量，而是依赖材料配方微调解决封测厂特定的良率问题（如翘曲、空洞）来获取高利润。</p>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">技术与应用演进历程</h3>
+                    <div class="timeline-container bg-white p-6 rounded-lg border border-stone-200 shadow-sm">
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <h4 class="font-bold text-stone-800">初期 (Pre-2010s): 替代液态胶</h4>
+                            <p class="text-sm text-stone-600 mt-1">为解决液态胶溢胶、厚度不均问题，日系厂商推出薄膜状DAF，主要用于简单的2D封装和QFN。</p>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <h4 class="font-bold text-stone-800">成长期 (2010s-2020): 存储堆叠爆发</h4>
+                            <p class="text-sm text-stone-600 mt-1">智能手机推动NAND Flash向多层堆叠（8层/16层）发展。FOW (Film Over Wire) DAF 出现，厚度降至10-20μm，悬空穿透金线。</p>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <h4 class="font-bold text-stone-800">当前与未来 (2020+): 3D/先进封装</h4>
+                            <p class="text-sm text-stone-600 mt-1">3D NAND走向232层+，要求DAF极薄（<5μm）。同时，HBM等先进封装推动 NCF (非导电胶膜) 结合 TC (热压键合) 技术的应用。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 市场规模与需求分析 -->
+        <section id="market" class="scroll-mt-20">
+            <h2 class="text-2xl font-bold mb-2 border-b-2 border-accent-teal inline-block pb-1">市场规模与需求分析</h2>
+            <p class="text-stone-600 mb-6">通过数据可视化展示全球及中国DAF市场的增长趋势，并剖析背后的核心驱动因素和渗透率现状。</p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Chart Area -->
+                <div class="lg:col-span-2 bg-white p-6 rounded-xl border border-stone-200 shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold">全球及中国 DAF 市场规模预测 (百万美元)</h3>
+                        <div class="text-sm text-stone-500">CAGR: 全球 8.5% | 中国 12.2%</div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="marketChart"></canvas>
+                    </div>
+                    <p class="text-xs text-center text-stone-400 mt-2">数据来源：行业研报整合模拟数据</p>
+                </div>
+
+                <!-- Drivers Area -->
+                <div class="flex flex-col justify-between space-y-4">
+                    <div class="bg-stone-50 p-5 rounded-lg border-l-4 border-accent-teal shadow-sm">
+                        <h4 class="font-bold mb-2">驱动因素 1：存储芯片堆叠极限</h4>
+                        <p class="text-sm text-stone-600">NAND Flash从平面走向3D，堆叠层数不断增加。为控制整体芯片厚度，单层DAF膜的厚度要求从过去的20μm急剧下降到5μm甚至更低，拉动了高附加值超薄DAF的需求。</p>
+                    </div>
+                    <div class="bg-stone-50 p-5 rounded-lg border-l-4 border-accent-teal shadow-sm">
+                        <h4 class="font-bold mb-2">驱动因素 2：智能穿戴与轻薄化</h4>
+                        <p class="text-sm text-stone-600">TWS耳机、智能手表等设备内部空间极小，要求采用SiP (系统级封装)，这高度依赖DAF膜来实现多芯片的紧凑集成。</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-lg border border-stone-200 shadow-sm">
+                        <h4 class="font-bold mb-2">渗透率现状分析</h4>
+                        <div class="w-full bg-stone-200 rounded-full h-2.5 mb-2 mt-4">
+                            <div class="bg-accent-teal h-2.5 rounded-full" style="width: 85%"></div>
+                        </div>
+                        <p class="text-xs text-stone-500 mb-4">消费级2D封装：已极度成熟，渗透率 >85%，陷入红海价格战。</p>
+
+                        <div class="w-full bg-stone-200 rounded-full h-2.5 mb-2">
+                            <div class="bg-amber-500 h-2.5 rounded-full" style="width: 15%"></div>
+                        </div>
+                        <p class="text-xs text-stone-500">高端超薄/NCF膜（国产）：处于爆发前夜，国产渗透率 <15%，替代空间巨大。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. 产业链全景图谱 -->
+        <section id="valuechain" class="scroll-mt-20">
+            <h2 class="text-2xl font-bold mb-2 border-b-2 border-accent-teal inline-block pb-1">产业链全景图谱</h2>
+            <p class="text-stone-600 mb-6">交互式拆解上下游关系。将鼠标悬停在各环节上，可查看成本结构、工艺难点及话语权归属。</p>
+
+            <div class="bg-white p-8 rounded-xl border border-stone-200 shadow-sm">
+                <!-- Interactive Flowchart via Flexbox -->
+                <div class="flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0">
+                    
+                    <!-- Upstream -->
+                    <div class="chain-node w-full md:w-1/4 bg-stone-50 border-2 border-stone-200 rounded-lg p-4 text-center cursor-pointer transition-colors hover:border-accent-teal hover:bg-teal-50" data-target="info-upstream">
+                        <div class="text-3xl mb-2">🛢️</div>
+                        <h4 class="font-bold text-stone-800">上游原材料</h4>
+                        <p class="text-xs text-stone-500 mt-1">基础化工与基材</p>
+                    </div>
+
+                    <div class="hidden md:block text-2xl text-stone-300">➔</div>
+                    <div class="md:hidden text-2xl text-stone-300 transform rotate-90">➔</div>
+
+                    <!-- Midstream -->
+                    <div class="chain-node w-full md:w-1/4 bg-stone-50 border-2 border-stone-200 rounded-lg p-4 text-center cursor-pointer transition-colors hover:border-accent-teal hover:bg-teal-50" data-target="info-midstream">
+                        <div class="text-3xl mb-2">🧪</div>
+                        <h4 class="font-bold text-stone-800">中游制造</h4>
+                        <p class="text-xs text-stone-500 mt-1">DAF膜配方与涂布</p>
+                    </div>
+
+                    <div class="hidden md:block text-2xl text-stone-300">➔</div>
+                    <div class="md:hidden text-2xl text-stone-300 transform rotate-90">➔</div>
+
+                    <!-- Downstream -->
+                    <div class="chain-node w-full md:w-1/4 bg-stone-50 border-2 border-stone-200 rounded-lg p-4 text-center cursor-pointer transition-colors hover:border-accent-teal hover:bg-teal-50" data-target="info-downstream">
+                        <div class="text-3xl mb-2">🏭</div>
+                        <h4 class="font-bold text-stone-800">下游应用</h4>
+                        <p class="text-xs text-stone-500 mt-1">半导体封测 (OSAT)</p>
+                    </div>
+                </div>
+
+                <!-- Details Panel -->
+                <div class="mt-8 p-6 bg-stone-800 text-stone-100 rounded-lg min-h-[150px] flex items-center shadow-inner relative overflow-hidden">
+                    <div id="chain-default" class="absolute inset-0 p-6 transition-opacity duration-300 opacity-100 flex items-center justify-center">
+                        <p class="text-stone-400 text-center">👆 请将鼠标悬停或点击上方环节，查看该节点的深度解析（话语权、成本、工艺）。</p>
+                    </div>
+
+                    <div id="info-upstream" class="absolute inset-0 p-6 transition-opacity duration-300 opacity-0 pointer-events-none">
+                        <h4 class="text-accent-teal font-bold mb-2">上游：树脂、填料与离型膜 (掌握话语权)</h4>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div><strong>卡脖子环节：</strong> 高性能环氧树脂/聚酰亚胺(PI)基材、高精度PET离型膜高度依赖进口（如日本三菱、东丽）。</div>
+                            <div><strong>议价能力：</strong> 极强。大型化工巨头对中游体量较小的膜厂处于强势地位。</div>
+                        </div>
+                    </div>
+
+                    <div id="info-midstream" class="absolute inset-0 p-6 transition-opacity duration-300 opacity-0 pointer-events-none">
+                        <h4 class="text-accent-teal font-bold mb-2">中游：配方设计与精密涂布 (BOM与工艺)</h4>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div><strong>BOM拆解：</strong> 树脂及固化剂 (~40%)，填料微球 (~20%)，PET基膜及保护膜 (~30%)，制造费用 (~10%)。</div>
+                            <div><strong>核心壁垒：</strong> 高分子材料配方（解决流动性、粘性、热稳定性的不可能三角）；纳米级均匀涂布工艺。</div>
+                        </div>
+                    </div>
+
+                    <div id="info-downstream" class="absolute inset-0 p-6 transition-opacity duration-300 opacity-0 pointer-events-none">
+                        <h4 class="text-accent-teal font-bold mb-2">下游：OSAT与IDM (验证壁垒)</h4>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div><strong>客户画像：</strong> 长电、通富、华天等封测厂，及三星、海力士、长存等存储IDM。</div>
+                            <div><strong>决策路径：</strong> 极度保守。材料成本仅占芯片极小部分，但若失效会导致整颗芯片报废。需经历：样品测试 -> 小批量上机验证 -> 长期可靠性测试（通常需1-2年）。</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. 竞争格局与护城河 -->
+        <section id="competition" class="scroll-mt-20">
+            <h2 class="text-2xl font-bold mb-2 border-b-2 border-accent-teal inline-block pb-1">竞争格局与护城河</h2>
+            <p class="text-stone-600 mb-6">利用雷达图对比国内外主流玩家的综合实力，并总结波特五力模型。</p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div class="bg-white p-6 rounded-xl border border-stone-200 shadow-sm">
+                    <h3 class="text-lg font-bold mb-4 text-center">玩家能力维度对比 (海外巨头 vs 国产先锋)</h3>
+                    <div class="chart-container">
+                        <canvas id="compChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="bg-white p-5 rounded-lg border border-stone-200 shadow-sm">
+                        <h4 class="font-bold text-stone-800 mb-2">寡头垄断局面 (CR5 > 80%)</h4>
+                        <p class="text-sm text-stone-600">全球高端DAF市场几乎被日本日东电工 (Nitto)、日本昭和电工 (原日立化成)、德国汉高 (Henkel) 垄断。日东电工在存储芯片用超薄DAF领域占据统治地位。</p>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-lg border border-stone-200 shadow-sm">
+                        <h4 class="font-bold text-stone-800 mb-2">波特五力简述</h4>
+                        <ul class="text-sm text-stone-600 space-y-2">
+                            <li><span class="font-semibold text-amber-600">现有竞争：</span> 海外巨头构筑严密专利网，国内企业在低端市场打价格战。</li>
+                            <li><span class="font-semibold text-accent-teal">进入壁垒：</span> 极高。设备资金要求一般，但配方Know-how和客户验证周期是天堑。</li>
+                            <li><span class="font-semibold text-stone-700">替代品威胁：</span> 长期看，Hybrid Bonding（混合键合）在顶级逻辑芯片可能替代DAF，但在存储和普通封装难以被替代。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. 技术路径与研发趋势 -->
+        <section id="tech" class="scroll-mt-20">
+            <h2 class="text-2xl font-bold mb-2 border-b-2 border-accent-teal inline-block pb-1">技术路径与研发趋势</h2>
+            <p class="text-stone-600 mb-6">探索当下主流技术特性，及可能在未来3-5年改变行业格局的颠覆性技术。</p>
+
+            <div class="bg-white border border-stone-200 rounded-xl overflow-hidden shadow-sm">
+                <!-- Tabs -->
+                <div class="flex border-b border-stone-200 bg-stone-50">
+                    <button class="tech-tab active flex-1 py-4 font-medium text-center hover:bg-stone-100 transition-colors focus:outline-none border-b-2 border-accent-teal text-accent-teal" data-target="tech-mainstream">
+                        当前主流技术 (DAF/FOW)
+                    </button>
+                    <button class="tech-tab flex-1 py-4 font-medium text-center text-stone-500 hover:bg-stone-100 transition-colors focus:outline-none border-b-2 border-transparent" data-target="tech-disruptive">
+                        颠覆性预测 (NCF/混合键合)
+                    </button>
+                    <button class="tech-tab flex-1 py-4 font-medium text-center text-stone-500 hover:bg-stone-100 transition-colors focus:outline-none border-b-2 border-transparent" data-target="tech-barrier">
+                        核心技术壁垒
+                    </button>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="p-6 min-h-[250px]">
+                    <div id="tech-mainstream" class="tech-content active">
+                        <h3 class="text-lg font-bold mb-3">极致轻薄与悬空穿透</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <p class="text-sm text-stone-600 mb-2"><strong>超薄DAF (< 10μm):</strong> 主要用于NAND Flash的多层堆叠。技术难点在于膜变薄后，操作容易破裂，且需保持足够的粘接力和应力吸收能力。</p>
+                                <p class="text-sm text-stone-600"><strong>FOW (Film Over Wire):</strong> 允许上层芯片直接压在下层芯片打的金线（Wire Bond）上。DAF膜在加热时需要软化包裹住金线（不产生气泡空洞），冷却后固化。这要求树脂的流变性控制极其精准。</p>
+                            </div>
+                            <div class="bg-stone-50 p-4 rounded border border-stone-200 flex items-center justify-center">
+                                <p class="text-stone-400 italic text-center text-sm">核心挑战：平衡“流动性”（填补空隙）与“保型性”（防止溢胶）。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tech-disruptive" class="tech-content hidden">
+                         <h3 class="text-lg font-bold mb-3">走向3D封装与无凸块化</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-semibold text-accent-teal mb-1">NCF (非导电胶膜) & TC (热压键合)</h4>
+                                <p class="text-sm text-stone-600 mb-4">HBM等2.5D/3D封装使用微凸块（Micro-bump）连接。NCF预贴于晶圆，在热压键合瞬间融化包裹凸块，随后固化提供支撑。这是目前高算力芯片存储堆叠的核心材料。</p>
+                                <h4 class="font-semibold text-amber-600 mb-1">潜在终结者：Hybrid Bonding (混合键合)</h4>
+                                <p class="text-sm text-stone-600">无需凸块，直接让铜与铜、绝缘层与绝缘层在分子层级结合。间距极小。若该技术成本大幅下降，可能在部分高端领域完全替代DAF/NCF。目前仅限顶级逻辑/图像传感器领域。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tech-barrier" class="tech-content hidden">
+                        <h3 class="text-lg font-bold mb-3">护城河的基石：材料科学基础</h3>
+                        <ul class="space-y-3 text-sm text-stone-600">
+                            <li class="flex items-start">
+                                <span class="mr-2 mt-0.5 text-accent-teal">✔️</span>
+                                <div><strong>树脂合成与改性：</strong> 无法直接购买市面通用树脂，需对环氧树脂/丙烯酸酯进行分子级别改性，以满足特定的热膨胀系数(CTE)和固化动力学。</div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="mr-2 mt-0.5 text-accent-teal">✔️</span>
+                                <div><strong>配方专利网：</strong> 海外巨头在各组分配比、添加剂种类上申请了大量外围专利，新进入者极易“踩雷”，规避专利开发新配方耗时极长。</div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="mr-2 mt-0.5 text-accent-teal">✔️</span>
+                                <div><strong>工程放量经验：</strong> 实验室配方到百米级宽幅涂布机的量产存在巨大鸿沟。厚度均一性控制（公差<1μm）、无尘控制等依赖长期制造经验积累。</div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7 & 8 外部环境、风险与投资逻辑 -->
+        <section id="investment" class="scroll-mt-20">
+            <h2 class="text-2xl font-bold mb-2 border-b-2 border-accent-teal inline-block pb-1">宏观环境与投资逻辑</h2>
+            <p class="text-stone-600 mb-6">结合政策风险，提炼行业致胜的关键成功要素（KSF），并给出差异化的估值与投资视角。</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 政策与风险 -->
+                <div class="bg-stone-50 p-6 rounded-xl border border-stone-200">
+                    <h3 class="text-lg font-bold mb-4 text-stone-800 flex items-center">
+                        <span class="mr-2 text-xl">⚠️</span> 政策环境与宏观风险
+                    </h3>
+                    <div class="space-y-4">
+                        <div>
+                            <span class="inline-block px-2 py-1 bg-teal-100 text-teal-800 text-xs font-bold rounded mb-1">政策顺风</span>
+                            <p class="text-sm text-stone-600">国家大基金及地方产业政策持续加码半导体上游材料，“自主可控”主旋律促使国内封测大厂被动或主动开放验证窗口给本土供应商。</p>
+                        </div>
+                        <div>
+                            <span class="inline-block px-2 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded mb-1">核心风险提示</span>
+                            <ul class="text-sm text-stone-600 list-disc pl-4 mt-1 space-y-1">
+                                <li><strong>验证失败风险：</strong> 材料导入测试长达2年，若在长期可靠性测试（如双85测试）中失效，研发投入打水漂。</li>
+                                <li><strong>技术迭代风险：</strong> 混合键合等无胶化先进封装技术下沉速度超预期，挤压DAF长期生存空间。</li>
+                                <li><strong>价格战风险：</strong> 国产低端DAF产能扩张过快，陷入恶性价格竞争。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 投资逻辑 -->
+                <div class="bg-stone-800 text-stone-50 p-6 rounded-xl shadow-lg">
+                    <h3 class="text-lg font-bold mb-4 text-accent-teal flex items-center">
+                        <span class="mr-2 text-xl">🎯</span> 投资逻辑 (Investment Thesis)
+                    </h3>
+                    
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-stone-300 text-sm">关键成功要素 (KSF)</h4>
+                        <p class="text-sm text-stone-100 mt-1">
+                            <span class="text-accent-teal">联合开发能力 (Co-design)。</span>
+                            单纯的“Me-too”仿制无法打动客户。赢家必须具备与晶圆厂/封测厂同步开发下一代封装材料的能力，提供定制化配方解决特定良率痛点。
+                        </p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-stone-300 text-sm">估值水平探讨</h4>
+                        <p class="text-sm text-stone-100 mt-1">
+                            对于已打入头部果链或存储供应链、实现0到1突破的国产企业，市场通常给予极高的 <span class="font-mono text-accent-teal bg-stone-700 px-1 rounded">P/S (市销率)</span> 估值。而对于传统化工转型切入的成熟企业，按稳态 <span class="font-mono text-accent-teal bg-stone-700 px-1 rounded">P/E (市盈率)</span> 30-50x 给予先进材料溢价。
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-semibold text-amber-400 text-sm">差异化观点 (陷阱与机会)</h4>
+                        <p class="text-sm text-stone-100 mt-1">
+                            <strong>市场共识：</strong> 国产替代空间巨大。<br>
+                            <strong>差异认知：</strong> 警惕宣称“已量产DAF”但实际上只做低端QFN封装胶膜的企业。真正的试金石是能否进入 <strong class="text-white border-b border-accent-teal">3D NAND (长江存储等) 或 先进封装NCF</strong> 供应链，这才是利润和估值的核心支撑。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-stone-900 text-stone-400 text-center py-8 mt-12 border-t border-stone-800">
+        <p class="text-sm">本报告基于公开网络资料、文献及行业研究框架综合生成，仅供参考，不构成投资建议。</p>
+        <p class="text-xs mt-2 text-stone-600">© 2026 DAF Industry Interactive Dashboard</p>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // 1. Initialize Market Size Chart (Bar + Line for CAGR trend)
+            const marketCtx = document.getElementById('marketChart').getContext('2d');
+            const marketChart = new Chart(marketCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['2021', '2022', '2023', '2024E', '2025E', '2026E', '2027E', '2028E'],
+                    datasets: [
+                        {
+                            type: 'bar',
+                            label: '全球市场规模 (百万美元)',
+                            data: [1100, 1250, 1180, 1350, 1500, 1680, 1850, 2050],
+                            backgroundColor: '#d6d3d1', // stone-300
+                            borderRadius: 4,
+                            order: 2
+                        },
+                        {
+                            type: 'bar',
+                            label: '中国市场规模 (百万美元)',
+                            data: [300, 350, 330, 410, 500, 610, 750, 900],
+                            backgroundColor: '#0d9488', // accent-teal
+                            borderRadius: 4,
+                            order: 1
+                        },
+                        {
+                            type: 'line',
+                            label: '中国市场增速 (%)',
+                            data: [15, 16.6, -5.7, 24.2, 21.9, 22.0, 22.9, 20.0],
+                            borderColor: '#d97706', // amber-600
+                            borderWidth: 2,
+                            tension: 0.4,
+                            yAxisID: 'y1',
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#d97706',
+                            order: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, // Critical for container responsiveness
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                boxWidth: 8
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y + (context.dataset.type === 'line' ? '%' : '');
+                                    }
+                                    // Label wrapping simulation if needed (Chart.js tooltips handle basic wrapping)
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: 'USD Millions' },
+                            grid: { color: '#f5f5f4' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: { display: true, text: 'Growth Rate (%)' },
+                            grid: { drawOnChartArea: false },
+                            min: -10,
+                            max: 30
+                        }
+                    }
+                }
+            });
+
+            // 2. Initialize Competitive Radar Chart
+            const compCtx = document.getElementById('compChart').getContext('2d');
+            const compChart = new Chart(compCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['底层树脂研发', '涂布工艺成熟度', '全球市场份额', '本土化响应速度', '成本控制'],
+                    datasets: [
+                        {
+                            label: '海外头部 (如日东)',
+                            data: [9.5, 9.5, 8.5, 4.0, 5.0],
+                            fill: true,
+                            backgroundColor: 'rgba(214, 211, 209, 0.2)', // stone-300 transparent
+                            borderColor: '#a8a29e', // stone-400
+                            pointBackgroundColor: '#a8a29e',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: '#a8a29e'
+                        },
+                        {
+                            label: '国产先锋企业',
+                            data: [6.0, 7.5, 2.0, 9.5, 8.5],
+                            fill: true,
+                            backgroundColor: 'rgba(13, 148, 136, 0.2)', // accent-teal transparent
+                            borderColor: '#0d9488',
+                            pointBackgroundColor: '#0d9488',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: '#0d9488'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: { color: '#e7e5e4' },
+                            grid: { color: '#e7e5e4' },
+                            pointLabels: {
+                                font: { size: 12 },
+                                color: '#57534e'
+                            },
+                            ticks: {
+                                display: false, // Hide internal numbers
+                                min: 0,
+                                max: 10
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 3. Value Chain Hover Interaction
+            const chainNodes = document.querySelectorAll('.chain-node');
+            const defaultText = document.getElementById('chain-default');
+            let activeTargetId = null;
+
+            chainNodes.forEach(node => {
+                const targetId = node.getAttribute('data-target');
+                const targetEl = document.getElementById(targetId);
+
+                // For desktop hover
+                node.addEventListener('mouseenter', () => activatePanel(targetId));
+                node.addEventListener('mouseleave', () => deactivatePanels());
+                
+                // For mobile click
+                node.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if(activeTargetId === targetId) {
+                        deactivatePanels();
+                    } else {
+                        activatePanel(targetId);
+                    }
+                });
+            });
+
+            function activatePanel(targetId) {
+                activeTargetId = targetId;
+                // Hide default and all others
+                defaultText.classList.remove('opacity-100');
+                defaultText.classList.add('opacity-0');
+                
+                document.querySelectorAll('[id^="info-"]').forEach(el => {
+                    el.classList.remove('opacity-100', 'pointer-events-auto');
+                    el.classList.add('opacity-0', 'pointer-events-none');
+                });
+
+                // Show target
+                const targetEl = document.getElementById(targetId);
+                if(targetEl) {
+                    targetEl.classList.remove('opacity-0', 'pointer-events-none');
+                    targetEl.classList.add('opacity-100', 'pointer-events-auto');
+                }
+            }
+
+            function deactivatePanels() {
+                activeTargetId = null;
+                document.querySelectorAll('[id^="info-"]').forEach(el => {
+                    el.classList.remove('opacity-100', 'pointer-events-auto');
+                    el.classList.add('opacity-0', 'pointer-events-none');
+                });
+                defaultText.classList.remove('opacity-0');
+                defaultText.classList.add('opacity-100');
+            }
+
+            // 4. Technology Tabs Interaction
+            const techTabs = document.querySelectorAll('.tech-tab');
+            const techContents = document.querySelectorAll('.tech-content');
+
+            techTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active from all tabs
+                    techTabs.forEach(t => {
+                        t.classList.remove('border-accent-teal', 'text-accent-teal');
+                        t.classList.add('border-transparent', 'text-stone-500');
+                    });
+                    // Hide all contents
+                    techContents.forEach(c => c.classList.add('hidden'));
+
+                    // Add active to clicked tab
+                    tab.classList.remove('border-transparent', 'text-stone-500');
+                    tab.classList.add('border-accent-teal', 'text-accent-teal');
+
+                    // Show related content
+                    const targetId = tab.getAttribute('data-target');
+                    document.getElementById(targetId).classList.remove('hidden');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

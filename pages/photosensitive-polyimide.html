@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深度报告：光敏聚酰亚胺 (PSPI) 行业全景解析</title>
+    
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 引入 Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e3a8a', // blue-900
+                        secondary: '#3b82f6', // blue-500
+                        accent: '#0d9488', // teal-600
+                        background: '#f8fafc', // slate-50
+                        surface: '#ffffff',
+                        textMain: '#0f172a', // slate-900
+                        textMuted: '#475569', // slate-600
+                    },
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* <!-- Chosen Palette: Tech Indigo & Teal (Professional, Trustworthy, Analytical) -->
+        <!-- Application Structure Plan: A dashboard-style, single-page application with a sticky left navigation sidebar. This structure was chosen because industry reports are dense; a continuous scroll with persistent navigation allows users to maintain context, easily jump between the 8 core modules, and explore interactive data visualizations without losing their place. The layout prioritizes readability and interactive data exploration over linear reading. -->
+        <!-- Visualization & Content Choices: 
+            1. Market Size (Module 3) -> Goal: Show growth trend -> Viz: Bar + Line Chart (Chart.js) -> Interaction: Toggle Global vs. China -> Justification: Clearly shows TAM and CAGR -> Library: Chart.js Canvas. 
+            2. Value Chain (Module 4) -> Goal: Reveal industry structure -> Viz: Interactive HTML Flexbox Grid -> Interaction: Click nodes to view details -> Justification: No SVG allowed, HTML grid is robust and accessible -> Library: Vanilla JS + Tailwind.
+            3. Competitive Landscape (Module 5) -> Goal: Show oligopoly -> Viz: Doughnut Chart (Chart.js) -> Interaction: Hover tooltips -> Justification: Standard for market share -> Library: Chart.js Canvas.
+            4. Tech Roadmap (Module 6) -> Goal: Compare properties -> Viz: Radar Chart (Chart.js) -> Interaction: Hover to see specs -> Justification: Multi-dimensional comparison of materials -> Library: Chart.js Canvas.
+            <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+        */
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            scroll-behavior: smooth;
+        }
+
+        /* 核心图表容器样式：确保响应式、居中且不溢出 */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .nav-link.active {
+            background-color: #eff6ff;
+            color: #1d4ed8;
+            border-right: 3px solid #1d4ed8;
+            font-weight: 600;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+    <!-- 左侧导航栏 (Sidebar) -->
+    <nav class="w-64 bg-surface border-r border-slate-200 h-full flex flex-col hidden md:flex flex-shrink-0 z-10 shadow-sm">
+        <div class="p-6 border-b border-slate-100">
+            <h1 class="text-2xl font-bold text-primary tracking-tight">PSPI 智库</h1>
+            <p class="text-xs text-textMuted mt-1">光敏聚酰亚胺行业深度解析</p>
+        </div>
+        <div class="flex-1 overflow-y-auto py-4">
+            <ul id="navList" class="space-y-1">
+                <li><a href="#summary" class="nav-link block py-3 px-6 text-sm text-textMuted hover:bg-slate-50 transition-colors">一、 执行摘要</a></li>
+                <li><a href="#overview" class="nav-link block py-3 px-6 text-sm text-textMuted hover:bg-slate-50 transition-colors">二、 行业概况</a></li>
+                <li><a href="#market" class="nav-link block py-3 px-6 text-sm text-textMuted hover:bg-slate-50 transition-colors">三、 市场规模</a></li>
+                <li><a href="#value-chain" class="nav-link block py-3 px-6 text-sm text-textMuted hover:bg-slate-50 transition-colors">四、 产业链图谱</a></li>
+                <li><a href="#competition" class="nav-link block py-3 px-6 text-sm text-textMuted hover:bg-slate-50 transition-colors">五、 竞争格局</a></li>
+                <li><a href="#technology" class="nav-link block py-3 px-6 text-sm text-textMuted hover:bg-slate-50 transition-colors">六、 技术路径</a></li>
+                <li><a href="#risks" class="nav-link block py-3 px-6 text-sm text-textMuted hover:bg-slate-50 transition-colors">七、 宏观风险</a></li>
+                <li><a href="#investment" class="nav-link block py-3 px-6 text-sm text-textMuted hover:bg-slate-50 transition-colors">八、 投资逻辑</a></li>
+            </ul>
+        </div>
+        <div class="p-4 border-t border-slate-100 text-xs text-center text-slate-400">
+            &copy; 2026 TechInsights
+        </div>
+    </nav>
+
+    <!-- 主内容区 (Main Content) -->
+    <main class="flex-1 h-full overflow-y-auto bg-background relative" id="main-scroll">
+        
+        <!-- 移动端顶部导航 -->
+        <div class="md:hidden bg-surface p-4 sticky top-0 z-20 shadow-sm flex justify-between items-center">
+            <h1 class="text-xl font-bold text-primary">PSPI 智库报告</h1>
+            <button id="mobileMenuBtn" class="text-primary text-2xl">&#9776;</button>
+        </div>
+        
+        <!-- 移动端菜单下拉框 -->
+        <div id="mobileMenu" class="hidden md:hidden fixed inset-0 z-50 bg-surface flex-col pt-16 px-4">
+            <button id="closeMenuBtn" class="absolute top-4 right-4 text-3xl text-textMuted">&times;</button>
+            <!-- 内容由JS动态填充 -->
+        </div>
+
+        <div class="max-w-5xl mx-auto p-6 md:p-10 space-y-16 pb-32">
+            
+            <!-- 标题区 -->
+            <header class="mb-12 border-b border-slate-200 pb-8">
+                <div class="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold mb-4 tracking-wider">半导体核心材料系列</div>
+                <h1 class="text-4xl md:text-5xl font-extrabold text-textMain leading-tight mb-4">光敏聚酰亚胺 (PSPI) <br/><span class="text-primary">行业深度研究报告</span></h1>
+                <p class="text-lg text-textMuted">从“卡脖子”到“国产替代”的破局之路，深度解析先进封装与高端显示的底层材料密码。</p>
+            </header>
+
+            <!-- 模块一：执行摘要 -->
+            <section id="summary" class="scroll-mt-8">
+                <h2 class="text-2xl font-bold text-primary mb-4 flex items-center">
+                    <span class="mr-2 text-3xl">&#128203;</span> 一、 执行摘要 (Executive Summary)
+                </h2>
+                <p class="text-textMuted mb-6 text-sm leading-relaxed">
+                    本部分是整份报告的“心脏”，浓缩了PSPI行业的最核心发现。它为您提供行业所处生命周期、整体投资评级以及驱动未来发展的三个最关键因素，帮助决策者快速把握行业脉搏。
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- 核心结论 -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                        <div class="text-3xl mb-3 text-secondary">&#128200;</div>
+                        <h3 class="font-bold text-lg mb-2">核心结论：成长期爆发前夜</h3>
+                        <p class="text-sm text-textMuted">行业目前正处于从**导入期向成长期**跨越的关键节点。随着AI算力芯片对先进封装（2.5D/3D、Fan-out）需求的激增，以及OLED面板的全面普及，PSPI作为核心介电与缓冲材料，需求迎来非线性增长。</p>
+                        <div class="mt-4 w-full bg-slate-200 rounded-full h-2">
+                            <div class="bg-secondary h-2 rounded-full" style="width: 35%;"></div>
+                        </div>
+                        <div class="text-xs text-right mt-1 text-slate-500">生命周期：成长期 35%</div>
+                    </div>
+                    
+                    <!-- 投资建议 -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                        <div class="text-3xl mb-3 text-accent">&#128176;</div>
+                        <h3 class="font-bold text-lg mb-2">投资评价：强烈推荐配置</h3>
+                        <p class="text-sm text-textMuted">**极具投资价值。** 该行业具备极高的技术壁垒和毛利率（通常>50%）。当前全球市场被美日寡头垄断，但在地缘政治和供应链安全诉求下，国内企业验证周期大幅缩短，正迎来“从0到1”的国产替代历史性机遇。</p>
+                        <div class="mt-4 inline-block px-3 py-1 bg-green-100 text-green-800 rounded text-sm font-bold">评级：强烈推荐 (Strong Buy)</div>
+                    </div>
+
+                    <!-- Top 3 关键词 -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                        <div class="text-3xl mb-3 text-amber-500">&#128273;</div>
+                        <h3 class="font-bold text-lg mb-2">Top 3 核心关键词</h3>
+                        <ul class="space-y-3 mt-4">
+                            <li class="flex items-center text-sm">
+                                <span class="w-2 h-2 rounded-full bg-amber-500 mr-2"></span>
+                                <b>先进封装 (Advanced Pkg)：</b> 决定晶圆级PSPI增量
+                            </li>
+                            <li class="flex items-center text-sm">
+                                <span class="w-2 h-2 rounded-full bg-amber-500 mr-2"></span>
+                                <b>低温固化 (< 200°C)：</b> 决定谁能打破技术天花板
+                            </li>
+                            <li class="flex items-center text-sm">
+                                <span class="w-2 h-2 rounded-full bg-amber-500 mr-2"></span>
+                                <b>国产替代 (Import Sub)：</b> 决定国内厂商的成长斜率
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 模块二：行业概况 -->
+            <section id="overview" class="scroll-mt-8">
+                <h2 class="text-2xl font-bold text-primary mb-4 flex items-center">
+                    <span class="mr-2 text-3xl">&#128269;</span> 二、 行业概况与基本属性
+                </h2>
+                <p class="text-textMuted mb-6 text-sm leading-relaxed">
+                    明确研究边界，解析PSPI的定义、技术演进历程以及产业链的商业模式。了解PSPI为何能取代传统“聚酰亚胺+光刻胶”的复杂工艺，成为高端制造的宠儿。
+                </p>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 md:p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="font-bold text-lg border-l-4 border-secondary pl-2 mb-3">定义与分类边界</h3>
+                            <p class="text-sm text-textMuted mb-4">
+                                本报告研究的<b>光敏聚酰亚胺 (Photosensitive Polyimide, PSPI)</b>，是指在聚酰亚胺高分子主链或侧链中引入光敏基团，使其同时具备<b>优异的耐热性、绝缘性（PI属性）</b>和<b>光刻成像图案化能力（光刻胶属性）</b>的特种工程塑料。
+                            </p>
+                            <p class="text-sm text-textMuted">按应用场景，严格划分为两大主流赛道：</p>
+                            <ul class="list-disc pl-5 mt-2 text-sm text-textMuted space-y-1">
+                                <li><b>半导体级（晶圆级）：</b> 用于先进封装的再布线层(RDL)、应力缓冲层、钝化层。（高壁垒、高毛利）</li>
+                                <li><b>显示级：</b> 用于OLED面板的像素定义层(PDL)、支撑柱(PS)。</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg border-l-4 border-accent pl-2 mb-3">商业模式与盈利核心</h3>
+                            <div class="bg-slate-50 p-4 rounded-lg">
+                                <p class="text-sm text-textMuted mb-2"><b>非资产驱动，纯“技术溢价”+“客户粘性”模式。</b></p>
+                                <ul class="space-y-2 mt-3">
+                                    <li class="flex items-start text-sm">
+                                        <span class="text-accent mr-2">&#10003;</span>
+                                        <span><b>配方壁垒 (Know-How)：</b> 并非简单的化学反应，而是单体选择、光敏剂复配、溶剂体系的长期试错，毛利率极高。</span>
+                                    </li>
+                                    <li class="flex items-start text-sm">
+                                        <span class="text-accent mr-2">&#10003;</span>
+                                        <span><b>定制化开发：</b> 与下游晶圆厂（如台积电）深度绑定，共同开发。一旦导入量产，极难被替换（替换成本和风险极高）。</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 border-t border-slate-100 pt-6">
+                        <h3 class="font-bold text-lg mb-4 text-center">传统工艺 VS PSPI 直接光刻工艺</h3>
+                        <div class="flex flex-col md:flex-row justify-center items-center gap-4 text-sm">
+                            <div class="bg-red-50 text-red-800 p-4 rounded text-center w-full md:w-1/3">
+                                <b>传统工艺 (繁琐)</b><br/>
+                                涂覆PI &rarr; 涂覆光刻胶 &rarr; 曝光/显影 &rarr; 蚀刻PI &rarr; 剥离光刻胶 &rarr; 高温固化
+                            </div>
+                            <div class="text-2xl text-slate-400 font-bold hidden md:block">&#8658;</div>
+                            <div class="text-2xl text-slate-400 font-bold md:hidden">&#8659;</div>
+                            <div class="bg-green-50 text-green-800 p-4 rounded text-center w-full md:w-1/3 border-2 border-green-200">
+                                <b>PSPI工艺 (极简)</b><br/>
+                                涂覆PSPI &rarr; 曝光/显影 &rarr; 固化<br/>
+                                <span class="text-xs mt-2 block opacity-80">(大幅缩短工序，提升良率)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 模块三：市场规模 -->
+            <section id="market" class="scroll-mt-8">
+                <h2 class="text-2xl font-bold text-primary mb-4 flex items-center">
+                    <span class="mr-2 text-3xl">&#128202;</span> 三、 市场规模与需求分析
+                </h2>
+                <p class="text-textMuted mb-6 text-sm leading-relaxed">
+                    探究PSPI市场的TAM（总潜在市场）。本部分通过交互式图表展示全球及中国市场的规模预测，并拆解底层驱动逻辑与当前国内产品的渗透率。
+                </p>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 md:p-8">
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+                        <h3 class="font-bold text-lg">PSPI 市场规模预测 (百万美元)</h3>
+                        <div class="flex space-x-2 mt-4 md:mt-0 bg-slate-100 p-1 rounded-lg">
+                            <button id="btnGlobal" class="px-4 py-1 text-sm rounded bg-white shadow-sm font-semibold text-primary transition-all">全球市场</button>
+                            <button id="btnChina" class="px-4 py-1 text-sm rounded text-textMuted hover:bg-white hover:text-primary transition-all">中国市场</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 图表容器 -->
+                    <div class="chart-container">
+                        <canvas id="marketSizeChart"></canvas>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                        <div class="bg-blue-50 p-5 rounded-lg">
+                            <h4 class="font-bold text-primary mb-2 flex items-center"><span class="text-xl mr-2">&#128640;</span> 增长底层驱动逻辑</h4>
+                            <ul class="text-sm text-textMuted space-y-2">
+                                <li><b>半导体端 (CAGR最高)：</b> AI大模型爆发带动HBM及GPU出货，CoWoS等先进封装产能翻倍，RDL层材料刚性需求大增。</li>
+                                <li><b>面板端 (基本盘)：</b> OLED在智能手机、平板电脑中的渗透率持续提升，折叠屏手机对柔性材料提出更高要求。</li>
+                            </ul>
+                        </div>
+                        <div class="bg-teal-50 p-5 rounded-lg">
+                            <h4 class="font-bold text-accent mb-2 flex items-center"><span class="text-xl mr-2">&#127919;</span> 渗透率分析 (中国市场)</h4>
+                            <div class="flex items-end mb-2">
+                                <span class="text-4xl font-black text-accent mr-2">~8%</span>
+                                <span class="text-sm text-textMuted pb-1">当前国产化率</span>
+                            </div>
+                            <p class="text-sm text-textMuted">处于<b>爆发前夜</b>。大部分高端份额仍被日系厂商把控。但随着2024-2025年部分国内企业（如鼎龙股份）半导体级产品的送样验证通过，即将迎来非线性渗透率提升（从0到1，再到10）。</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 模块四：产业链图谱 -->
+            <section id="value-chain" class="scroll-mt-8">
+                <h2 class="text-2xl font-bold text-primary mb-4 flex items-center">
+                    <span class="mr-2 text-3xl">&#9873;</span> 四、 产业链全景图谱
+                </h2>
+                <p class="text-textMuted mb-6 text-sm leading-relaxed">
+                    透视PSPI上下游生态链。点击下方交互式环节模块，查看各环节的成本结构、话语权分配及关键参与者。中游的配方与合成是整个产业链卡脖子的核心。
+                </p>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 md:p-8">
+                    <!-- 交互式产业链结构 -->
+                    <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 relative">
+                        <!-- 上游 -->
+                        <div class="w-full md:w-1/3 px-2">
+                            <button onclick="updateValueChain('upstream')" class="w-full vc-btn bg-slate-50 border-2 border-slate-200 hover:border-secondary hover:shadow-md p-4 rounded-xl text-center transition-all focus:outline-none focus:ring-2 focus:ring-secondary">
+                                <div class="text-sm font-bold text-slate-500 mb-1">上游 (Upstream)</div>
+                                <div class="text-lg font-extrabold text-primary">核心原材料</div>
+                                <div class="text-xs text-textMuted mt-2">二酐 / 二胺 / 光敏剂(PAC) / 溶剂</div>
+                            </button>
+                        </div>
+                        <div class="hidden md:block text-slate-300 text-2xl">&#10140;</div>
+                        <!-- 中游 -->
+                        <div class="w-full md:w-1/3 px-2">
+                            <button onclick="updateValueChain('midstream')" class="w-full vc-btn bg-blue-50 border-2 border-blue-200 hover:border-blue-400 shadow-sm p-4 rounded-xl text-center transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 relative">
+                                <div class="absolute -top-3 right-2 bg-red-500 text-white text-[10px] px-2 py-1 rounded-full font-bold shadow animate-pulse">核心壁垒</div>
+                                <div class="text-sm font-bold text-blue-600 mb-1">中游 (Midstream)</div>
+                                <div class="text-lg font-extrabold text-blue-900">PSPI 制造与配方</div>
+                                <div class="text-xs text-blue-700 mt-2">树脂合成 / 配方调配 / 纯化工艺</div>
+                            </button>
+                        </div>
+                        <div class="hidden md:block text-slate-300 text-2xl">&#10140;</div>
+                        <!-- 下游 -->
+                        <div class="w-full md:w-1/3 px-2">
+                            <button onclick="updateValueChain('downstream')" class="w-full vc-btn bg-slate-50 border-2 border-slate-200 hover:border-accent hover:shadow-md p-4 rounded-xl text-center transition-all focus:outline-none focus:ring-2 focus:ring-accent">
+                                <div class="text-sm font-bold text-slate-500 mb-1">下游 (Downstream)</div>
+                                <div class="text-lg font-extrabold text-primary">终端应用场景</div>
+                                <div class="text-xs text-textMuted mt-2">晶圆代工厂 / 封测厂 / 面板厂</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 动态详情展示面板 -->
+                    <div id="vc-details" class="mt-8 bg-slate-800 text-white rounded-xl p-6 min-h-[200px] shadow-inner fade-in">
+                        <!-- 默认显示中游信息 -->
+                        <h4 class="text-xl font-bold text-blue-300 mb-3 border-b border-slate-600 pb-2">中游：PSPI 制造与配方 (价值链核心)</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <p class="text-sm text-slate-300 mb-2"><b>工艺流程：</b> 聚合反应 &rarr; 亚胺化 &rarr; 加入光敏剂/添加剂混合 &rarr; 亚微米级过滤纯化。极度依赖生产经验的积累（Know-How）。</p>
+                                <p class="text-sm text-slate-300"><b>BOM结构：</b> 树脂占成本~40%，光敏剂约占~30%，溶剂及其他占~30%。但实际制造成本占比极低，主要为<b>研发及折旧摊销成本</b>。</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-300 mb-2"><b>话语权：</b> 极高。掌握核心专利组合的巨头享有绝对定价权，毛利率通常在 50% - 70% 之间。</p>
+                                <p class="text-sm text-slate-300"><b>代表企业：</b> 东丽(Toray)、HDM、旭化成、富士胶片。国内包括鼎龙股份、明士新材料等。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 模块五：竞争格局 -->
+            <section id="competition" class="scroll-mt-8">
+                <h2 class="text-2xl font-bold text-primary mb-4 flex items-center">
+                    <span class="mr-2 text-3xl">&#9876;</span> 五、 竞争格局与护城河
+                </h2>
+                <p class="text-textMuted mb-6 text-sm leading-relaxed">
+                    行业呈现高度寡头垄断特征（CR5 > 80%）。通过波特五力模型和头部企业画像，揭示行业护城河的来源。日美企业凭借先发优势构建了坚固的专利与生态壁垒。
+                </p>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 md:p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+                        
+                        <!-- 市场份额图 -->
+                        <div>
+                            <h3 class="font-bold text-lg text-center mb-4">全球半导体级 PSPI 市场份额估算</h3>
+                            <div class="chart-container" style="height: 300px;">
+                                <canvas id="marketShareChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- 五力模型简述 -->
+                        <div class="space-y-4">
+                            <h3 class="font-bold text-lg border-l-4 border-primary pl-2 mb-2">波特五力分析</h3>
+                            
+                            <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                                <span class="text-sm font-semibold text-textMain">现有竞争 (寡头垄断)</span>
+                                <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">较低</span>
+                            </div>
+                            <p class="text-xs text-textMuted -mt-2">头部几家日美企业瓜分市场，格局稳固，极少打价格战。</p>
+
+                            <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                                <span class="text-sm font-semibold text-textMain">潜在进入者威胁</span>
+                                <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">较低</span>
+                            </div>
+                            <p class="text-xs text-textMuted -mt-2">受制于专利封锁、巨额研发资金和长达2-3年的验证周期，门槛极高。</p>
+
+                            <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                                <span class="text-sm font-semibold text-textMain">客户议价能力</span>
+                                <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">中等</span>
+                            </div>
+                            <p class="text-xs text-textMuted -mt-2">晶圆厂强势，但更看重材料稳定性而非价格，且一旦选定极少更换供应商。</p>
+
+                            <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                                <span class="text-sm font-semibold text-textMain">替代品威胁</span>
+                                <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">中等</span>
+                            </div>
+                            <p class="text-xs text-textMuted -mt-2">PBO、BCB、ABF等材料在某些特定层可替代，但综合性能最优的仍是PSPI。</p>
+                        </div>
+                    </div>
+
+                    <!-- 重点企业画像 -->
+                    <div class="mt-8">
+                        <h3 class="font-bold text-lg mb-4 text-center">重点企业核心护城河对比</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-slate-50 text-slate-600">
+                                    <tr>
+                                        <th class="px-4 py-3 rounded-tl-lg">企业</th>
+                                        <th class="px-4 py-3">核心产品/路径</th>
+                                        <th class="px-4 py-3">核心壁垒 (护城河)</th>
+                                        <th class="px-4 py-3 rounded-tr-lg">状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b border-slate-100">
+                                        <td class="px-4 py-3 font-bold text-primary">Toray (东丽)</td>
+                                        <td class="px-4 py-3">正性/负性全线覆盖</td>
+                                        <td class="px-4 py-3">垄断高端先进封装市场，拥有最庞大的专利池。</td>
+                                        <td class="px-4 py-3"><span class="text-green-600 font-bold">行业霸主</span></td>
+                                    </tr>
+                                    <tr class="border-b border-slate-100">
+                                        <td class="px-4 py-3 font-bold text-primary">HDM (杜邦合资)</td>
+                                        <td class="px-4 py-3">高温固化主导</td>
+                                        <td class="px-4 py-3">与全球主流晶圆厂数十年的深度合作关系，验证壁垒极高。</td>
+                                        <td class="px-4 py-3"><span class="text-green-600 font-bold">第一梯队</span></td>
+                                    </tr>
+                                    <tr class="border-b border-slate-100 bg-blue-50">
+                                        <td class="px-4 py-3 font-bold text-blue-800">鼎龙股份 (中国)</td>
+                                        <td class="px-4 py-3">半导体级/显示级</td>
+                                        <td class="px-4 py-3">借助本土化服务与供应链安全政策，率先完成核心客户导入验证。</td>
+                                        <td class="px-4 py-3"><span class="text-blue-600 font-bold">国产先锋</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 模块六：技术路径 -->
+            <section id="technology" class="scroll-mt-8">
+                <h2 class="text-2xl font-bold text-primary mb-4 flex items-center">
+                    <span class="mr-2 text-3xl">&#128640;</span> 六、 技术路径与研发趋势
+                </h2>
+                <p class="text-textMuted mb-6 text-sm leading-relaxed">
+                    行业的技术演进方向是决定企业未来生死的关键。对比主流路线（正性vs负性）与前沿颠覆性技术（低温固化），解析突破技术壁垒的难点。
+                </p>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 md:p-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <h3 class="font-bold text-lg mb-4 text-center">传统高温 vs 低温固化 PSPI 性能对比</h3>
+                            <div class="chart-container" style="height: 320px;">
+                                <canvas id="techRadarChart"></canvas>
+                            </div>
+                            <p class="text-xs text-center text-slate-400 mt-2">*数值越大代表性能或适用性越好</p>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div class="bg-indigo-50 p-4 rounded-lg border-l-4 border-indigo-500">
+                                <h4 class="font-bold text-indigo-900 mb-1">颠覆性趋势 1：低温固化技术 (< 200°C)</h4>
+                                <p class="text-sm text-indigo-800">
+                                    <b>为什么重要？</b> 传统PSPI固化温度高达300-350°C。但在先进封装（如Fan-out）中，基板或存储芯片无法承受如此高温，会导致严重的<b>晶圆翘曲(Warpage)</b>甚至器件失效。<br/>
+                                    <b>格局改变：</b> 谁能率先量产具备高机械强度的低迷固化（<200°C甚至150°C）PSPI，谁就能吃下未来先进封装最大的增量红利。
+                                </p>
+                            </div>
+
+                            <div class="bg-emerald-50 p-4 rounded-lg border-l-4 border-emerald-500">
+                                <h4 class="font-bold text-emerald-900 mb-1">颠覆性趋势 2：水性环保显影液 (正性化)</h4>
+                                <p class="text-sm text-emerald-800">
+                                    <b>为什么重要？</b> 早期负性PSPI多使用有机溶剂显影，污染大且成本高。主流趋势正转向<b>正性PSPI</b>，可直接使用标准的TMAH水溶液显影，与现有的光刻制程无缝兼容，大幅降低综合制造成本，并更加环保。
+                                </p>
+                            </div>
+                            
+                            <div>
+                                <h4 class="font-bold text-textMain mb-2">三大技术壁垒 (人才门槛)</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-3 py-1 bg-slate-100 text-slate-700 text-xs rounded-full">高纯度单体合成</span>
+                                    <span class="px-3 py-1 bg-slate-100 text-slate-700 text-xs rounded-full">金属离子管控 (ppb级)</span>
+                                    <span class="px-3 py-1 bg-slate-100 text-slate-700 text-xs rounded-full">光敏剂复配 Know-how</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 模块七：宏观风险 -->
+            <section id="risks" class="scroll-mt-8">
+                <h2 class="text-2xl font-bold text-primary mb-4 flex items-center">
+                    <span class="mr-2 text-3xl">&#9888;</span> 七、 政策环境与宏观风险
+                </h2>
+                <p class="text-textMuted mb-6 text-sm leading-relaxed">
+                    任何投资都伴随着风险。尽管PSPI赛道处于风口，政策大力扶持（大基金、国产化率指标），但仍需警惕技术迭代超预期与长周期的验证风险。
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- 风险卡片 1 -->
+                    <div class="group bg-white p-6 rounded-xl border border-slate-200 hover:bg-red-50 hover:border-red-200 transition-all cursor-pointer shadow-sm">
+                        <div class="text-2xl mb-2 text-red-500 group-hover:scale-110 transition-transform">&#10006;</div>
+                        <h3 class="font-bold text-textMain mb-2 group-hover:text-red-700">验证周期超预期风险</h3>
+                        <p class="text-sm text-textMuted group-hover:text-red-600">
+                            半导体级PSPI的下游客户（晶圆代工厂）对材料稳定性要求极其苛刻。送样、小试、上机验证到最终量产，周期通常长达 <b>2-3 年</b>。期间若参数微调失败，可能导致前期投入打水漂，资金链承压。
+                        </p>
+                    </div>
+
+                    <!-- 风险卡片 2 -->
+                    <div class="group bg-white p-6 rounded-xl border border-slate-200 hover:bg-orange-50 hover:border-orange-200 transition-all cursor-pointer shadow-sm">
+                        <div class="text-2xl mb-2 text-orange-500 group-hover:scale-110 transition-transform">&#8635;</div>
+                        <h3 class="font-bold text-textMain mb-2 group-hover:text-orange-700">技术路线颠覆风险</h3>
+                        <p class="text-sm text-textMuted group-hover:text-orange-600">
+                            虽然PSPI目前是优选，但新型介电材料（如特种BCB、高性能环氧ABF的改良版等）也在不断迭代。如果PSPI在介电常数（Dk/Df）的优化上停滞不前，可能会在下一代高频高速芯片封装中被替代。
+                        </p>
+                    </div>
+
+                    <!-- 风险卡片 3 -->
+                    <div class="group bg-white p-6 rounded-xl border border-slate-200 hover:bg-blue-50 hover:border-blue-200 transition-all cursor-pointer shadow-sm">
+                        <div class="text-2xl mb-2 text-blue-500 group-hover:scale-110 transition-transform">&#127758;</div>
+                        <h3 class="font-bold text-textMain mb-2 group-hover:text-blue-700">国际贸易摩擦及专利诉讼</h3>
+                        <p class="text-sm text-textMuted group-hover:text-blue-600">
+                            国产替代进入深水区后，触碰海外巨头核心利益。日美巨头长期积累了海量专利。国内企业在出海或扩大市占率时，极易面临知识产权（IP）诉讼战，影响市占率提升速度。
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 模块八：投资逻辑 -->
+            <section id="investment" class="scroll-mt-8">
+                <h2 class="text-2xl font-bold text-primary mb-4 flex items-center">
+                    <span class="mr-2 text-3xl">&#128161;</span> 八、 结论与投资逻辑
+                </h2>
+                <p class="text-textMuted mb-6 text-sm leading-relaxed">
+                    提炼行业制胜之道（KSF），评估当前资本市场对该赛道的估值逻辑，并提供脱离市场共识的差异化投资视角。
+                </p>
+
+                <div class="bg-gradient-to-br from-slate-800 to-slate-900 text-white rounded-xl shadow-lg p-6 md:p-10 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 opacity-10 text-[150px] leading-none select-none">&#36;</div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 relative z-10">
+                        <!-- KSF & 估值 -->
+                        <div>
+                            <h3 class="font-bold text-xl text-secondary mb-4 border-b border-slate-600 pb-2">关键成功要素 (KSF)</h3>
+                            <ul class="space-y-4 mb-8">
+                                <li class="flex items-start">
+                                    <div class="bg-secondary text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-sm mr-3 flex-shrink-0">1</div>
+                                    <p class="text-sm text-slate-200"><b>晶圆厂联合研发资源 (生态圈)：</b> 不可能闭门造车，必须拿到顶级晶圆厂的真实产线反馈数据。</p>
+                                </li>
+                                <li class="flex items-start">
+                                    <div class="bg-secondary text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-sm mr-3 flex-shrink-0">2</div>
+                                    <p class="text-sm text-slate-200"><b>低温化配方能力：</b> 打破现有格局的“王牌”，决定了能否进入高端2.5D/3D封装的核心层。</p>
+                                </li>
+                                <li class="flex items-start">
+                                    <div class="bg-secondary text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-sm mr-3 flex-shrink-0">3</div>
+                                    <p class="text-sm text-slate-200"><b>极限良率控制：</b> 化工合成过程中对金属杂质的ppb级别控制，决定了批量供货的一致性。</p>
+                                </li>
+                            </ul>
+
+                            <h3 class="font-bold text-xl text-accent mb-3 border-b border-slate-600 pb-2">估值逻辑 (Valuation)</h3>
+                            <p class="text-sm text-slate-300">
+                                行业享有显著的“半导体材料溢价”。处于产品导入期的公司适用 <b>市销率 (P/S)</b> 估值；已实现规模放量并盈利的公司适用 <b>高市盈率 (P/E)</b>，由于壁垒极高，历史 PE 中枢常位于 50x - 80x。
+                            </p>
+                        </div>
+
+                        <!-- 差异化观点 -->
+                        <div class="bg-slate-700/50 rounded-lg p-6 border border-slate-600">
+                            <h3 class="font-bold text-lg text-amber-400 mb-3 flex items-center">
+                                <span class="text-2xl mr-2">&#128065;</span> 差异化洞察视角
+                            </h3>
+                            <div class="space-y-4 text-sm text-slate-200">
+                                <p><b>市场共识陷阱：</b> 认为只要进入了面板大厂（OLED PDL）的供应链，就证明了实力，给予高估值预期。</p>
+                                <p><b>我们的洞察：</b> 
+                                    <span class="text-white font-semibold">面板级PSPI与半导体级PSPI是完全不同的两个物种。</span> 面板级市场已陷入红海价格战趋势，技术要求（如分辨率、介电损耗）远低于半导体级。
+                                </p>
+                                <p class="bg-slate-800 p-3 rounded border-l-4 border-amber-500">
+                                    <b>投资建议：</b> 甄别标的时，<b>必须剥离面板业务的虚假繁荣</b>，盯紧其产品是否真正打入了“晶圆代工厂”的再布线层（RDL），这才是真正拥有Alpha收益的核心资产。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- 交互逻辑脚本 -->
+    <script>
+        // === 导航栏滚动高亮逻辑 ===
+        document.addEventListener("DOMContentLoaded", () => {
+            const sections = document.querySelectorAll("section[id]");
+            const navLinks = document.querySelectorAll(".nav-link");
+            const mainScroll = document.getElementById("main-scroll");
+
+            // 移动端菜单控制
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const closeMenuBtn = document.getElementById('closeMenuBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const navList = document.getElementById('navList');
+
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.innerHTML = '';
+                mobileMenu.appendChild(closeMenuBtn);
+                const cloneList = navList.cloneNode(true);
+                cloneList.className = "space-y-4 text-center mt-8";
+                
+                // 处理克隆元素的点击事件
+                const links = cloneList.querySelectorAll('a');
+                links.forEach(link => {
+                    link.className = "block text-lg font-bold text-slate-800 hover:text-primary py-2";
+                    link.addEventListener('click', () => {
+                        mobileMenu.classList.add('hidden');
+                    });
+                });
+
+                mobileMenu.appendChild(cloneList);
+                mobileMenu.classList.remove('hidden');
+                mobileMenu.classList.add('flex');
+            });
+
+            closeMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+                mobileMenu.classList.remove('flex');
+            });
+
+            // 滚动监听
+            mainScroll.addEventListener("scroll", () => {
+                let current = "";
+                const scrollPos = mainScroll.scrollTop + 200; // 偏移量
+
+                sections.forEach((section) => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.offsetHeight;
+                    if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
+                        current = section.getAttribute("id");
+                    }
+                });
+
+                navLinks.forEach((link) => {
+                    link.classList.remove("active");
+                    if (link.getAttribute("href").includes(current) && current !== "") {
+                        link.classList.add("active");
+                    }
+                });
+            });
+
+            // 初始化图表
+            renderCharts();
+        });
+
+        // === 产业链交互逻辑 ===
+        const vcData = {
+            upstream: {
+                title: "上游：核心原材料 (寡头垄断，卡脖子)",
+                color: "text-slate-400",
+                border: "border-slate-500",
+                content1: "<b>核心材料：</b> 高纯度二酐（如BPDA、6FDA等）、二胺组合，以及特定波长响应的光敏剂(PAC)。单体结构的创新直接决定了下游最终PSPI的耐热性和介电性能。",
+                content2: "<b>话语权：</b> 极高。尤其是高纯特殊单体，基本被日本大金、三菱瓦斯等化工巨头垄断。国内企业面临严重的原材料“卡脖子”风险，部分核心单体完全依赖进口。"
+            },
+            midstream: {
+                title: "中游：PSPI 制造与配方 (价值链核心)",
+                color: "text-blue-300",
+                border: "border-blue-600",
+                content1: "<b>工艺流程：</b> 聚合反应 &rarr; 亚胺化 &rarr; 加入光敏剂/添加剂混合 &rarr; 亚微米级过滤纯化。极度依赖生产经验的积累（Know-How），配方试错成本极高。",
+                content2: "<b>话语权：</b> 产业链最高利润池。掌握核心专利组合的巨头享有绝对定价权，毛利率通常在 50% - 70% 之间。代表企业：东丽(Toray)、HDM、旭化成、富士胶片。国内包括鼎龙股份等。"
+            },
+            downstream: {
+                title: "下游：终端应用场景 (验证壁垒极高)",
+                color: "text-teal-300",
+                border: "border-teal-500",
+                content1: "<b>半导体制造：</b> 晶圆代工厂（如台积电、中芯国际）与封测厂（长电、日月光）。主要用于2.5D/3D先进封装、WLCSP的缓冲层和RDL介电层。",
+                content2: "<b>话语权：</b> 客户强势。认证周期极长（2-3年），不仅看重材料的初始参数，更看重量产批次的一致性（金属杂质ppb级别管控）。一旦进入供应链，极难被替代。"
+            }
+        };
+
+        function updateValueChain(section) {
+            const detailsDiv = document.getElementById('vc-details');
+            const data = vcData[section];
+            
+            // 重置所有按钮样式
+            document.querySelectorAll('.vc-btn').forEach(btn => {
+                btn.classList.remove('ring-4', 'ring-opacity-50', 'bg-slate-100');
+            });
+            // 激活当前按钮样式 (简单处理)
+            event.currentTarget.classList.add('bg-slate-100');
+
+            // 触发动画重新播放
+            detailsDiv.classList.remove('fade-in');
+            void detailsDiv.offsetWidth; // trigger reflow
+            detailsDiv.classList.add('fade-in');
+
+            detailsDiv.innerHTML = `
+                <h4 class="text-xl font-bold ${data.color} mb-3 border-b ${data.border} pb-2">${data.title}</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <p class="text-sm text-slate-300 mb-2">${data.content1}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-slate-300">${data.content2}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+
+        // === Chart.js 图表渲染逻辑 ===
+        let marketChartInstance = null;
+
+        function renderCharts() {
+            // 全局默认配置
+            Chart.defaults.font.family = "'Inter', sans-serif";
+            Chart.defaults.color = '#475569';
+
+            // 1. 市场规模图表 (Bar + Line)
+            const ctxMarket = document.getElementById('marketSizeChart').getContext('2d');
+            
+            const marketDataGlobal = {
+                labels: ['2021', '2022', '2023', '2024E', '2025E', '2026E'],
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: '全球市场规模 (百万美元)',
+                        data: [1200, 1350, 1420, 1600, 1850, 2150],
+                        backgroundColor: 'rgba(59, 130, 246, 0.7)', // blue-500
+                        borderRadius: 4,
+                        order: 2
+                    },
+                    {
+                        type: 'line',
+                        label: 'YOY 增速 (%)',
+                        data: [8, 12.5, 5.2, 12.6, 15.6, 16.2],
+                        borderColor: '#0d9488', // teal-600
+                        backgroundColor: '#0d9488',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        yAxisID: 'y1',
+                        order: 1
+                    }
+                ]
+            };
+
+            const marketDataChina = {
+                labels: ['2021', '2022', '2023', '2024E', '2025E', '2026E'],
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: '中国市场规模 (百万美元)',
+                        data: [200, 240, 280, 350, 450, 600],
+                        backgroundColor: 'rgba(13, 148, 136, 0.7)', // teal-600
+                        borderRadius: 4,
+                        order: 2
+                    },
+                    {
+                        type: 'line',
+                        label: 'YOY 增速 (%)',
+                        data: [15, 20, 16.6, 25, 28.5, 33.3],
+                        borderColor: '#f59e0b', // amber-500
+                        backgroundColor: '#f59e0b',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        yAxisID: 'y1',
+                        order: 1
+                    }
+                ]
+            };
+
+            const marketOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        padding: 10
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: '规模 (百万美元)' }
+                    },
+                    y1: {
+                        beginAtZero: true,
+                        position: 'right',
+                        title: { display: true, text: '增速 (%)' },
+                        grid: { drawOnChartArea: false }
+                    }
+                }
+            };
+
+            marketChartInstance = new Chart(ctxMarket, {
+                data: marketDataGlobal,
+                options: marketOptions
+            });
+
+            // 切换按钮逻辑
+            document.getElementById('btnGlobal').addEventListener('click', function() {
+                this.classList.replace('text-textMuted', 'text-primary');
+                this.classList.add('bg-white', 'shadow-sm', 'font-semibold');
+                const btnChina = document.getElementById('btnChina');
+                btnChina.classList.replace('text-primary', 'text-textMuted');
+                btnChina.classList.remove('bg-white', 'shadow-sm', 'font-semibold');
+                
+                marketChartInstance.data = marketDataGlobal;
+                marketChartInstance.update();
+            });
+
+            document.getElementById('btnChina').addEventListener('click', function() {
+                this.classList.replace('text-textMuted', 'text-primary');
+                this.classList.add('bg-white', 'shadow-sm', 'font-semibold');
+                const btnGlobal = document.getElementById('btnGlobal');
+                btnGlobal.classList.replace('text-primary', 'text-textMuted');
+                btnGlobal.classList.remove('bg-white', 'shadow-sm', 'font-semibold');
+
+                marketChartInstance.data = marketDataChina;
+                marketChartInstance.update();
+            });
+
+
+            // 2. 竞争格局图表 (Doughnut)
+            const ctxShare = document.getElementById('marketShareChart').getContext('2d');
+            new Chart(ctxShare, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Toray (东丽)', 'HD MicroSystems', 'Asahi Kasei (旭化成)', 'Fujifilm (富士胶片)', '其他海外厂商', '中国本土厂商'],
+                    datasets: [{
+                        data: [45, 25, 10, 8, 7, 5],
+                        backgroundColor: [
+                            '#1e3a8a', // primary
+                            '#3b82f6', // secondary
+                            '#60a5fa', // lighter blue
+                            '#0d9488', // accent
+                            '#cbd5e1', // slate
+                            '#f59e0b'  // amber for domestic
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 3. 技术路径雷达图 (Radar)
+            const ctxRadar = document.getElementById('techRadarChart').getContext('2d');
+            new Chart(ctxRadar, {
+                type: 'radar',
+                data: {
+                    labels: [
+                        ['耐热性', '(>300°C)'], 
+                        ['低温固化能力', '(<200°C)'], 
+                        ['光刻分辨率', '(L/S)'], 
+                        ['介电性能', '(低Dk/Df)'], 
+                        ['机械强度', '(延伸率)'], 
+                        ['环保与成本', '(水性显影)']
+                    ],
+                    datasets: [
+                        {
+                            label: '传统高温 PSPI',
+                            data: [9, 2, 7, 8, 9, 3],
+                            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                            borderColor: '#3b82f6',
+                            pointBackgroundColor: '#3b82f6',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: '#3b82f6'
+                        },
+                        {
+                            label: '新型低温正性 PSPI',
+                            data: [6, 9, 8, 7, 6, 9],
+                            backgroundColor: 'rgba(13, 148, 136, 0.2)',
+                            borderColor: '#0d9488',
+                            pointBackgroundColor: '#0d9488',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: '#0d9488'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                            pointLabels: { font: { size: 11, family: "'Inter', sans-serif" } },
+                            ticks: { display: false, min: 0, max: 10 }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

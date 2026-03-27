@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>锂电/钠电高端粘结剂(PVDF)行业深度报告</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* CSS resets and base styles */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; color: #1e293b; overflow: hidden; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* MANDATORY: Chart Container Styling */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 40vh; /* Responsive height */
+            min-height: 300px;
+            max-height: 450px;
+            padding: 1rem;
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        /* Navigation active state */
+        .nav-active {
+            background-color: #e0f2fe;
+            color: #0369a1;
+            border-right: 4px solid #0284c7;
+            font-weight: 600;
+        }
+
+        /* Fade in animation */
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Timeline styles */
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #0ea5e9;
+            border: 2px solid white;
+        }
+    </style>
+</head>
+<body class="flex h-screen w-screen">
+
+    <!-- Chosen Palette: Slate (Neutrals) + Sky Blue (Primary) + Emerald (Positive/Growth) + Amber (Risks) -->
+    <!-- Application Structure Plan: The SPA uses a classic Dashboard layout. A persistent left sidebar provides clear navigation across the 8 required modules. The main content area dynamically updates based on selection, ensuring a smooth, non-linear exploration experience without page reloads. This structure is chosen because industry reports are dense; breaking them into functional, easily accessible chunks prevents cognitive overload and allows users to jump straight to their area of interest (e.g., jumping from Exec Summary to Investment Thesis). -->
+    <!-- Visualization & Content Choices: 
+        1. Exec Summary: Big Numbers & KPI cards (Inform) -> Quick parsing of critical data.
+        2. Overview: CSS-based Timeline & Flow blocks (Organize) -> Visual history and business model without complex SVG.
+        3. Market: Bar/Line combo Chart.js (Compare/Change) -> Shows volume growth and penetration rate over time.
+        4. Value Chain: Interactive CSS Grid (Relationships) -> Clickable nodes reveal upstream/downstream dynamics.
+        5. Competition: Radar Chart.js (Compare) -> Perfect for Five Forces analysis. Bar chart for market share.
+        6. Technology: Comparison Matrix Table (Organize) -> Clear side-by-side spec comparison.
+        7. Risks: CSS Grid Risk Matrix (Organize) -> Color-coded severity vs likelihood.
+        8. Investment: Clean text lists & basic valuation metric chart (Inform) -> Focus on actionable takeaways.
+        CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. All charts are Canvas (Chart.js), all diagrams are HTML/CSS/Tailwind.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <!-- Sidebar Navigation -->
+    <nav class="w-64 bg-white shadow-lg flex flex-col h-full z-10 transition-all duration-300 relative">
+        <div class="p-6 border-b border-slate-100">
+            <h1 class="text-xl font-bold text-slate-800 leading-tight">新能源材料<br><span class="text-sky-600">高端PVDF洞察</span></h1>
+            <p class="text-xs text-slate-400 mt-2">v2024.Q3 深度版</p>
+        </div>
+        <ul class="flex-1 overflow-y-auto py-4" id="nav-list">
+            <!-- Populated by JS -->
+        </ul>
+        <div class="p-4 border-t border-slate-100 text-xs text-slate-400 text-center">
+            内部研究资料 · 仅供参考
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 h-full overflow-y-auto bg-slate-50 relative" id="main-content">
+        <!-- Content gets injected here by JavaScript -->
+    </main>
+
+    <script>
+        // --- DATA STATE ---
+        const reportData = {
+            modules: [
+                { id: 'exec-summary', title: '一、 执行摘要', icon: '&#128203;' },
+                { id: 'overview', title: '二、 行业概况与属性', icon: '&#128214;' },
+                { id: 'market', title: '三、 市场规模与需求', icon: '&#128200;' },
+                { id: 'value-chain', title: '四、 产业链全景图谱', icon: '&#9873;' },
+                { id: 'competition', title: '五、 竞争格局与护城河', icon: '&#9876;' },
+                { id: 'tech', title: '六、 技术路径与趋势', icon: '&#128300;' },
+                { id: 'risks', title: '七、 政策环境与风险', icon: '&#9888;' },
+                { id: 'investment', title: '八、 结论与投资逻辑', icon: '&#128176;' }
+            ],
+            // Data for Chart.js
+            charts: {
+                marketSize: {
+                    labels: ['2021', '2022', '2023', '2024E', '2025E', '2026E'],
+                    datasets: [
+                        { type: 'bar', label: '全球锂电PVDF需求量 (万吨)', data: [2.5, 4.8, 7.2, 9.5, 12.1, 15.0], backgroundColor: '#38bdf8', yAxisID: 'y' },
+                        { type: 'line', label: '同比增速 (%)', data: [150, 92, 50, 32, 27, 24], borderColor: '#f59e0b', borderWidth: 2, fill: false, yAxisID: 'y1' }
+                    ]
+                },
+                fiveForces: {
+                    labels: ['现有竞争者 (激烈)', '潜在进入者 (中等)', '替代品威胁 (中高)', '供应商议价 (高)', '客户议价 (极高)'],
+                    datasets: [{
+                        label: '行业竞争力评分 (1-10, 10为压力最大)',
+                        data: [8, 6, 7, 8, 9],
+                        backgroundColor: 'rgba(14, 165, 233, 0.2)',
+                        borderColor: '#0ea5e9',
+                        pointBackgroundColor: '#0ea5e9'
+                    }]
+                },
+                marketShare: {
+                    labels: ['索尔维(外)', '阿科玛(外)', '吴羽(外)', '巨化股份(内)', '东岳集团(内)', '其他'],
+                    datasets: [{
+                        data: [25, 20, 15, 12, 18, 10],
+                        backgroundColor: ['#94a3b8', '#94a3b8', '#94a3b8', '#0ea5e9', '#0284c7', '#cbd5e1']
+                    }]
+                }
+            },
+            // Detail data for interactive elements
+            valueChainDetails: {
+                upstream: { title: '上游：核心原材料 (R142b)', desc: 'R142b是生产VDF单体的核心原料。由于其是消耗臭氧层物质(ODS)，受严格配额管控。拥有R142b生产配额和产能的企业掌握绝对成本话语权和扩产主动权。', bom: '占据PVDF总成本的60%-70%。' },
+                midstream: { title: '中游：PVDF合成制造', desc: '主要分为乳液聚合和悬浮聚合。锂电正极通常要求高分子量（100万以上），悬浮聚合在分子量分布控制上更具优势，技术壁垒较高。需要解决晶化度、柔韧性和粘结力的平衡。', bom: '折旧与人工约占15%，其余为能源及辅料消耗。' },
+                downstream: { title: '下游：锂电池/钠电池制造', desc: '主要用于正极极片涂布（占总需求约90%）和隔膜涂覆。客户为宁德时代、比亚迪等头部电芯厂。客户认证周期长（通常需6-12个月），一旦进入供应链，粘性极强。', bom: '虽然仅占锂电池总成本的1%-2%，但直接决定电池的安全性和循环寿命。' }
+            }
+        };
+
+        // --- RENDER LOGIC ---
+        const navList = document.getElementById('nav-list');
+        const mainContent = document.getElementById('main-content');
+        let currentChartInstances = {};
+
+        // 1. Initialize Navigation
+        function initNav() {
+            reportData.modules.forEach((mod, index) => {
+                const li = document.createElement('li');
+                li.className = `px-6 py-3 cursor-pointer text-sm transition-colors hover:bg-slate-100 ${index === 0 ? 'nav-active' : 'text-slate-600'}`;
+                li.innerHTML = `<span class="mr-3 opacity-70">${mod.icon}</span> ${mod.title}`;
+                li.onclick = () => {
+                    document.querySelectorAll('#nav-list li').forEach(el => el.classList.remove('nav-active', 'text-slate-600'));
+                    document.querySelectorAll('#nav-list li').forEach(el => el.classList.add('text-slate-600'));
+                    li.classList.remove('text-slate-600');
+                    li.classList.add('nav-active');
+                    renderModule(mod.id);
+                };
+                navList.appendChild(li);
+            });
+        }
+
+        // 2. Module Content Generators
+        const moduleRenderers = {
+            'exec-summary': () => `
+                <div class="fade-in max-w-5xl mx-auto py-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">执行摘要</h2>
+                    <p class="text-slate-500 mb-8 border-l-4 border-sky-500 pl-4">本模块是对整份报告核心发现的浓缩，帮助决策者在3分钟内掌握行业脉络。</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 border-t-4 border-t-sky-500">
+                            <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">行业生命周期</h3>
+                            <div class="text-2xl font-bold text-slate-800">成长期后期 <span class="text-sm text-sky-600 font-normal">-> 趋向成熟</span></div>
+                            <p class="text-xs text-slate-400 mt-2">产能集中释放，暴利时代结束，进入拼成本和微创新的阶段。</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 border-t-4 border-t-emerald-500">
+                            <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">投资评价</h3>
+                            <div class="text-2xl font-bold text-emerald-600">谨慎乐观 (持有/增持)</div>
+                            <p class="text-xs text-slate-400 mt-2">不适合新玩家盲目进入；建议关注具备一体化成本优势的国产龙头。</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 border-t-4 border-t-amber-500">
+                            <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">短期最大风险</h3>
+                            <div class="text-2xl font-bold text-amber-600">价格战与干法替代</div>
+                            <p class="text-xs text-slate-400 mt-2">常规级产能严重过剩导致利润承压；干法电极技术中长期可能替代湿法PVDF。</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 border-t-4 border-t-purple-500">
+                            <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">2025年预测市场增速</h3>
+                            <div class="text-2xl font-bold text-purple-600">~27% CAGR</div>
+                            <p class="text-xs text-slate-400 mt-2">由储能市场爆发和海外新能源车渗透率提升支撑基数增长。</p>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2">Top 3 核心驱动/演化关键词</h3>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-lg shadow-sm">
+                            <div class="text-4xl mb-3 text-sky-500">&#128640;</div>
+                            <h4 class="font-bold text-lg mb-2">1. 国产替代提速</h4>
+                            <p class="text-sm text-slate-600">外企（索尔维、阿科玛）份额正被快速挤压。国内企业在悬浮法、高粘结力型号上实现突破，性价比优势显著。</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-sm">
+                            <div class="text-4xl mb-3 text-sky-500">&#9873;</div>
+                            <h4 class="font-bold text-lg mb-2">2. 一体化生存</h4>
+                            <p class="text-sm text-slate-600">行业逻辑已从“赚取技术溢价”转向“依靠一体化降本”。没有上游R142b原料配套的企业将在价格战中被淘汰。</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-sm">
+                            <div class="text-4xl mb-3 text-amber-500">&#9889;</div>
+                            <h4 class="font-bold text-lg mb-2">3. 固态/干法技术阴影</h4>
+                            <p class="text-sm text-slate-600">全固态电池及干法电极工艺(使用PTFE为主)的产业化进程，是高纯PVDF远期需求最大的灰犀牛。</p>
+                        </div>
+                    </div>
+                </div>
+            `,
+            'overview': () => `
+                <div class="fade-in max-w-5xl mx-auto py-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">行业概况与基本属性</h2>
+                    <p class="text-slate-500 mb-8 border-l-4 border-sky-500 pl-4">明确研究边界，梳理行业发展脉络及底层商业盈利逻辑。</p>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
+                        <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center"><span class="text-sky-500 mr-2">&#128269;</span> 定义与研究边界</h3>
+                        <div class="text-slate-600 text-sm space-y-2">
+                            <p><strong>PVDF (聚偏氟乙烯):</strong> 一种高强度、耐腐蚀的氟树脂。本报告研究对象严格限定为 <strong>电池级/高端 PVDF</strong>，主要用作锂离子/钠离子电池的正极粘结剂和隔膜涂覆材料。</p>
+                            <p><strong>与普通级的区别:</strong> 电池级要求极高的纯度（金属杂质<ppm级）、特定的分子量分布（通常为超高分子量）、优异的电化学稳定性和抗溶胀性。</p>
+                            <p><strong>技术边界:</strong> 本报告基于当前主流的<strong>液态/半固态电池湿法涂布工艺</strong>。暂不深入探讨全固态电池中聚合物固态电解质基体的应用（因处于极早期）。</p>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <!-- Timeline -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm">
+                            <h3 class="text-lg font-bold text-slate-800 mb-6 border-b pb-2">关键发展历程</h3>
+                            <div class="relative border-l-2 border-slate-200 ml-3 space-y-6">
+                                <div class="relative pl-6 timeline-item">
+                                    <h4 class="font-bold text-slate-700 text-sm">1990s - 萌芽期</h4>
+                                    <p class="text-xs text-slate-500 mt-1">索尼首次商业化锂离子电池，PVDF因其优异的稳定性被选定为正极标配粘结剂。外企垄断技术。</p>
+                                </div>
+                                <div class="relative pl-6 timeline-item">
+                                    <h4 class="font-bold text-slate-700 text-sm">2015-2020 - 导入至成长期</h4>
+                                    <p class="text-xs text-slate-500 mt-1">国内新能源汽车起步。国内化企开始布局低端锂电级产品，但高端(三元高镍)市场仍被阿科玛、索尔维把控。</p>
+                                </div>
+                                <div class="relative pl-6 timeline-item">
+                                    <h4 class="font-bold text-sky-600 text-sm">2021-2022 - 爆发与短缺期</h4>
+                                    <p class="text-xs text-slate-500 mt-1">新能源车爆发式增长，叠加原料R142b配额限制，电池级PVDF价格暴涨至近50万元/吨，行业进入暴利阶段。</p>
+                                </div>
+                                <div class="relative pl-6 timeline-item">
+                                    <h4 class="font-bold text-slate-700 text-sm">2023-至今 - 产能释放与洗牌期</h4>
+                                    <p class="text-xs text-slate-500 mt-1">国产产能大规模落地，供过于求，价格回归理性（降至10万元/吨内）。竞争重心转向“降本”与“特种化改性”。</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Business Model -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm">
+                            <h3 class="text-lg font-bold text-slate-800 mb-6 border-b pb-2">商业模式剖析</h3>
+                            <div class="flex flex-col gap-4">
+                                <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                                    <h4 class="font-semibold text-sky-700 text-sm mb-1">过去 (暴利期): 技术溢价 & 资源垄断</h4>
+                                    <p class="text-xs text-slate-600">依托外企的专利封锁或国内早期玩家掌握的R142b稀缺配额，享受极高的毛利率（一度超60%）。</p>
+                                </div>
+                                <div class="flex justify-center text-slate-400">&#8595; 演变</div>
+                                <div class="p-4 bg-sky-50 rounded-lg border border-sky-200">
+                                    <h4 class="font-semibold text-sky-700 text-sm mb-1">现在与未来: 规模效应 & 一体化资产周转</h4>
+                                    <p class="text-xs text-slate-600">核心盈利能力转变为：<strong>全产业链布局降本</strong>（从萤石矿->氢氟酸->R142b->VDF->PVDF）。依靠规模化生产摊薄固定成本，赚取合理的化工制造利润（毛利率回归15%-25%的常态水平）。</p>
+                                </div>
+                                <div class="mt-4 text-xs text-slate-500 bg-amber-50 p-3 rounded text-amber-800 border border-amber-200">
+                                    <strong>核心结论：</strong> 电池级PVDF已从“精细化工品”逐渐向“大宗新能源材料”属性过渡。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            'market': () => `
+                <div class="fade-in max-w-5xl mx-auto py-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">市场规模与需求分析</h2>
+                    <p class="text-slate-500 mb-8 border-l-4 border-sky-500 pl-4">通过历史数据与预测，观察行业TAM的增长曲线及其底层驱动逻辑。</p>
+
+                    <div class="grid lg:grid-cols-3 gap-8 mb-8">
+                        <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm">
+                            <h3 class="text-lg font-bold text-slate-800 mb-4 text-center">全球锂电级PVDF需求量测算 (2021-2026E)</h3>
+                            <div class="chart-container">
+                                <canvas id="marketChart"></canvas>
+                            </div>
+                            <p class="text-xs text-center text-slate-400 mt-4">数据来源：行业公开资料整理测算</p>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-sky-500">
+                                <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">驱动因素 (底层逻辑)</h3>
+                                <ul class="text-sm text-slate-600 space-y-3 list-disc pl-4">
+                                    <li><strong>动力电池基数扩大：</strong> 虽单车带电量增速放缓，但全球EV渗透率（尤其欧美市场）仍有提升空间，是基本盘。</li>
+                                    <li><strong>储能电池大爆发：</strong> 储能电芯容量越做越大（280Ah -> 314Ah -> 500Ah+），对粘结剂的稳定性要求提升，储能市场成为当前核心增量。</li>
+                                    <li><strong>高镍/铁锂体系分化：</strong> 高镍三元需要更高分子量PVDF；磷酸铁锂粒径小，比表面积大，单位耗量略高。</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-amber-500">
+                                <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">渗透率与竞争阶段</h3>
+                                <div class="text-lg font-bold text-slate-700 mb-1">红海厮杀与产能出清</div>
+                                <p class="text-sm text-slate-600">行业已过爆发前夜（2021）。当前属于常规型号产能严重过剩阶段，高端定制型号（如高粘结、快充匹配型）存在结构性紧缺。企业正在拼刺刀抢夺头部电池厂份额。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            'value-chain': () => `
+                <div class="fade-in max-w-5xl mx-auto py-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">产业链全景图谱</h2>
+                    <p class="text-slate-500 mb-8 border-l-4 border-sky-500 pl-4">拆解产业链上下游互动关系、成本结构及话语权归属。<strong>点击下方各个环节查看深度解析。</strong></p>
+
+                    <!-- Interactive Value Chain Diagram (CSS Grid) -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 text-center relative">
+                        <!-- Upstream -->
+                        <div class="bg-white rounded-xl shadow border-2 border-slate-200 p-4 cursor-pointer hover:border-sky-500 transition-colors group" onclick="showChainDetail('upstream')">
+                            <div class="text-sm text-slate-400 font-semibold mb-2">上游 (原材料)</div>
+                            <div class="flex justify-center items-center gap-2 mb-2">
+                                <span class="bg-slate-100 px-2 py-1 rounded text-xs">萤石</span> &rarr;
+                                <span class="bg-slate-100 px-2 py-1 rounded text-xs">氢氟酸</span>
+                            </div>
+                            <div class="bg-sky-100 text-sky-800 font-bold py-2 px-4 rounded mb-2 group-hover:bg-sky-500 group-hover:text-white transition-colors">
+                                R142b (核心中间体)
+                            </div>
+                            <div class="text-xs text-slate-500 flex items-center justify-center">
+                                <span class="text-amber-500 mr-1">&#9888;</span> 配额受限
+                            </div>
+                        </div>
+
+                        <!-- Midstream -->
+                        <div class="bg-white rounded-xl shadow border-2 border-slate-200 p-4 cursor-pointer hover:border-sky-500 transition-colors group" onclick="showChainDetail('midstream')">
+                            <div class="text-sm text-slate-400 font-semibold mb-2">中游 (制造环节)</div>
+                            <div class="bg-sky-100 text-sky-800 font-bold py-2 px-4 rounded mb-2 group-hover:bg-sky-500 group-hover:text-white transition-colors">
+                                电池级PVDF
+                            </div>
+                            <div class="flex justify-center items-center gap-2 text-xs text-slate-500">
+                                <span class="border border-slate-300 px-1 rounded">乳液聚合</span>
+                                <span class="border border-slate-300 px-1 rounded">悬浮聚合</span>
+                            </div>
+                        </div>
+
+                        <!-- Downstream -->
+                        <div class="bg-white rounded-xl shadow border-2 border-slate-200 p-4 cursor-pointer hover:border-sky-500 transition-colors group" onclick="showChainDetail('downstream')">
+                            <div class="text-sm text-slate-400 font-semibold mb-2">下游 (应用端)</div>
+                            <div class="flex flex-col gap-2">
+                                <div class="bg-sky-100 text-sky-800 font-bold py-1 px-4 rounded group-hover:bg-sky-500 group-hover:text-white transition-colors">
+                                    动力/储能电池正极极片
+                                </div>
+                                <div class="bg-slate-50 text-slate-600 font-medium py-1 px-4 rounded border border-slate-200">
+                                    隔膜涂覆 (陶瓷/胶覆)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detail Panel -->
+                    <div id="chain-detail-panel" class="bg-sky-50 p-6 rounded-xl border border-sky-100 min-h-[150px]">
+                        <div class="text-center text-slate-400 italic mt-4">请点击上方产业链环节，查看该环节的利润构成、话语权分析及成本BOM拆解。</div>
+                    </div>
+                </div>
+            `,
+            'competition': () => `
+                <div class="fade-in max-w-5xl mx-auto py-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">竞争格局与护城河</h2>
+                    <p class="text-slate-500 mb-8 border-l-4 border-sky-500 pl-4">行业正经历激烈的国产替代，集中度极高（寡头垄断特征显著）。</p>
+
+                    <div class="grid lg:grid-cols-2 gap-8">
+                        <!-- Five Forces -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center">
+                            <h3 class="text-lg font-bold text-slate-800 mb-2">波特五力模型分析</h3>
+                            <div class="chart-container !h-auto !max-h-[350px]">
+                                <canvas id="radarChart"></canvas>
+                            </div>
+                            <div class="text-xs text-slate-500 mt-2 text-center">
+                                结论：行业内卷严重，且深受下游巨头压价影响；壁垒在于上游资源。
+                            </div>
+                        </div>
+
+                        <!-- Market Share & Profiles -->
+                        <div class="flex flex-col gap-6">
+                            <div class="bg-white p-6 rounded-xl shadow-sm">
+                                <h3 class="text-lg font-bold text-slate-800 mb-4 text-center">全球头部玩家市占率预估 (CR5 > 80%)</h3>
+                                <div class="chart-container !h-48 !max-h-[200px]">
+                                    <canvas id="pieChart"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-sky-500 overflow-y-auto max-h-48">
+                                <h3 class="text-sm font-bold text-slate-800 mb-2">重点企业画像与护城河</h3>
+                                <ul class="text-sm text-slate-600 space-y-3">
+                                    <li><strong>索尔维/阿科玛：</strong> 传统霸主。优势在专利、技术积淀（高端悬浮法）、海外车企认可度。劣势在成本高、国内响应慢。</li>
+                                    <li><strong>巨化股份/东岳集团：</strong> 国产龙头。核心护城河：<strong>绝对的原材料一体化优势</strong>（掌握大量R142b配额）及规模效应。</li>
+                                    <li><strong>璞泰来(卓高)：</strong> 差异化路线。从隔膜涂覆延伸至正极粘结剂，强在产品改性定制能力和与下游客户（宁德等）的深度绑定生态。</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            'tech': () => `
+                <div class="fade-in max-w-5xl mx-auto py-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">技术路径与研发趋势</h2>
+                    <p class="text-slate-500 mb-8 border-l-4 border-sky-500 pl-4">聚焦当前主流合成工艺的优劣势，探讨下一代电池技术带来的颠覆性风险。</p>
+
+                    <h3 class="text-lg font-bold text-slate-800 mb-4">主流合成工艺对比分析</h3>
+                    <div class="bg-white rounded-xl shadow-sm overflow-x-auto mb-8 border border-slate-200">
+                        <table class="min-w-full divide-y divide-slate-200">
+                            <thead class="bg-slate-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">技术指标</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-sky-700 uppercase tracking-wider bg-sky-50/50">乳液聚合法 (Emulsion)</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-emerald-700 uppercase tracking-wider bg-emerald-50/50">悬浮聚合法 (Suspension)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-slate-200 text-sm text-slate-600">
+                                <tr>
+                                    <td class="px-6 py-4 font-medium">工艺原理</td>
+                                    <td class="px-6 py-4">在乳化剂作用下于水中聚合，产物颗粒细小。</td>
+                                    <td class="px-6 py-4">在分散剂作用下悬浮于水中聚合，产物颗粒较粗。</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-medium">分子量及分布</td>
+                                    <td class="px-6 py-4">容易达到高分子量，但分子量分布较宽。</td>
+                                    <td class="px-6 py-4 font-semibold text-emerald-600">分子量分布更窄，批次稳定性更好。</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-medium">杂质含量</td>
+                                    <td class="px-6 py-4 text-amber-600">需使用乳化剂，后期水洗难除尽，金属离子较高。</td>
+                                    <td class="px-6 py-4 font-semibold text-emerald-600">纯度高，不易引入杂质。</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-medium">适用场景</td>
+                                    <td class="px-6 py-4">LFP (磷酸铁锂)、常规三元、隔膜涂覆。</td>
+                                    <td class="px-6 py-4 font-semibold text-slate-800">高镍三元 (NCM811/9系)、高压实密度场景。</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-medium">技术壁垒</td>
+                                    <td class="px-6 py-4">较低 (国内较多产能集中于此)。</td>
+                                    <td class="px-6 py-4">高 (配方及聚合釜控制难，外企主导，国内刚突破)。</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="bg-slate-800 text-white p-6 rounded-xl shadow-sm relative overflow-hidden">
+                        <div class="absolute -right-10 -top-10 text-9xl opacity-10">&#128640;</div>
+                        <h3 class="text-lg font-bold mb-3">颠覆性技术预测 (3-5年视野)</h3>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="text-sky-400 font-semibold mb-1">技术A：干法电极技术 (Dry Electrode)</h4>
+                                <p class="text-sm text-slate-300">通过PTFE（聚四氟乙烯）原纤化直接将正负极粉末压制成极片，省去溶剂烘干环节。若大规模量产，将<strong>完全替代湿法PVDF</strong>在正极的使用。</p>
+                            </div>
+                            <div>
+                                <h4 class="text-amber-400 font-semibold mb-1">技术B：改性与多元共聚</h4>
+                                <p class="text-sm text-slate-300">为了匹配快充（要求低内阻）和高能量密度（要求高粘结力少用量），纯PVDF均聚物将向PVDF-HFP、VDF与丙烯酸酯类共聚物等方向演进。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            'risks': () => `
+                <div class="fade-in max-w-5xl mx-auto py-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">政策环境与宏观风险</h2>
+                    <p class="text-slate-500 mb-8 border-l-4 border-amber-500 pl-4">分析外部环境的制约因素及行业面临的主要风险点。</p>
+
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <!-- Policies -->
+                        <div class="space-y-4">
+                            <h3 class="text-lg font-bold text-slate-800 mb-2 border-b pb-2">关键政策导向</h3>
+                            
+                            <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-emerald-500">
+                                <h4 class="font-bold text-sm mb-1 text-slate-700">R142b 环保配额收紧</h4>
+                                <p class="text-xs text-slate-600">作为ODS（消耗臭氧层物质），R142b受《蒙特利尔议定书》管控。政策每年削减其作为制冷剂的生产配额。虽然作为中间体（生产PVDF）不受严格限制，但新建产能审批极难，构筑了行业最高的政策准入门槛。</p>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-sky-500">
+                                <h4 class="font-bold text-sm mb-1 text-slate-700">新能源汽车补贴退坡转市场化</h4>
+                                <p class="text-xs text-slate-600">下游主机厂极致降本压力逆向传导至电池厂及材料厂。要求PVDF企业具备持续的降价能力或提供更高的性价比。</p>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-amber-500">
+                                <h4 class="font-bold text-sm mb-1 text-slate-700">海外贸易壁垒与脱钩风险 (IRA法案)</h4>
+                                <p class="text-xs text-slate-600">美国IRA法案及欧洲电池法案要求本地化供应链。国内企业出口高端PVDF或间接出口（通过电池组件）面临一定地缘政治和碳足迹认证风险。</p>
+                            </div>
+                        </div>
+
+                        <!-- Risk Matrix -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm">
+                            <h3 class="text-lg font-bold text-slate-800 mb-4">行业风险矩阵</h3>
+                            <div class="grid grid-cols-2 grid-rows-2 gap-2 h-64 text-sm">
+                                <div class="bg-amber-100 flex items-center justify-center p-4 text-center border border-amber-200 rounded text-amber-900 font-medium">
+                                    【高影响/低发生概率】<br>固态电池/干法电极提前量产替代
+                                </div>
+                                <div class="bg-red-100 flex items-center justify-center p-4 text-center border border-red-200 rounded text-red-900 font-bold">
+                                    【高影响/高发生概率】<br>常规型号产能严重过剩，价格跌破现金成本线
+                                </div>
+                                <div class="bg-emerald-50 flex items-center justify-center p-4 text-center border border-emerald-100 rounded text-emerald-800">
+                                    【低影响/低发生概率】<br>核心设备受制裁卡脖子
+                                </div>
+                                <div class="bg-sky-100 flex items-center justify-center p-4 text-center border border-sky-200 rounded text-sky-900 font-medium">
+                                    【低影响/高发生概率】<br>下游客户切换配方导致订单短期流失
+                                </div>
+                            </div>
+                            <div class="flex justify-between text-xs text-slate-400 mt-2 px-2">
+                                <span>发生概率 &rarr;</span>
+                                <span>影响力 &uarr;</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            'investment': () => `
+                <div class="fade-in max-w-5xl mx-auto py-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">结论与投资逻辑</h2>
+                    <p class="text-slate-500 mb-8 border-l-4 border-sky-500 pl-4">提炼关键成功要素，明确行业投资的底层逻辑与差异化观点。</p>
+
+                    <div class="grid lg:grid-cols-3 gap-6 mb-8">
+                        <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm">
+                            <h3 class="text-xl font-bold text-slate-800 mb-4 text-sky-600 border-b pb-2">关键成功要素 (KSF)</h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start">
+                                    <span class="flex-shrink-0 bg-sky-100 text-sky-600 w-6 h-6 rounded-full flex items-center justify-center font-bold mr-3 mt-0.5">1</span>
+                                    <div>
+                                        <h4 class="font-bold text-slate-700">深度一体化产业链保障</h4>
+                                        <p class="text-sm text-slate-600 mt-1">必须打通“含氟制冷剂(R142b)—VDF—PVDF”全链路。在外购原料模式下，当PVDF价格下行周期，企业将面临无利可图甚至亏损的境地。</p>
+                                    </div>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="flex-shrink-0 bg-sky-100 text-sky-600 w-6 h-6 rounded-full flex items-center justify-center font-bold mr-3 mt-0.5">2</span>
+                                    <div>
+                                        <h4 class="font-bold text-slate-700">高端悬浮法工艺突破能力</h4>
+                                        <p class="text-sm text-slate-600 mt-1">逃离中低端乳液法内卷的唯一出路。能稳定供应匹配高镍三元体系的高分子量、低杂质产品，才能享有技术溢价和更高的客户粘性。</p>
+                                    </div>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="flex-shrink-0 bg-sky-100 text-sky-600 w-6 h-6 rounded-full flex items-center justify-center font-bold mr-3 mt-0.5">3</span>
+                                    <div>
+                                        <h4 class="font-bold text-slate-700">头部电芯厂的深度捆绑</h4>
+                                        <p class="text-sm text-slate-600 mt-1">验证周期极长（需全电池循环寿命测试）。能配合CATL、BYD等客户进行早期配方联合开发的企业，将获得先发优势。</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-slate-800 text-white p-6 rounded-xl shadow-sm">
+                            <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-600 pb-2">估值逻辑与观点</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <h4 class="text-sm text-slate-400">主流估值方法</h4>
+                                    <p class="text-base font-semibold">周期成长股属性：P/E (市盈率) 为主</p>
+                                    <p class="text-xs text-slate-400 mt-1">因盈利随化工周期波动，底部看 PB，常态看 PE。目前行业平均PE处于历史低位分位。</p>
+                                </div>
+                                <div class="bg-slate-700 p-3 rounded mt-4">
+                                    <h4 class="text-sm text-sky-400 font-bold mb-1">&#128161; 差异化投研观点</h4>
+                                    <p class="text-xs leading-relaxed text-slate-200">市场共识认为PVDF将完全沦为低毛利大宗化工品。我们的差异化观点在于：<strong>"两极分化"</strong>。常规产品跌无可跌，但能够切入<strong>快充电池专用的改性粘结剂</strong>以及<strong>半固态电池电解质涂层</strong>的细分龙头，将迎来戴维斯双击（量价齐升与估值重构），这部分被市场严重低估。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `
+        };
+
+        // 3. Render specific module and initialize charts if needed
+        function renderModule(moduleId) {
+            mainContent.innerHTML = moduleRenderers[moduleId]();
+            
+            // Destroy existing charts to prevent memory leaks/canvas errors
+            for (let id in currentChartInstances) {
+                if(currentChartInstances[id]) {
+                    currentChartInstances[id].destroy();
+                }
+            }
+            currentChartInstances = {};
+
+            // Initialize charts specific to the active module
+            setTimeout(() => {
+                if (moduleId === 'market') {
+                    initMarketChart();
+                } else if (moduleId === 'competition') {
+                    initCompetitionCharts();
+                }
+            }, 100); // slight delay to ensure DOM is ready
+        }
+
+        // --- CHART INITIALIZATION ---
+        function initMarketChart() {
+            const ctx = document.getElementById('marketChart');
+            if(!ctx) return;
+            
+            currentChartInstances.marketChart = new Chart(ctx, {
+                type: 'bar',
+                data: reportData.charts.marketSize,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 6 } },
+                        tooltip: { mode: 'index', intersect: false }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { 
+                            type: 'linear', display: true, position: 'left',
+                            title: { display: true, text: '需求量 (万吨)' }
+                        },
+                        y1: { 
+                            type: 'linear', display: true, position: 'right',
+                            title: { display: true, text: '增速 (%)' },
+                            grid: { drawOnChartArea: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initCompetitionCharts() {
+            const radarCtx = document.getElementById('radarChart');
+            if(radarCtx) {
+                currentChartInstances.radarChart = new Chart(radarCtx, {
+                    type: 'radar',
+                    data: reportData.charts.fiveForces,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                angleLines: { display: false },
+                                suggestedMin: 0,
+                                suggestedMax: 10,
+                                ticks: { stepSize: 2 }
+                            }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            const pieCtx = document.getElementById('pieChart');
+            if(pieCtx) {
+                currentChartInstances.pieChart = new Chart(pieCtx, {
+                    type: 'doughnut',
+                    data: reportData.charts.marketShare,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'right', labels: { boxWidth: 10, font: {size: 10} } }
+                        },
+                        cutout: '60%'
+                    }
+                });
+            }
+        }
+
+        // --- INTERACTIVITY (Value Chain) ---
+        window.showChainDetail = function(part) {
+            const data = reportData.valueChainDetails[part];
+            const panel = document.getElementById('chain-detail-panel');
+            if(!panel) return;
+
+            // Simple animation trick
+            panel.classList.remove('fade-in');
+            void panel.offsetWidth; // trigger reflow
+            panel.classList.add('fade-in');
+
+            panel.innerHTML = `
+                <h4 class="text-xl font-bold text-sky-800 mb-3">${data.title}</h4>
+                <div class="space-y-3">
+                    <p class="text-sm text-slate-700 leading-relaxed"><strong>环节解析：</strong> ${data.desc}</p>
+                    <p class="text-sm text-amber-700 bg-amber-50 p-2 border-l-2 border-amber-500 rounded"><strong>成本/利润特征 (BOM)：</strong> ${data.bom}</p>
+                </div>
+            `;
+        }
+
+        // --- APP START ---
+        initNav();
+        // Load default module
+        renderModule('exec-summary');
+
+    </script>
+</body>
+</html>
