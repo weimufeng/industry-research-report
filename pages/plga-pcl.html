@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深度行业报告：生物可降解植入材料（PLGA/PCL）</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Base styles and custom scrollbar */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #F8FAFC; /* Warm neutral slate-50 */
+            color: #1E293B; /* slate-800 */
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F1F5F9; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8; 
+        }
+
+        /* Chart Container Mandatory Constraints */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px; /* Constrain max width for readability */
+            margin-left: auto;
+            margin-right: auto;
+            height: 40vh; /* Responsive base height */
+            min-height: 300px;
+            max-height: 450px; /* Prevent vertical overflow */
+        }
+
+        .radar-chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 40vh;
+            min-height: 350px;
+            max-height: 500px;
+        }
+
+        /* Interactive UI utilities */
+        .nav-item.active {
+            border-left: 4px solid #2563EB;
+            background-color: #EFF6FF;
+            color: #1D4ED8;
+            font-weight: 600;
+        }
+        .tab-btn.active {
+            border-bottom: 2px solid #2563EB;
+            color: #2563EB;
+            font-weight: 600;
+        }
+        .vc-node {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .vc-node.active, .vc-node:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #2563EB;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row min-h-screen">
+
+    <!-- Chosen Palette: Warm Neutrals (Slate-50 to Slate-800) with Deep Blue (#2563EB) and Emerald Green (#059669) accents -->
+    <!-- Application Structure Plan: A dynamic, dashboard-style single-page layout with a persistent left sidebar for navigation. This allows users to easily jump between the 8 core modules without losing context. Content is revealed via JS state management to keep the view clean. Interactive charts, tabs, and clickable value-chain nodes are used to condense complex data into explorable chunks. -->
+    <!-- Visualization & Content Choices: 
+         1. Exec Summary: Status cards (HTML/CSS) for immediate high-level takeaway.
+         2. Market Analysis: Bar/Line combo chart (Chart.js) to show TAM and CAGR simultaneously.
+         3. Value Chain: Interactive HTML/CSS flexbox nodes. Clicking a node updates a details panel (JS). Avoids complex SVGs while maintaining clarity.
+         4. Competitors: Radar chart (Chart.js) to visualize Porter's 5 Forces.
+         5. Tech Roadmap: Interactive tabs (JS) to compare PLGA vs PCL without cluttering the screen.
+         CONFIRMING: No SVG or Mermaid JS used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <!-- Sidebar Navigation -->
+    <nav class="w-full md:w-64 bg-white shadow-lg md:h-screen sticky top-0 md:fixed flex-shrink-0 z-50 overflow-y-auto">
+        <div class="p-6 border-b border-slate-200">
+            <h1 class="text-xl font-bold text-slate-800 leading-tight">生物可降解植入材料行业深度报告</h1>
+            <p class="text-xs text-slate-500 mt-2">PLGA / PCL 专题研究</p>
+        </div>
+        <ul class="flex flex-row md:flex-col overflow-x-auto md:overflow-hidden p-4 space-y-0 md:space-y-2 space-x-2 md:space-x-0">
+            <li class="nav-item active flex-shrink-0 p-3 rounded-r-lg cursor-pointer text-sm md:text-base text-slate-600" onclick="showSection('exec-summary', this)">一、 执行摘要</li>
+            <li class="nav-item flex-shrink-0 p-3 rounded-r-lg cursor-pointer text-sm md:text-base text-slate-600" onclick="showSection('overview', this)">二、 行业概况</li>
+            <li class="nav-item flex-shrink-0 p-3 rounded-r-lg cursor-pointer text-sm md:text-base text-slate-600" onclick="showSection('market', this)">三、 市场规模</li>
+            <li class="nav-item flex-shrink-0 p-3 rounded-r-lg cursor-pointer text-sm md:text-base text-slate-600" onclick="showSection('value-chain', this)">四、 产业链图谱</li>
+            <li class="nav-item flex-shrink-0 p-3 rounded-r-lg cursor-pointer text-sm md:text-base text-slate-600" onclick="showSection('competition', this)">五、 竞争格局</li>
+            <li class="nav-item flex-shrink-0 p-3 rounded-r-lg cursor-pointer text-sm md:text-base text-slate-600" onclick="showSection('tech', this)">六、 技术路线</li>
+            <li class="nav-item flex-shrink-0 p-3 rounded-r-lg cursor-pointer text-sm md:text-base text-slate-600" onclick="showSection('risks', this)">七、 宏观风险</li>
+            <li class="nav-item flex-shrink-0 p-3 rounded-r-lg cursor-pointer text-sm md:text-base text-slate-600" onclick="showSection('investment', this)">八、 投资逻辑</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 md:ml-64 p-6 md:p-12 overflow-x-hidden">
+        
+        <!-- Section 1: Executive Summary -->
+        <section id="exec-summary" class="section-content fade-in">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-slate-800 border-b-2 border-blue-600 pb-2 inline-block">一、 执行摘要 (Executive Summary)</h2>
+                <p class="text-slate-600 mt-4 text-lg">本模块浓缩了对生物可降解植入材料（主要为PLGA和PCL）行业的顶层研判，提取了行业所处阶段、核心投资价值及未来发展的关键词。旨在为决策者提供一分钟即可掌握的核心逻辑。</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="text-slate-500 text-sm font-semibold uppercase tracking-wider mb-2">核心结论：行业阶段</h3>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-4xl">📈</div>
+                        <div>
+                            <p class="text-2xl font-bold text-slate-800">成长期 (快速爆发)</p>
+                            <p class="text-sm text-slate-500 mt-1">受益于医美童颜针、长效微球制剂及骨科耗材的国产替代，行业正从导入期向成长期加速迈进。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="text-slate-500 text-sm font-semibold uppercase tracking-wider mb-2">投资评价</h3>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-4xl text-emerald-600">★</div>
+                        <div>
+                            <p class="text-2xl font-bold text-emerald-700">强烈建议布局</p>
+                            <p class="text-sm text-slate-500 mt-1">极高的技术壁垒（高分子合成与纯化）带来高达70%-90%的毛利率，拥有核心材料自研能力的企业具备高护城河。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-blue-50 p-6 rounded-xl border border-blue-100">
+                <h3 class="text-blue-800 font-bold text-lg mb-4">Top 3 关键词</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white p-4 rounded shadow-sm">
+                        <div class="text-blue-600 font-bold text-xl mb-1">01. 进口替代</div>
+                        <p class="text-sm text-slate-600">Evonik、Corbion等外资目前占据80%以上中高端份额，国产高端医用级材料突围是未来5年主旋律。</p>
+                    </div>
+                    <div class="bg-white p-4 rounded shadow-sm">
+                        <div class="text-blue-600 font-bold text-xl mb-1">02. 消费医疗驱动</div>
+                        <p class="text-sm text-slate-600">再生医美（如以PLLA/PLGA为核心的童颜针、少女针）的需求爆发，重塑了上游材料的估值逻辑。</p>
+                    </div>
+                    <div class="bg-white p-4 rounded shadow-sm">
+                        <div class="text-blue-600 font-bold text-xl mb-1">03. 缓控释平台</div>
+                        <p class="text-sm text-slate-600">PLGA微球技术作为高端制剂的卡脖子环节，一旦突破可形成泛用型的药物递送技术平台。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Industry Overview -->
+        <section id="overview" class="section-content fade-in hidden">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-slate-800 border-b-2 border-blue-600 pb-2 inline-block">二、 行业概况与基本属性 (Industry Overview)</h2>
+                <p class="text-slate-600 mt-4 text-lg">本节明确了研究边界，梳理了生物可降解材料的发展脉络，并深度剖析了产业链利润分配的商业本质。</p>
+            </div>
+
+            <div class="mb-8">
+                <h3 class="text-xl font-bold text-slate-800 mb-4">■ 定义与分类：明确研究边界</h3>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <p class="text-slate-700 leading-relaxed mb-4">
+                        生物可降解高分子材料是指在生物体内经过水解或酶解，最终降解为水和二氧化碳等无毒小分子被排出体外的材料。本报告主要聚焦于应用最成熟、商业化价值最大的两大核心医疗级高分子材料：
+                    </p>
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <div class="flex-1 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                            <span class="font-bold text-blue-700">PLGA (聚乳酸-羟基乙酸共聚物)</span>
+                            <p class="text-sm mt-2 text-slate-600">由乳酸和羟基乙酸共聚而成。可通过调节单体比例控制降解时间（1个月到数月不等）。<br><b>主要应用：</b> 长效缓释微球、医美注射物、可吸收缝合线、骨固定钉。</p>
+                        </div>
+                        <div class="flex-1 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                            <span class="font-bold text-teal-700">PCL (聚己内酯)</span>
+                            <p class="text-sm mt-2 text-slate-600">由ε-己内酯开环聚合而成。降解速度极慢（1-3年），柔韧性极佳。<br><b>主要应用：</b> 长期植入物、少女针核心成分、3D打印支架、长效避孕埋植剂。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <h3 class="text-xl font-bold text-slate-800 mb-4">■ 商业模式：赚取技术与合规溢价</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 border-t-4 border-t-blue-500">
+                        <div class="text-lg font-bold mb-2">高技术壁垒</div>
+                        <p class="text-sm text-slate-600">医疗级材料对分子量分布、单体残留、重金属含量要求极高。合成工艺控制属于企业核心机密（Know-how）。</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 border-t-4 border-t-purple-500">
+                        <div class="text-lg font-bold mb-2">主被文件（DMF）绑定</div>
+                        <p class="text-sm text-slate-600">原材料厂商通过向FDA/NMPA提交DMF备案，与下游医疗器械客户联合审评，形成深度绑定，客户转换成本极高。</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 border-t-4 border-t-emerald-500">
+                        <div class="text-lg font-bold mb-2">寡头暴利模型</div>
+                        <p class="text-sm text-slate-600">由于壁垒极高且认证周期长（3-5年），成功进入供应链的材料厂商享有强定价权，毛利率普遍在 <b>70% - 90%</b> 之间。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Market Analysis -->
+        <section id="market" class="section-content fade-in hidden">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-slate-800 border-b-2 border-blue-600 pb-2 inline-block">三、 市场规模与需求分析 (Market Analysis)</h2>
+                <p class="text-slate-600 mt-4 text-lg">通过量化数据分析市场空间（TAM）及增速预测，探讨驱动需求爆发的底层逻辑与目前的渗透率阶段。</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4">全球医用可降解高分子市场规模 (亿美元)</h3>
+                    <div class="chart-container">
+                        <canvas id="marketChart"></canvas>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-4 text-center">数据来源：行业研报整合预测 (示例数据)</p>
+                </div>
+                
+                <div class="flex flex-col space-y-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                        <h3 class="text-lg font-bold text-slate-800 mb-3">驱动因素 (底层逻辑)</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">▶</span>
+                                <span class="text-sm text-slate-700"><b>消费升级 (医美爆发)：</b> 以PLGA/PCL为核心的再生注射剂（如Sculptra, Ellansé）填补了玻尿酸难以刺激胶原蛋白再生的空白，需求呈指数级增长。</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">▶</span>
+                                <span class="text-sm text-slate-700"><b>人口老龄化：</b> 骨科修复、心血管支架、外科缝合等领域对可降解材料的刚性需求持续提升。避免二次手术取出的特性直击临床痛点。</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">▶</span>
+                                <span class="text-sm text-slate-700"><b>制剂创新：</b> 长效微球药物（如治疗精神分裂、前列腺癌的每月一针制剂）高度依赖定制化的PLGA作为载体材料。</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100">
+                        <h3 class="text-lg font-bold text-blue-900 mb-2">渗透率分析：处于爆发前夜</h3>
+                        <p class="text-sm text-slate-700 mb-4">在传统骨科内固定物中，可降解材料渗透率不足 <b class="text-blue-700 text-lg">10%</b>，大量被钛合金占据，替代空间广阔。在医美再生注射剂领域，渗透率刚刚跨过 <b class="text-blue-700 text-lg">5%</b> 的早期接纳鸿沟，即将迎来S型曲线的陡峭拉升阶段。</p>
+                        <div class="w-full bg-slate-200 rounded-full h-2.5">
+                            <div class="bg-blue-600 h-2.5 rounded-full" style="width: 8%"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-slate-500 mt-1">
+                            <span>0%</span>
+                            <span>渗透率 8% (整体均值)</span>
+                            <span>100%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Value Chain -->
+        <section id="value-chain" class="section-content fade-in hidden">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-slate-800 border-b-2 border-blue-600 pb-2 inline-block">四、 产业链全景图谱 (Value Chain Analysis)</h2>
+                <p class="text-slate-600 mt-4 text-lg">拆解产业链上下游。点击下方各环节的卡片，查看核心参与者、技术工艺及利润分布情况。</p>
+            </div>
+
+            <!-- Interactive Value Chain Diagram (HTML/CSS Based) -->
+            <div class="flex flex-col md:flex-row items-center justify-between bg-white p-8 rounded-xl shadow-sm border border-slate-100 mb-6 space-y-4 md:space-y-0 relative">
+                
+                <!-- Upstream -->
+                <div class="vc-node active w-full md:w-1/3 bg-slate-50 border-2 border-slate-200 rounded-lg p-4 text-center z-10" onclick="updateVC('upstream', this)">
+                    <div class="text-slate-500 text-xs font-bold uppercase mb-1">上游 (Upstream)</div>
+                    <div class="text-lg font-bold text-slate-800">基础化工原料与单体</div>
+                    <div class="text-xs text-slate-400 mt-2">乳酸、丙交酯、乙交酯等</div>
+                </div>
+
+                <div class="hidden md:block text-slate-300 text-2xl font-bold">➔</div>
+                <div class="md:hidden text-slate-300 text-2xl font-bold rotate-90">➔</div>
+
+                <!-- Midstream -->
+                <div class="vc-node w-full md:w-1/3 bg-slate-50 border-2 border-slate-200 rounded-lg p-4 text-center z-10" onclick="updateVC('midstream', this)">
+                    <div class="text-slate-500 text-xs font-bold uppercase mb-1">中游 (Midstream) - 核心瓶颈</div>
+                    <div class="text-lg font-bold text-slate-800">医疗级高分子材料聚合</div>
+                    <div class="text-xs text-slate-400 mt-2">PLGA, PCL, PLLA 等聚合物</div>
+                </div>
+
+                <div class="hidden md:block text-slate-300 text-2xl font-bold">➔</div>
+                <div class="md:hidden text-slate-300 text-2xl font-bold rotate-90">➔</div>
+
+                <!-- Downstream -->
+                <div class="vc-node w-full md:w-1/3 bg-slate-50 border-2 border-slate-200 rounded-lg p-4 text-center z-10" onclick="updateVC('downstream', this)">
+                    <div class="text-slate-500 text-xs font-bold uppercase mb-1">下游 (Downstream)</div>
+                    <div class="text-lg font-bold text-slate-800">终端医疗器械及制剂</div>
+                    <div class="text-xs text-slate-400 mt-2">微球制剂、童颜针、可吸收螺钉</div>
+                </div>
+            </div>
+
+            <!-- Dynamic Detail Box -->
+            <div id="vc-details" class="bg-blue-50 border border-blue-200 p-6 rounded-xl shadow-inner min-h-[200px] transition-all duration-300">
+                <h3 id="vc-title" class="text-xl font-bold text-blue-900 mb-3">上游环节：单体提纯与制备</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p id="vc-desc" class="text-sm text-slate-700 leading-relaxed">
+                            处于基础材料阶段，核心难点在于将工业级乳酸/乙醇酸转化为高纯度的光学纯单体（丙交酯、乙交酯）。杂质（如水、游离酸）极微量的残留都会导致后续开环聚合失败或分子量无法提升。
+                        </p>
+                        <p class="text-sm text-slate-700 leading-relaxed mt-2"><span class="font-bold">工艺难点：</span> 减压精馏、重结晶技术。</p>
+                    </div>
+                    <div class="bg-white p-4 rounded border border-slate-200">
+                        <div class="text-xs text-slate-500 font-bold mb-2">产业特征</div>
+                        <ul id="vc-stats" class="text-sm text-slate-700 space-y-1 list-disc list-inside">
+                            <li>话语权：较弱 (受制于大宗化工品波动)</li>
+                            <li>代表企业：金丹科技、普立思等</li>
+                            <li>毛利率区间：15% - 30%</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Competitive Landscape -->
+        <section id="competition" class="section-content fade-in hidden">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-slate-800 border-b-2 border-blue-600 pb-2 inline-block">五、 竞争格局与护城河 (Competitive Landscape)</h2>
+                <p class="text-slate-600 mt-4 text-lg">全球高度垄断，国产替代刚起步。分析行业的五力模型及重点参与者画像。</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                
+                <!-- Five Forces Radar Chart -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4 text-center">波特五力模型分析</h3>
+                    <div class="radar-chart-container">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                    <p class="text-sm text-slate-500 mt-2 text-center">行业整体壁垒极高，现有竞争趋于寡头垄断</p>
+                </div>
+
+                <!-- Competitor Landscape Text -->
+                <div class="space-y-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                        <h3 class="text-lg font-bold text-slate-800 mb-3">市场集中度 (寡头垄断)</h3>
+                        <p class="text-sm text-slate-700">全球医疗级可降解材料市场呈现高度寡头垄断特征（CR3 > 70%）。</p>
+                        <p class="text-sm text-slate-700 mt-2">跨国巨头 <span class="font-bold text-blue-700">Evonik (赢创)</span> 和 <span class="font-bold text-blue-700">Corbion (科碧恩)</span> 几乎垄断了高端微球用PLGA及骨科内植入材料的全球供应。</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                        <h3 class="text-lg font-bold text-slate-800 mb-3">重点企业画像与壁垒</h3>
+                        <div class="space-y-4">
+                            <div class="border-l-4 border-blue-500 pl-3">
+                                <h4 class="font-bold text-slate-800">国际巨头：Evonik (Resomer系列)</h4>
+                                <p class="text-xs text-slate-600 mt-1"><b>核心壁垒：</b> 几十年的定制化合成经验，拥有全球最全的牌号数据库；大量已获批FDA的主被文件(DMF)深度绑定了几乎所有头部创新药企的微球项目。</p>
+                            </div>
+                            <div class="border-l-4 border-teal-500 pl-3">
+                                <h4 class="font-bold text-slate-800">国产先锋：长春圣博玛 (SinoBiomaterials)</h4>
+                                <p class="text-xs text-slate-600 mt-1"><b>核心壁垒：</b> 陈学思院士团队技术转化，掌握核心材料合成能力，并成功向下游延伸至“童颜针”终端产品（艾维岚），实现了“原料+器械”的产业闭环闭环。</p>
+                            </div>
+                            <div class="border-l-4 border-indigo-500 pl-3">
+                                <h4 class="font-bold text-slate-800">国产突破：济南岱罡 / 深圳光华伟业</h4>
+                                <p class="text-xs text-slate-600 mt-1"><b>核心壁垒：</b> 具备批量稳定供应部分型号医用级PLGA/PCL的能力，主打性价比与响应速度，逐步在耗材及非长效微球领域实现国产替代。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Technology Roadmap -->
+        <section id="tech" class="section-content fade-in hidden">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-slate-800 border-b-2 border-blue-600 pb-2 inline-block">六、 技术路径与研发趋势 (Technology Roadmap)</h2>
+                <p class="text-slate-600 mt-4 text-lg">对比主流材料性能差异，并展望未来3-5年可能改变行业格局的颠覆性技术。</p>
+            </div>
+
+            <!-- Interactive Tabs for Material Comparison -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-100 mb-8 overflow-hidden">
+                <div class="flex border-b border-slate-200 bg-slate-50">
+                    <button class="tab-btn active flex-1 py-4 px-6 text-center focus:outline-none" onclick="switchTab('plga', this)">PLGA (聚乳酸-羟基乙酸)</button>
+                    <button class="tab-btn flex-1 py-4 px-6 text-center text-slate-500 focus:outline-none" onclick="switchTab('pcl', this)">PCL (聚己内酯)</button>
+                </div>
+                
+                <div id="tab-plga" class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-slate-800 mb-2">理化特性</h4>
+                            <ul class="text-sm text-slate-700 space-y-2 list-disc list-inside">
+                                <li><b>降解周期：</b> 可调控性强，几周至数月不等（取决于LA/GA比例）。</li>
+                                <li><b>机械强度：</b> 较高，质地较硬。</li>
+                                <li><b>亲水性：</b> 相对较好。</li>
+                                <li><b>降解产物：</b> 乳酸和羟基乙酸，参与人体三羧酸循环，安全性极高。</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800 mb-2">核心优劣势</h4>
+                            <div class="bg-green-50 text-green-800 p-2 rounded mb-2 text-sm"><b>优势:</b> FDA批准最广泛的药用辅料，缓控释微球的“黄金标准”，体内安全性数据极为充分。</div>
+                            <div class="bg-red-50 text-red-800 p-2 rounded text-sm"><b>劣势:</b> 降解过程中局部产生酸性微环境，可能引起无菌性炎症反应。</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-pcl" class="p-6 hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-slate-800 mb-2">理化特性</h4>
+                            <ul class="text-sm text-slate-700 space-y-2 list-disc list-inside">
+                                <li><b>降解周期：</b> 非常缓慢，通常在 1 - 3 年以上。</li>
+                                <li><b>机械强度：</b> 结晶度高，拉伸性好，极为柔韧。</li>
+                                <li><b>熔点：</b> 较低（约60℃），极易加工成型。</li>
+                                <li><b>相容性：</b> 极佳的药物透过性和生物相容性。</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800 mb-2">核心优劣势</h4>
+                            <div class="bg-green-50 text-green-800 p-2 rounded mb-2 text-sm"><b>优势:</b> 降解不会引起明显酸性环境，组织刺激性极小。优异的柔韧性使其非常适合组织工程支架（如静电纺丝）。</div>
+                            <div class="bg-red-50 text-red-800 p-2 rounded text-sm"><b>劣势:</b> 降解时间过长，不适合短期植入或需快速释放的药物载体。亲水性差。</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-indigo-50 p-6 rounded-xl border border-indigo-100">
+                <h3 class="text-indigo-900 font-bold text-lg mb-3">颠覆性技术预测 (未来3-5年)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded shadow-sm">
+                        <div class="font-bold text-indigo-700 mb-1">个性化 3D 打印植入物</div>
+                        <p class="text-sm text-slate-600">结合高熔体强度的定制化 PCL/PLGA 墨水，直接在医院端进行颅骨修复、骨缺损支架的个性化3D打印成型，重塑骨科耗材供应链。</p>
+                    </div>
+                    <div class="bg-white p-4 rounded shadow-sm">
+                        <div class="font-bold text-indigo-700 mb-1">刺激响应性/智能高分子</div>
+                        <p class="text-sm text-slate-600">对pH、温度或特定酶响应的改性嵌段共聚物（如PEG-PLGA-PEG水凝胶），实现肿瘤靶向治疗或按需定时释放药物的终极缓释控制。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: External Environment & Risks -->
+        <section id="risks" class="section-content fade-in hidden">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-slate-800 border-b-2 border-blue-600 pb-2 inline-block">七、 政策环境与宏观风险 (External Environment & Risks)</h2>
+                <p class="text-slate-600 mt-4 text-lg">客观评估政策红利以及潜藏的产业与宏观风险。</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Policy -->
+                <div>
+                    <h3 class="flex items-center text-xl font-bold text-emerald-700 mb-4">
+                        <span class="mr-2 text-2xl">📜</span> 政策导向：扶持与监管并重
+                    </h3>
+                    <ul class="space-y-4">
+                        <li class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-emerald-500">
+                            <strong class="block text-slate-800">加速进口替代政策</strong>
+                            <span class="text-sm text-slate-600">《“十四五”医疗装备产业发展规划》明确提出攻关高端生物医用材料，对突破核心技术的企业在审批、采购端给予倾斜。</span>
+                        </li>
+                        <li class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-emerald-500">
+                            <strong class="block text-slate-800">主被文件(DMF)制度落地</strong>
+                            <span class="text-sm text-slate-600">国家药监局实施药用辅料/原料药与制剂关联审评审批制度，利好已实现规范化生产和备案的头部合规国产材料企业，清退低端产能。</span>
+                        </li>
+                        <li class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-emerald-500">
+                            <strong class="block text-slate-800">严监管医疗美容产品</strong>
+                            <span class="text-sm text-slate-600">合规化趋严，将未按医疗器械注册的“水货”水光针、童颜针清出市场，正规持证的PLLA/PLGA产品享受合规红利。</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Risks -->
+                <div>
+                    <h3 class="flex items-center text-xl font-bold text-red-700 mb-4">
+                        <span class="mr-2 text-2xl">⚠️</span> 核心风险提示
+                    </h3>
+                    <div class="grid grid-cols-1 gap-4">
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-red-100 hover:shadow-md transition-shadow">
+                            <strong class="text-slate-800 flex justify-between">
+                                <span>1. 集采带量采购风险 (VBP)</span>
+                                <span class="text-red-500 font-bold">高</span>
+                            </strong>
+                            <p class="text-sm text-slate-600 mt-2">下游骨科耗材（如可吸收螺钉）已步入集采常态化，终端价格大幅下降。若企业不具备成本优势，上游材料利润将被急剧压缩。</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-red-100 hover:shadow-md transition-shadow">
+                            <strong class="text-slate-800 flex justify-between">
+                                <span>2. 临床验证及注册失败风险</span>
+                                <span class="text-red-500 font-bold">高</span>
+                            </strong>
+                            <p class="text-sm text-slate-600 mt-2">三类医疗器械及创新药辅料审批周期极长（3-5年），且存在动物实验通过但人体临床数据不佳的风险，前期沉没成本高。</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-red-100 hover:shadow-md transition-shadow">
+                            <strong class="text-slate-800 flex justify-between">
+                                <span>3. 技术迭代被替代风险</span>
+                                <span class="text-orange-500 font-bold">中</span>
+                            </strong>
+                            <p class="text-sm text-slate-600 mt-2">镁合金等可降解金属、新型水凝胶材料的快速发展，可能在特定骨科或止血应用领域对现有高分子材料形成技术替代。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: Investment Thesis -->
+        <section id="investment" class="section-content fade-in hidden">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-slate-800 border-b-2 border-blue-600 pb-2 inline-block">八、 结论与投资逻辑 (Investment Thesis)</h2>
+                <p class="text-slate-600 mt-4 text-lg">总结产业制胜要素，提供估值参考与市场共识之外的差异化观点。</p>
+            </div>
+
+            <div class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200 mb-6">
+                <h3 class="text-xl font-bold text-slate-800 mb-4">关键成功要素 (KSF - Key Success Factors)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <div class="text-2xl mb-2">🧪</div>
+                        <h4 class="font-bold text-blue-800 text-lg">合成工艺闭环</h4>
+                        <p class="text-sm text-slate-600 mt-1">从单体纯化到开环聚合的稳定放大能力，决定了产品批次间的一致性，这是海外巨头最深厚的护城河。</p>
+                    </div>
+                    <div>
+                        <div class="text-2xl mb-2">🤝</div>
+                        <h4 class="font-bold text-blue-800 text-lg">深度应用服务能力</h4>
+                        <p class="text-sm text-slate-600 mt-1">不仅卖材料，还能向下游药企提供“定制化合成+微球制剂配方调试”的CDMO一体化服务，增强客户粘性。</p>
+                    </div>
+                    <div>
+                        <div class="text-2xl mb-2">📑</div>
+                        <h4 class="font-bold text-blue-800 text-lg">资质与DMF储备</h4>
+                        <p class="text-sm text-slate-600 mt-1">储备齐全的主被文件（DMF）和多产品线的NMPA/FDA认证，是进入高质量供应链门槛的硬性敲门砖。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-blue-900 text-white p-6 rounded-xl shadow-sm">
+                    <h3 class="text-lg font-bold mb-3 border-b border-blue-700 pb-2">估值水平探讨</h3>
+                    <ul class="space-y-3 text-sm text-blue-100">
+                        <li><b>对于早期上游材料企业：</b> 尚未实现大规模盈利，通常采用 <span class="font-bold text-white">P/S (市销率)</span> 或按下游潜力量级的管线DCF折现进行估值。</li>
+                        <li><b>对于打通下游医美/骨科耗材的平台企业：</b> 盈利能力验证期，多采用 <span class="font-bold text-white">P/E (市盈率)</span> 或 PEG。目前由于医美的高成长属性，相关企业P/E通常享有较高溢价 (30x - 50x不等)。</li>
+                    </ul>
+                </div>
+
+                <div class="bg-amber-50 p-6 rounded-xl border border-amber-200">
+                    <h3 class="text-lg font-bold text-amber-900 mb-3 border-b border-amber-200 pb-2">💡 差异化观点 (Alpha 收益所在)</h3>
+                    <p class="text-sm text-slate-700 leading-relaxed mb-2">
+                        <b>市场共识：</b> 紧盯终端消费品（如爆款童颜针），认为品牌营销是核心决胜点。
+                    </p>
+                    <p class="text-sm text-slate-800 font-bold leading-relaxed">
+                        <b>差异化认知：</b> 真正的长期阿尔法在于“底层材料创新平台”。
+                    </p>
+                    <p class="text-sm text-slate-700 leading-relaxed">
+                        单纯炒作单一概念器械容易陷入同质化价格战（类似玻尿酸后期）。投资者应寻找那些掌握最底层高分子修饰技术（如PEG化PLGA）、具备底层材料正向研发和迭代能力的企业。他们可以如同“卖水人”一样，不断孵化出不同领域的下游爆款产品，抵御单一产品周期衰退的风险。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Data Storage & State Management
+        const state = {
+            currentSection: 'exec-summary'
+        };
+
+        const vcData = {
+            upstream: {
+                title: '上游环节：单体提纯与制备',
+                desc: '处于基础材料阶段，核心难点在于将工业级乳酸/乙醇酸转化为高纯度的光学纯单体（丙交酯、乙交酯）。杂质（如水、游离酸）极微量的残留都会导致后续开环聚合失败或分子量无法提升。<br><br><span class="font-bold text-slate-800">工艺难点：</span> 减压精馏、重结晶技术。',
+                stats: '<li>话语权：较弱 (受制于大宗化工品波动)</li><li>代表企业：金丹科技、普立思等</li><li>毛利率区间：15% - 30%</li>'
+            },
+            midstream: {
+                title: '中游环节：医疗级高分子聚合 (卡脖子)',
+                desc: '本行业的利润和技术核心区。将单体按照特定比例和分子量要求，在极其严苛的无水无氧环境中进行开环共聚。需要精确控制分子量分布（PDI指数）及极低的单体/重金属残留。<br><br><span class="font-bold text-slate-800">壁垒体现：</span> 聚合催化剂的选择、反应终止时机的控制、后期的纯化除杂工艺。',
+                stats: '<li>话语权：极强 (议价能力高)</li><li>代表企业：Evonik, Corbion, 圣博玛</li><li>毛利率区间：70% - 90%</li>'
+            },
+            downstream: {
+                title: '下游环节：终端制剂与器械',
+                desc: '将采购来的PLGA/PCL颗粒，通过静电纺丝、3D打印、乳化溶剂挥发法等工艺，制成最终的微球制剂、可吸收缝线、骨固定钉或医美填充剂。该环节高度依赖对临床痛点的理解与渠道能力。<br><br><span class="font-bold text-slate-800">应用场景：</span> 骨科、医美再生、精神类长效注射剂。',
+                stats: '<li>话语权：中等 (取决于品牌和终端渠道)</li><li>代表企业：爱美客, 华东医药, 强生</li><li>毛利率区间：60% - 85%</li>'
+            }
+        };
+
+        // Navigation Logic
+        function showSection(sectionId, element) {
+            // Update nav active state
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+
+            // Hide all sections
+            document.querySelectorAll('.section-content').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('fade-in'); // Reset animation
+            });
+
+            // Show target section
+            const target = document.getElementById(sectionId);
+            target.classList.remove('hidden');
+            
+            // Trigger reflow to restart animation
+            void target.offsetWidth; 
+            target.classList.add('fade-in');
+
+            // Initialize charts if they become visible for the first time
+            if(sectionId === 'market' && !window.marketChartInst) initMarketChart();
+            if(sectionId === 'competition' && !window.radarChartInst) initRadarChart();
+
+            // Scroll to top on mobile
+            if(window.innerWidth < 768) {
+                window.scrollTo(0, 0);
+            }
+        }
+
+        // Tech Tabs Logic
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('active', 'text-blue-600', 'font-bold');
+                el.classList.add('text-slate-500');
+            });
+            element.classList.add('active', 'text-blue-600', 'font-bold');
+            element.classList.remove('text-slate-500');
+
+            document.getElementById('tab-plga').classList.add('hidden');
+            document.getElementById('tab-pcl').classList.add('hidden');
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+        }
+
+        // Value Chain Interactive Logic
+        function updateVC(node, element) {
+            document.querySelectorAll('.vc-node').forEach(el => el.classList.remove('active', 'border-blue-500'));
+            element.classList.add('active', 'border-blue-500');
+
+            const details = document.getElementById('vc-details');
+            details.style.opacity = 0;
+            
+            setTimeout(() => {
+                document.getElementById('vc-title').innerHTML = vcData[node].title;
+                document.getElementById('vc-desc').innerHTML = vcData[node].desc;
+                document.getElementById('vc-stats').innerHTML = vcData[node].stats;
+                details.style.opacity = 1;
+            }, 150);
+        }
+
+        // Chart.js Implementations
+        // Setup default configuration for fonts to support Chinese well
+        Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+        Chart.defaults.color = '#64748B';
+
+        function initMarketChart() {
+            const ctx = document.getElementById('marketChart').getContext('2d');
+            window.marketChartInst = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['2020', '2021', '2022', '2023E', '2024E', '2025E'],
+                    datasets: [
+                        {
+                            label: '全球市场规模 (亿美元)',
+                            data: [18.5, 22.0, 26.5, 31.8, 38.0, 45.5],
+                            backgroundColor: 'rgba(37, 99, 235, 0.8)', // blue-600
+                            borderRadius: 4,
+                            order: 2,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'YoY 增速 (%)',
+                            data: [15.2, 18.9, 20.4, 20.0, 19.5, 19.7],
+                            type: 'line',
+                            borderColor: '#059669', // emerald-600
+                            backgroundColor: '#059669',
+                            borderWidth: 3,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#fff',
+                            order: 1,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, /* Critical for fitting container */
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) { label += ': '; }
+                                    if (context.parsed.y !== null) {
+                                        label += context.dataset.type === 'line' ? context.parsed.y + '%' : context.parsed.y;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: '规模 (亿美元)' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: { drawOnChartArea: false },
+                            title: { display: true, text: '增速 (%)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initRadarChart() {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            window.radarChartInst = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: [
+                        '供应商议价能力\n(大宗化工弱)', 
+                        '潜在进入者威胁\n(极低，高壁垒)', 
+                        '行业内现有竞争\n(寡头，竞争缓和)', 
+                        '替代品威胁\n(目前低)', 
+                        '客户议价能力\n(材料厂强势)'
+                    ],
+                    datasets: [{
+                        label: '行业评分 (5=最利于头部企业)',
+                        data: [4, 5, 4.5, 4, 4.5],
+                        backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                        borderColor: 'rgba(37, 99, 235, 1)',
+                        pointBackgroundColor: 'rgba(37, 99, 235, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(37, 99, 235, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, /* Critical for fitting container */
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                            pointLabels: {
+                                font: { size: 12 },
+                                color: '#475569', // slate-600
+                                // Implement label wrapping logic (roughly >12 chars)
+                                callback: function(value) {
+                                    const lines = value.split('\n');
+                                    return lines;
+                                }
+                            },
+                            ticks: {
+                                min: 0,
+                                max: 5,
+                                stepSize: 1,
+                                display: false // Hide internal scale numbers for cleanliness
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: function(context) {
+                                    // Remove the newlines from the tooltip title
+                                    return context[0].label.replace(/,/g, '');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

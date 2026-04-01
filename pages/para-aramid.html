@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深度报告：对位芳纶 (Para-Aramid) 行业全景解析</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Chosen Palette: Slate & Blue Professional (Slate-50 bg, White cards, Slate-800 text, Blue-600 primary, Cyan-600 accents) -->
+    <!-- Application Structure Plan: Dashboard-style SPA with fixed left sidebar navigation and a main scrollable content area. This structure allows users to grasp the 8-module framework immediately and jump to specific sections of interest without losing context. Interactive tabs are used for complex structures like the Value Chain to prevent information overload. Charts are strategically placed to visualize quantitative data, while styled text blocks handle qualitative analysis. -->
+    <!-- Visualization & Content Choices: 
+         1. Market Size -> Goal: Show growth -> Viz: Bar/Line Combo Chart -> Library: Chart.js.
+         2. Value Chain Downstream -> Goal: Show application proportion -> Viz: Pie Chart -> Library: Chart.js.
+         3. Competitive Landscape -> Goal: Show market share concentration -> Viz: Doughnut Chart -> Library: Chart.js.
+         4. Value Chain Structure -> Goal: Organize complex flows -> Viz: Interactive Tabs (HTML/JS) -> No SVG/Mermaid used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+            color: #1e293b; /* slate-800 */
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+
+        .nav-link.active {
+            background-color: #2563eb; /* blue-600 */
+            color: white;
+            border-left: 4px solid #60a5fa; /* blue-400 */
+        }
+
+        .tab-btn.active {
+            border-bottom: 2px solid #2563eb;
+            color: #2563eb;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col shadow-xl z-20 hidden md:flex">
+        <div class="p-6 border-b border-slate-700">
+            <h1 class="text-xl font-bold text-white tracking-wider">Aramid<span class="text-blue-500">Insight</span></h1>
+            <p class="text-xs mt-2 text-slate-400">对位芳纶行业深度报告</p>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4" id="nav-menu">
+            <a href="#summary" class="nav-link block px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent text-sm" data-target="summary">一、 执行摘要</a>
+            <a href="#overview" class="nav-link block px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent text-sm" data-target="overview">二、 行业概况与属性</a>
+            <a href="#market" class="nav-link block px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent text-sm" data-target="market">三、 市场规模与需求</a>
+            <a href="#value-chain" class="nav-link block px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent text-sm" data-target="value-chain">四、 产业链全景图谱</a>
+            <a href="#competition" class="nav-link block px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent text-sm" data-target="competition">五、 竞争格局与护城河</a>
+            <a href="#tech" class="nav-link block px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent text-sm" data-target="tech">六、 技术路径与研发</a>
+            <a href="#risks" class="nav-link block px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent text-sm" data-target="risks">七、 政策环境与风险</a>
+            <a href="#investment" class="nav-link block px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent text-sm" data-target="investment">八、 结论与投资逻辑</a>
+        </nav>
+        <div class="p-4 border-t border-slate-700 text-xs text-center text-slate-500">
+            Generated Report 2026
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-y-auto relative scroll-smooth" id="main-content">
+        
+        <!-- Mobile Header -->
+        <div class="md:hidden bg-slate-900 text-white p-4 sticky top-0 z-30 flex justify-between items-center shadow-md">
+            <h1 class="text-lg font-bold">AramidInsight</h1>
+            <span class="text-sm">对位芳纶报告</span>
+        </div>
+
+        <div class="max-w-6xl mx-auto px-6 py-12 space-y-24">
+
+            <!-- Section 1: Executive Summary -->
+            <section id="summary" class="scroll-mt-20">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">一、 执行摘要 (Executive Summary)</h2>
+                    <p class="text-slate-600">本模块提炼了对位芳纶行业的核心发现。总体来看，该行业正处于由技术突破和国产替代双轮驱动的快速成长期。</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 border-t-4 border-t-blue-500 hover:shadow-md transition-shadow">
+                        <div class="text-3xl mb-3">📈</div>
+                        <h3 class="text-lg font-bold mb-2">核心结论：成长期阶段</h3>
+                        <p class="text-sm text-slate-600">全球对位芳纶行业处于成熟期偏后期，但<strong class="text-slate-800">中国市场正处于爆发式成长期</strong>。受益于5G光缆、新能源汽车、单兵防护等下游需求拉动，以及国产技术突破打破海外垄断，行业进入产能扩张与渗透率提升的黄金期。</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 border-t-4 border-t-emerald-500 hover:shadow-md transition-shadow">
+                        <div class="text-3xl mb-3">💰</div>
+                        <h3 class="text-lg font-bold mb-2">投资建议：强烈推荐</h3>
+                        <p class="text-sm text-slate-600">行业具备极高的资金与技术壁垒，属于典型的寡头垄断格局。建议<strong class="text-emerald-600">积极布局具备核心纺丝技术、能够实现全产业链成本控制、且下游验证渠道畅通的国内龙头企业</strong>。国产替代的Beta行情与企业产能释放的Alpha逻辑共振。</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 border-t-4 border-t-purple-500 hover:shadow-md transition-shadow">
+                        <div class="text-3xl mb-3">🔑</div>
+                        <h3 class="text-lg font-bold mb-2">Top 3 关键词</h3>
+                        <ul class="space-y-2 text-sm text-slate-700 mt-2 font-medium">
+                            <li class="flex items-center"><span class="w-2 h-2 rounded-full bg-purple-500 mr-2"></span>国产替代 (Import Substitution)</li>
+                            <li class="flex items-center"><span class="w-2 h-2 rounded-full bg-purple-500 mr-2"></span>5G/光通信拉动 (Optical Fiber Demand)</li>
+                            <li class="flex items-center"><span class="w-2 h-2 rounded-full bg-purple-500 mr-2"></span>高技术壁垒 (High Barriers to Entry)</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Industry Overview -->
+            <section id="overview" class="scroll-mt-20">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">二、 行业概况与基本属性 (Industry Overview)</h2>
+                    <p class="text-slate-600">明确研究边界，梳理行业发展脉络及底层商业逻辑，理解其作为“工业味精”和战略物资的特殊属性。</p>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                        <div>
+                            <h3 class="text-xl font-bold mb-4 text-blue-700 flex items-center">📝 定义与分类边界</h3>
+                            <p class="text-sm text-slate-700 leading-relaxed mb-4">
+                                芳纶全称为“聚酰胺纤维”，主要分为<strong class="text-blue-600">间位芳纶 (Meta-aramid, 如Nomex)</strong> 和 <strong class="text-blue-600">对位芳纶 (Para-aramid, 如Kevlar)</strong>。
+                                <br><br>
+                                <strong>本报告研究边界严格限定为：对位芳纶。</strong> 与耐高温的间位芳纶不同，对位芳纶的分子结构决定了其具有极高的拉伸强度和模量（强度是钢丝的5-6倍，韧性是钢丝的2倍，重量仅为钢丝的1/5）。它是一种高性能结构材料，受各国出口管制，战略属性极强。
+                            </p>
+                            
+                            <h3 class="text-xl font-bold mt-8 mb-4 text-blue-700 flex items-center">⚙️ 商业模式剖析</h3>
+                            <div class="bg-slate-50 p-4 rounded-lg border border-slate-100">
+                                <ul class="space-y-3 text-sm text-slate-700">
+                                    <li><strong>核心驱动：技术溢价 + 规模效应。</strong></li>
+                                    <li>前期需要巨额的研发投入（解决聚合和纺丝难题）和设备重资产投入（单万吨产能投资巨大）。</li>
+                                    <li>一旦工艺跑通，边际成本随产能利用率提升而急剧下降。盈利主要依靠高技术附加值带来的高毛利（通常在30%-40%以上），以及产能扩张抢占市场份额。</li>
+                                    <li>客户粘性极高：下游应用（如航空航天、军警防护）对安全性要求苛刻，认证周期长（通常需1-3年），一旦进入供应链极少更换。</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-bold mb-6 text-blue-700 flex items-center">⏳ 关键发展历程</h3>
+                            <div class="relative border-l-2 border-blue-200 ml-3 space-y-8">
+                                <div class="relative">
+                                    <div class="absolute -left-[25px] bg-blue-500 w-4 h-4 rounded-full border-4 border-white"></div>
+                                    <div class="pl-6">
+                                        <h4 class="font-bold text-slate-800">1960s-1970s：概念与垄断</h4>
+                                        <p class="text-sm text-slate-500 mt-1">美国杜邦公司率先研发出对位芳纶（Kevlar），实现商业化，开启长达数十年的全球垄断。</p>
+                                    </div>
+                                </div>
+                                <div class="relative">
+                                    <div class="absolute -left-[25px] bg-blue-500 w-4 h-4 rounded-full border-4 border-white"></div>
+                                    <div class="pl-6">
+                                        <h4 class="font-bold text-slate-800">1980s-2000s：双寡头格局</h4>
+                                        <p class="text-sm text-slate-500 mt-1">日本帝人（Teijin）突破专利壁垒推出Twaron，全球形成美日双寡头格局，技术对华严格封锁。</p>
+                                    </div>
+                                </div>
+                                <div class="relative">
+                                    <div class="absolute -left-[25px] bg-blue-500 w-4 h-4 rounded-full border-4 border-white"></div>
+                                    <div class="pl-6">
+                                        <h4 class="font-bold text-slate-800">2010s：中国初步突破</h4>
+                                        <p class="text-sm text-slate-500 mt-1">国内企业如泰和新材等经过艰难研发，实现千吨级量产，打破国外垄断，主要应用于中低端摩擦密封领域。</p>
+                                    </div>
+                                </div>
+                                <div class="relative">
+                                    <div class="absolute -left-[25px] bg-blue-600 w-5 h-5 rounded-full border-4 border-blue-100 shadow-md"></div>
+                                    <div class="pl-6">
+                                        <h4 class="font-bold text-blue-700">2020s 至今：高端突围与扩产潮</h4>
+                                        <p class="text-sm text-slate-700 mt-1">国产对位芳纶在光通信、防弹装备等高端领域获得认证。产能急剧扩张，国产化率快速提升，向全球第一梯队发起冲击。</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Market Analysis -->
+            <section id="market" class="scroll-mt-20">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">三、 市场规模与需求分析 (Market Analysis)</h2>
+                    <p class="text-slate-600">量化行业空间，分析底层驱动逻辑。重点展示中国市场的增速潜力与渗透率现状。</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <h3 class="text-lg font-bold mb-4 text-center">全球与中国对位芳纶需求量预测 (吨)</h3>
+                        <div class="chart-container">
+                            <canvas id="marketSizeChart"></canvas>
+                        </div>
+                        <p class="text-xs text-center text-slate-400 mt-4">数据来源：行业研报整合及模型预测 (CAGR 预测：全球 ~6%, 中国 ~15%)</p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-blue-50 rounded-xl p-6 border border-blue-100">
+                            <h3 class="font-bold text-blue-800 mb-2 text-lg">💡 核心驱动因素</h3>
+                            <ul class="space-y-3 text-sm text-slate-700">
+                                <li class="bg-white p-3 rounded shadow-sm border border-blue-50">
+                                    <span class="font-bold text-blue-600 block mb-1">1. 5G网络建设 (存量替换+增量)</span>
+                                    对位芳纶是室内外光缆非金属加强件的首选材料。5G基站密集建设及光纤宽带升级带来巨量需求。
+                                </li>
+                                <li class="bg-white p-3 rounded shadow-sm border border-blue-50">
+                                    <span class="font-bold text-blue-600 block mb-1">2. 军工与单兵防护 (政策驱动)</span>
+                                    地缘政治不确定性增加，军队现代化建设加速，防弹衣、防弹头盔的列装率和更新率显著提升。
+                                </li>
+                                <li class="bg-white p-3 rounded shadow-sm border border-blue-50">
+                                    <span class="font-bold text-blue-600 block mb-1">3. 汽车轻量化 (技术新场景)</span>
+                                    新能源汽车对续航的追求，使得芳纶在高性能轮胎帘子布、高压胶管中的应用比例增加，替代传统钢丝。
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                            <h3 class="font-bold text-slate-800 mb-2">📊 渗透率分析</h3>
+                            <p class="text-sm text-slate-600 mb-3">
+                                总体处于<strong class="text-red-500">爆发期与红海竞争的过渡阶段</strong>。
+                            </p>
+                            <div class="space-y-2">
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1"><span>低端市场 (摩擦密封)</span> <span>渗透率 > 80% (红海)</span></div>
+                                    <div class="w-full bg-slate-200 rounded-full h-2"><div class="bg-red-400 h-2 rounded-full" style="width: 85%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1"><span>中端市场 (光通信)</span> <span>渗透率 ~ 50% (快速增长)</span></div>
+                                    <div class="w-full bg-slate-200 rounded-full h-2"><div class="bg-yellow-400 h-2 rounded-full" style="width: 50%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1"><span>高端市场 (航空/防弹)</span> <span>渗透率 < 20% (爆发前夜)</span></div>
+                                    <div class="w-full bg-slate-200 rounded-full h-2"><div class="bg-blue-500 h-2 rounded-full" style="width: 15%"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Value Chain -->
+            <section id="value-chain" class="scroll-mt-20">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">四、 产业链全景图谱 (Value Chain Analysis)</h2>
+                    <p class="text-slate-600">拆解产业链条，寻找价值集中地和“卡脖子”环节。通过下方标签页切换查看不同环节详情。</p>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <!-- Tabs -->
+                    <div class="flex border-b border-slate-200 bg-slate-50">
+                        <button class="flex-1 py-4 text-center text-sm font-medium text-slate-600 hover:text-blue-600 hover:bg-white transition-colors tab-btn active" data-tab="up">上游：原材料 & 设备</button>
+                        <button class="flex-1 py-4 text-center text-sm font-medium text-slate-600 hover:text-blue-600 hover:bg-white transition-colors tab-btn" data-tab="mid">中游：制造工艺 & 成本</button>
+                        <button class="flex-1 py-4 text-center text-sm font-medium text-slate-600 hover:text-blue-600 hover:bg-white transition-colors tab-btn" data-tab="down">下游：应用场景与终端</button>
+                    </div>
+
+                    <!-- Tab Content -->
+                    <div class="p-8">
+                        <!-- Upstream -->
+                        <div id="tab-up" class="tab-content block">
+                            <h3 class="text-lg font-bold text-slate-800 mb-4 border-l-4 border-blue-500 pl-3">上游分析：大宗化工品，话语权弱</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <p class="text-sm text-slate-600 mb-4">对位芳纶的主要单体原料为 <strong>对苯二甲酰氯 (TPC)</strong> 和 <strong>对苯二胺 (PPD)</strong>，辅料包括溶剂（如NMP、浓硫酸等）。</p>
+                                    <ul class="space-y-3">
+                                        <li class="p-3 bg-slate-50 rounded border border-slate-100 flex items-start">
+                                            <span class="mr-2 mt-1">🛢️</span>
+                                            <div>
+                                                <strong class="text-sm">供给状况：</strong>
+                                                <p class="text-xs text-slate-500">国内石油化工产业链极其成熟，PPD和TPC等单体供应充足，产能完全国产化，不存在“卡脖子”问题。</p>
+                                            </div>
+                                        </li>
+                                        <li class="p-3 bg-slate-50 rounded border border-slate-100 flex items-start">
+                                            <span class="mr-2 mt-1">🗣️</span>
+                                            <div>
+                                                <strong class="text-sm">议价能力：</strong>
+                                                <p class="text-xs text-slate-500">由于上游原料属于大宗基础化工品，芳纶企业作为采购方，议价能力较强。成本主要受国际原油价格波动影响。</p>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="bg-blue-50 p-6 rounded-lg border border-blue-100 flex flex-col justify-center items-center text-center">
+                                    <div class="text-4xl mb-2">⚙️</div>
+                                    <h4 class="font-bold text-blue-800 mb-2">核心卡脖子点：生产设备</h4>
+                                    <p class="text-sm text-blue-900">
+                                        原料不缺，但<strong>高端聚合反应釜和高速干喷湿纺设备</strong>的设计与制造曾长期受制于人。目前国内头部企业多采用“自主设计+国内定制加工”的模式实现突破，设备国产化率快速提升，显著降低了吨投资额。
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Midstream -->
+                        <div id="tab-mid" class="tab-content hidden">
+                            <h3 class="text-lg font-bold text-slate-800 mb-4 border-l-4 border-blue-500 pl-3">中游分析：极高的工艺壁垒</h3>
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                <div>
+                                    <h4 class="font-semibold text-slate-700 mb-3 text-sm">工艺流程简化</h4>
+                                    <div class="flex flex-col space-y-2 text-sm">
+                                        <div class="bg-slate-100 p-2 rounded text-center font-medium">原料单体 (TPC + PPD)</div>
+                                        <div class="text-center text-slate-400">↓ 低温缩聚反应 (难点：控制分子量分布)</div>
+                                        <div class="bg-blue-100 p-2 rounded text-center font-medium border border-blue-200">液晶聚合物纺丝液</div>
+                                        <div class="text-center text-slate-400">↓ 液晶纺丝 (难点：液晶态的稳定控制)</div>
+                                        <div class="bg-blue-200 p-2 rounded text-center font-medium border border-blue-300">干喷湿纺工艺 (难点：纺丝速度与断头率)</div>
+                                        <div class="text-center text-slate-400">↓ 水洗、干燥、热处理</div>
+                                        <div class="bg-slate-800 text-white p-2 rounded text-center font-bold">成品：对位芳纶长丝/短纤</div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-slate-700 mb-3 text-sm">BOM 成本结构估算 (理论值)</h4>
+                                    <div class="space-y-4">
+                                        <div class="w-full">
+                                            <div class="flex justify-between text-xs mb-1 text-slate-600"><span>直接原材料 (单体)</span> <span>约 40-45%</span></div>
+                                            <div class="w-full bg-slate-200 rounded-full h-3"><div class="bg-blue-500 h-3 rounded-full" style="width: 45%"></div></div>
+                                        </div>
+                                        <div class="w-full">
+                                            <div class="flex justify-between text-xs mb-1 text-slate-600"><span>能源动力 (电、蒸汽)</span> <span>约 15-20%</span></div>
+                                            <div class="w-full bg-slate-200 rounded-full h-3"><div class="bg-orange-400 h-3 rounded-full" style="width: 20%"></div></div>
+                                        </div>
+                                        <div class="w-full">
+                                            <div class="flex justify-between text-xs mb-1 text-slate-600"><span>制造费用 (折旧、环保溶剂回收)</span> <span>约 25-30%</span></div>
+                                            <div class="w-full bg-slate-200 rounded-full h-3"><div class="bg-slate-500 h-3 rounded-full" style="width: 25%"></div></div>
+                                        </div>
+                                        <div class="w-full">
+                                            <div class="flex justify-between text-xs mb-1 text-slate-600"><span>直接人工</span> <span>约 5-10%</span></div>
+                                            <div class="w-full bg-slate-200 rounded-full h-3"><div class="bg-teal-400 h-3 rounded-full" style="width: 10%"></div></div>
+                                        </div>
+                                        <p class="text-xs text-slate-500 mt-2 bg-slate-50 p-2 rounded">核心利润点在于：通过提升收率、降低废丝率、优化溶剂回收系统来压缩“制造费用”和“材料损耗”。</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Downstream -->
+                        <div id="tab-down" class="tab-content hidden">
+                            <h3 class="text-lg font-bold text-slate-800 mb-4 border-l-4 border-blue-500 pl-3">下游分析：场景多元，认证壁垒高</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                                <div class="chart-container" style="height: 300px;">
+                                    <canvas id="downstreamChart"></canvas>
+                                </div>
+                                <div>
+                                    <ul class="space-y-4">
+                                        <li class="border-b border-slate-100 pb-2">
+                                            <strong class="text-blue-700 block text-sm mb-1">光通信 (Optical Cables)</strong>
+                                            <p class="text-xs text-slate-600">最终客户为线缆厂及三大运营商。采购决策看重价格及拉伸稳定性。是国内目前需求最大的板块。</p>
+                                        </li>
+                                        <li class="border-b border-slate-100 pb-2">
+                                            <strong class="text-blue-700 block text-sm mb-1">安全防护 (Bulletproof & Armor)</strong>
+                                            <p class="text-xs text-slate-600">最终客户为军方、公安等。价格敏感度相对低，极度重视质量稳定性和实弹测试验证。认证周期极长，护城河深。</p>
+                                        </li>
+                                        <li class="border-b border-slate-100 pb-2">
+                                            <strong class="text-blue-700 block text-sm mb-1">汽车/橡胶骨架 (Automotive)</strong>
+                                            <p class="text-xs text-slate-600">高端轮胎、胶管。最终客户为大型轮胎厂。需要严苛的疲劳测试和路测，国内企业正在该领域加速渗透替代外企。</p>
+                                        </li>
+                                        <li>
+                                            <strong class="text-blue-700 block text-sm mb-1">摩擦密封 (Friction & Sealing)</strong>
+                                            <p class="text-xs text-slate-600">刹车片、离合器片。属于较成熟的应用，国内竞争激烈，主要比拼成本。</p>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: Competitive Landscape -->
+            <section id="competition" class="scroll-mt-20">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">五、 竞争格局与护城河 (Competitive Landscape)</h2>
+                    <p class="text-slate-600">分析全球及国内玩家布局，明确行业高度集中的寡头垄断特征。</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+                    <!-- Market Share Chart -->
+                    <div class="lg:col-span-5 bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col items-center justify-center">
+                        <h3 class="text-base font-bold text-center mb-2">全球对位芳纶产能份额分布预估</h3>
+                        <p class="text-xs text-slate-400 text-center mb-4">CR2(杜邦/帝人) 曾超80%，现正被中国产能稀释</p>
+                        <div class="chart-container" style="height: 280px;">
+                            <canvas id="marketShareChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Five Forces -->
+                    <div class="lg:col-span-7 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <h3 class="text-lg font-bold mb-4 border-b pb-2">波特五力模型分析</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="bg-slate-50 p-3 rounded">
+                                <span class="font-bold text-sm text-slate-700 block mb-1">⬆️ 潜在进入者：威胁极低</span>
+                                <p class="text-xs text-slate-500">巨额初始投资（单万吨需数十亿）、极高的工艺壁垒和环保审批门槛，形成深厚护城河。</p>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded">
+                                <span class="font-bold text-sm text-slate-700 block mb-1">⬇️ 替代品压力：中等偏低</span>
+                                <p class="text-xs text-slate-500">超高分子量聚乙烯(UHMWPE)在防弹领域有竞争，但芳纶耐高温性更好；碳纤维成本过高。</p>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded">
+                                <span class="font-bold text-sm text-slate-700 block mb-1">⬅️ 供应商议价能力：弱</span>
+                                <p class="text-xs text-slate-500">上游基础化工原料供应充足且分散，行业龙头具备较强采购话语权。</p>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded">
+                                <span class="font-bold text-sm text-slate-700 block mb-1">➡️ 客户议价能力：两极分化</span>
+                                <p class="text-xs text-slate-500">高端军工/航空航天领域客户看重性能，议价力低；中低端光纤/摩擦领域竞争激烈，议价力强。</p>
+                            </div>
+                            <div class="sm:col-span-2 bg-blue-50 p-3 rounded border border-blue-100">
+                                <span class="font-bold text-sm text-blue-800 block mb-1">🔄 现有竞争：寡头垄断 (CR10 > 90%)</span>
+                                <p class="text-xs text-blue-900">全球寡头（杜邦、帝人）控制高端市场定价权。国内龙头（泰和、中化）正通过激进扩产抢占中端市场并向高端渗透。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Company Profiles -->
+                <h3 class="text-lg font-bold mb-4 text-slate-800">重点企业画像对比</h3>
+                <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-slate-200">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-slate-50 text-slate-600 font-medium">
+                            <tr>
+                                <th class="px-6 py-4">企业简称</th>
+                                <th class="px-6 py-4">阵营</th>
+                                <th class="px-6 py-4">核心壁垒与优势</th>
+                                <th class="px-6 py-4">当前战略动向</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-700">
+                            <tr class="hover:bg-slate-50">
+                                <td class="px-6 py-4 font-bold text-slate-900">杜邦 (DuPont)</td>
+                                <td class="px-6 py-4"><span class="bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded">海外巨头</span></td>
+                                <td class="px-6 py-4">发明者，Kevlar品牌力极强。垄断最高端航空航天及特殊军工认证。</td>
+                                <td class="px-6 py-4">维持高定价，聚焦特种定制化产品，产能扩张趋于保守。</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="px-6 py-4 font-bold text-slate-900">泰和新材</td>
+                                <td class="px-6 py-4"><span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">国内绝对龙头</span></td>
+                                <td class="px-6 py-4">国内最早实现产业化，工艺最成熟。规模效应显著，成本控制国内第一。</td>
+                                <td class="px-6 py-4">激进扩产（宁夏基地），加速抢占杜邦帝人在光通信、橡胶骨架的份额。</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="px-6 py-4 font-bold text-slate-900">中化国际</td>
+                                <td class="px-6 py-4"><span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">国内第一梯队</span></td>
+                                <td class="px-6 py-4">央企背景，资金雄厚。拥有完备的上游化工产业链协同优势。</td>
+                                <td class="px-6 py-4">新建高强高模产线，重点攻坚高端军警防弹衣及汽车领域。</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Section 6: Tech Roadmap -->
+            <section id="tech" class="scroll-mt-20">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">六、 技术路径与研发趋势 (Technology Roadmap)</h2>
+                    <p class="text-slate-600">芳纶属于典型的技术密集型化工新材料，探讨工艺路线选择与未来颠覆性技术。</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Tech Comparison -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h3 class="text-lg font-bold mb-4 text-slate-800">主流聚合纺丝技术对比</h3>
+                        <div class="space-y-4">
+                            <div class="border border-blue-200 rounded-lg p-4 bg-blue-50">
+                                <h4 class="font-bold text-blue-800 mb-2">路线A: 传统硫酸液晶纺丝 (业界主流)</h4>
+                                <ul class="text-sm text-slate-700 space-y-1 list-disc list-inside">
+                                    <li><strong>优势:</strong> 工艺成熟，分子链取向度高，纤维强度极高。</li>
+                                    <li><strong>劣势:</strong> 浓硫酸强腐蚀性导致设备折旧快；溶剂回收难度大，环保成本高。</li>
+                                    <li><strong>壁垒:</strong> 纺丝速度提升与断头率控制的平衡。</li>
+                                </ul>
+                            </div>
+                            <div class="border border-emerald-200 rounded-lg p-4 bg-emerald-50">
+                                <h4 class="font-bold text-emerald-800 mb-2">路线B: 绿色溶剂聚合纺丝 (未来趋势)</h4>
+                                <ul class="text-sm text-slate-700 space-y-1 list-disc list-inside">
+                                    <li><strong>描述:</strong> 探索替代浓硫酸的新型有机溶剂体系。</li>
+                                    <li><strong>优势:</strong> 大幅降低设备腐蚀，环境友好，有望实现成本非线性下降。</li>
+                                    <li><strong>现状:</strong> 多数处于实验室或中试阶段，巨头在重点布局专利。</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tech Trends -->
+                    <div class="bg-slate-900 p-6 rounded-xl shadow-sm text-white">
+                        <h3 class="text-lg font-bold mb-4 text-blue-300">🔬 研发趋势与前沿预测</h3>
+                        <ul class="space-y-5">
+                            <li class="flex items-start">
+                                <div class="bg-slate-800 p-2 rounded-lg mr-3 text-xl">🚀</div>
+                                <div>
+                                    <h4 class="font-bold text-sm">高强高模化 (High Tenacity & Modulus)</h4>
+                                    <p class="text-xs text-slate-400 mt-1">突破现有分子量极限，研发拉伸强度超过 24 cN/dtex 的特种芳纶，直接对标杜邦最高端防弹级别产品。</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <div class="bg-slate-800 p-2 rounded-lg mr-3 text-xl">🎨</div>
+                                <div>
+                                    <h4 class="font-bold text-sm">原液着色技术 (Dope Dyeing)</h4>
+                                    <p class="text-xs text-slate-400 mt-1">芳纶极难染色（结构致密）。研发在纺丝液阶段直接添加颜料的技术，满足军用伪装和民用多色彩需求。</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <div class="bg-slate-800 p-2 rounded-lg mr-3 text-xl">♻️</div>
+                                <div>
+                                    <h4 class="font-bold text-sm">溶剂闭环回收系统提升</h4>
+                                    <p class="text-xs text-slate-400 mt-1">谁能将溶剂回收率从 95% 提升到 99% 以上，谁就能在“价格战”中拥有绝对的毛利率优势。</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 7: External Environment & Risks -->
+            <section id="risks" class="scroll-mt-20">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">七、 政策环境与宏观风险 (External Environment & Risks)</h2>
+                    <p class="text-slate-600">外部环境评估，机遇与风险并存。</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Policy -->
+                    <div class="bg-blue-50 p-6 rounded-xl border border-blue-100">
+                        <div class="flex items-center mb-4">
+                            <span class="text-2xl mr-2">🏛️</span>
+                            <h3 class="text-lg font-bold text-blue-800">政策导向 (顺风)</h3>
+                        </div>
+                        <ul class="space-y-3 text-sm text-slate-700">
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">✓</span>
+                                <span><strong>《十四五战略性新兴产业规划》:</strong> 将高性能纤维（芳纶、碳纤维）列为重点突破的关键新材料，享受税收优惠及科研资金补贴。</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">✓</span>
+                                <span><strong>自主可控战略:</strong> 军工、航空航天等核心领域明确提出国产化率指标，强制或优先采购国产高性能芳纶，为国内企业提供广阔的“试验田”和确定性订单。</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Risks -->
+                    <div class="bg-red-50 p-6 rounded-xl border border-red-100">
+                        <div class="flex items-center mb-4">
+                            <span class="text-2xl mr-2">⚠️</span>
+                            <h3 class="text-lg font-bold text-red-800">核心风险提示 (逆风)</h3>
+                        </div>
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-800 mb-1">1. 产能过剩引发价格战</h4>
+                                <p class="text-xs text-slate-600">国内多条规划产线在未来2-3年集中投产，若下游光通信和汽车需求不及预期，中低端产品可能面临惨烈的价格战，压缩企业利润。</p>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-800 mb-1">2. 国际贸易壁垒</h4>
+                                <p class="text-xs text-slate-600">芳纶属军民两用敏感物资，欧美可能通过反倾销、反补贴或出口管制等手段，限制中国设备进口或产品出海出口。</p>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-800 mb-1">3. 技术迭代不及预期</h4>
+                                <p class="text-xs text-slate-600">若国产企业在高端防弹、航空级产品的技术攻关停滞，将长期陷入中低端内卷，无法获取高额溢价。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 8: Investment Thesis -->
+            <section id="investment" class="scroll-mt-20 mb-20">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">八、 结论与投资逻辑 (Investment Thesis)</h2>
+                    <p class="text-slate-600">提炼投资逻辑，寻找市场预期差。</p>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md border border-slate-200 p-8">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center">
+                                <span class="bg-blue-600 text-white w-6 h-6 rounded-full inline-flex items-center justify-center text-sm mr-2">1</span> 
+                                关键成功要素 (KSF)
+                            </h3>
+                            <div class="space-y-3">
+                                <div class="bg-slate-50 p-3 rounded border border-slate-100">
+                                    <strong class="text-sm text-slate-800 block">工程化放大能力</strong>
+                                    <p class="text-xs text-slate-500 mt-1">实验室出丝不难，难在万吨级产线长周期、稳定、高良率运行。考验企业的Know-how积累。</p>
+                                </div>
+                                <div class="bg-slate-50 p-3 rounded border border-slate-100">
+                                    <strong class="text-sm text-slate-800 block">全产业链成本控制</strong>
+                                    <p class="text-xs text-slate-500 mt-1">在未来的价格战中，拥有自建溶剂回收体系、上游单体配套的企业将存活并扩大份额。</p>
+                                </div>
+                                <div class="bg-slate-50 p-3 rounded border border-slate-100">
+                                    <strong class="text-sm text-slate-800 block">军工认证资质</strong>
+                                    <p class="text-xs text-slate-500 mt-1">拿下防弹头盔/衣的集采资质，意味着获得了高毛利、抗周期的现金牛业务。</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center">
+                                <span class="bg-blue-600 text-white w-6 h-6 rounded-full inline-flex items-center justify-center text-sm mr-2">2</span> 
+                                估值逻辑 (Valuation)
+                            </h3>
+                            <p class="text-sm text-slate-700 leading-relaxed">
+                                对位芳纶企业通常采用 <strong>P/E (市盈率)</strong> 结合 <strong>PEG</strong> 进行估值。
+                                <br><br>
+                                由于处于快速成长期，资本市场倾向于给予高技术壁垒的新材料企业一定的估值溢价。在行业扩产周期初期，市场主要交易“产能释放带来的业绩高增预期”，估值分位往往较高（30-50倍 P/E）。
+                                <br><br>
+                                随着产能落地转为供需博弈，估值将回归至成熟化工品逻辑（15-20倍 P/E）。投资的核心在于<strong class="text-blue-700">赚取业绩(EPS)高增长的钱，而非估值扩张的钱</strong>。
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-200 pt-6">
+                        <h3 class="text-lg font-bold text-emerald-700 mb-3 flex items-center">👁️ 差异化观点 (预期差)</h3>
+                        <p class="text-sm text-slate-700 italic border-l-4 border-emerald-500 pl-4 py-2 bg-emerald-50">
+                            “市场普遍担忧国内企业疯狂扩产会导致芳纶步入类似碳纤维的严重过剩局面。但我们认为，对位芳纶的<strong>下游应用极度分散且在不断拓展（如新能源车轻量化替代钢丝）</strong>，其需求天花板尚未看到。此外，芳纶的生产壁垒远高于常规化纤，所谓的‘规划产能’转化为‘有效产能’需打极大折扣。因此，头部企业通过降本增效，不仅能实现对海外巨头的存量替代，更能通过降价创造出庞大的增量市场。<strong>短期的价格波动是长期渗透率跃升的必经之路。</strong>”
+                        </p>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs mt-12 md:hidden">
+            Generated Report 2026 - Aramid Industry
+        </footer>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- 1. Navigation Highlighting ---
+            const sections = document.querySelectorAll('main section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const mainContent = document.getElementById('main-content');
+
+            // Smooth scroll for nav clicks
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('data-target');
+                    const targetSection = document.getElementById(targetId);
+                    
+                    if (targetSection) {
+                        targetSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+
+            // Update active state on scroll
+            mainContent.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    // Adjust offset based on scroll position
+                    if (mainContent.scrollTop >= sectionTop - 150) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('data-target') === current) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+
+            // Trigger initial scroll check
+            mainContent.dispatchEvent(new Event('scroll'));
+
+            // --- 2. Tab Interaction for Value Chain ---
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Remove active from all
+                    tabBtns.forEach(b => b.classList.remove('active', 'border-blue-500', 'text-blue-600'));
+                    tabContents.forEach(c => c.classList.add('hidden'));
+
+                    // Add active to clicked
+                    btn.classList.add('active', 'border-blue-500', 'text-blue-600');
+                    const targetId = `tab-${btn.getAttribute('data-tab')}`;
+                    document.getElementById(targetId).classList.remove('hidden');
+                });
+            });
+
+            // --- 3. Chart.js Implementations ---
+            Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+            Chart.defaults.color = '#64748b'; // slate-500
+
+            // Common Tooltip Config for long labels
+            const tooltipConfig = {
+                callbacks: {
+                    title: function(context) {
+                        let title = context[0].label || '';
+                        if (title.length > 16) {
+                            return title.match(/.{1,16}/g); // Wrap logic
+                        }
+                        return title;
+                    }
+                }
+            };
+
+            // Chart 1: Market Size (Bar + Line)
+            const ctxMarket = document.getElementById('marketSizeChart').getContext('2d');
+            new Chart(ctxMarket, {
+                type: 'bar',
+                data: {
+                    labels: ['2021', '2022', '2023', '2024E', '2025E', '2026E'],
+                    datasets: [
+                        {
+                            label: '全球需求 (万吨)',
+                            data: [8.5, 9.2, 9.8, 10.5, 11.2, 12.0],
+                            backgroundColor: 'rgba(148, 163, 184, 0.6)', // slate-400
+                            borderColor: 'rgb(148, 163, 184)',
+                            borderWidth: 1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: '中国需求 (万吨)',
+                            data: [1.8, 2.2, 2.8, 3.5, 4.3, 5.2],
+                            backgroundColor: 'rgba(59, 130, 246, 0.8)', // blue-500
+                            borderColor: 'rgb(37, 99, 235)',
+                            borderWidth: 1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            type: 'line',
+                            label: '中国需求增速 (%)',
+                            data: [15, 22, 27, 25, 23, 21],
+                            borderColor: 'rgb(16, 185, 129)', // emerald-500
+                            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: tooltipConfig
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: '需求量 (万吨)' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: { display: true, text: '增速 (%)' },
+                            grid: { drawOnChartArea: false } // only draw grid lines for one axis
+                        }
+                    }
+                }
+            });
+
+            // Chart 2: Downstream Applications (Pie)
+            const ctxDownstream = document.getElementById('downstreamChart').getContext('2d');
+            new Chart(ctxDownstream, {
+                type: 'pie',
+                data: {
+                    labels: ['光通信 (室内外光缆)', '安全防护 (防弹衣/头盔)', '橡胶骨架 (轮胎/胶管)', '摩擦密封 (刹车片)', '航空航天及其他'],
+                    datasets: [{
+                        data: [35, 25, 20, 15, 5],
+                        backgroundColor: [
+                            '#3b82f6', // blue-500
+                            '#10b981', // emerald-500
+                            '#f59e0b', // amber-500
+                            '#94a3b8', // slate-400
+                            '#8b5cf6'  // violet-500
+                        ],
+                        borderWidth: 1,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' ' + context.label + ': ' + context.parsed + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Chart 3: Market Share (Doughnut)
+            const ctxShare = document.getElementById('marketShareChart').getContext('2d');
+            new Chart(ctxShare, {
+                type: 'doughnut',
+                data: {
+                    labels: ['杜邦 (DuPont)', '帝人 (Teijin)', '泰和新材', '中化国际', '韩国可隆等其他'],
+                    datasets: [{
+                        data: [40, 35, 12, 5, 8],
+                        backgroundColor: [
+                            '#1e293b', // slate-800
+                            '#475569', // slate-600
+                            '#2563eb', // blue-600
+                            '#60a5fa', // blue-400
+                            '#cbd5e1'  // slate-300
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: tooltipConfig
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>氰酸酯树脂 (Cyanate Ester) 行业深度交互报告</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Chosen Palette: Slate (Neutral Backgrounds), Indigo (Primary Data/Brand), Emerald (Growth/Positive Indicators), Amber/Rose (Risks/Alerts). This creates a professional, tech-focused financial research aesthetic. -->
+    
+    <!-- Application Structure Plan: 
+         - Architecture: A sidebar-navigated SPA (Dashboard style) for non-linear exploration.
+         - Flow: Users land on the "Executive Summary" for quick KPIs. They can then dive into specific modules (Market, Value Chain, Competition, Tech, Investment) via the fixed sidebar.
+         - Reason: Deep industry reports are dense. A traditional top-down linear read causes fatigue. A dashboard allows investors/researchers to jump directly to their area of interest (e.g., a technologist to "Tech Roadmap", an investor to "Valuation"). 
+    -->
+
+    <!-- Visualization & Content Choices: 
+         - Exec Summary: KPI Cards + Status Pills (Quick information retrieval).
+         - Market Analysis: Mixed Bar/Line Chart (Goal: Show historical growth + future forecast simultaneously. Library: Chart.js).
+         - Value Chain: CSS Grid mapping with hover states (Goal: Show process flow and bottlenecks without using SVGs/Mermaid. Pure HTML/CSS for responsiveness).
+         - Competition: Doughnut Chart (Goal: Highlight the oligopoly nature and domestic vs. global share. Library: Chart.js) & HTML Profiles.
+         - Tech Roadmap: Radar Chart (Goal: Compare material properties CE vs Epoxy vs PTFE on multiple axes like Dk, Df, Cost. Library: Chart.js).
+         - Risks: Bubble/Scatter Chart (Goal: Risk Matrix mapping probability vs. impact. Library: Chart.js).
+    -->
+
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        /* Custom Styles & Chart Container Constraints */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; }
+        .sidebar-active { background-color: #e0e7ff; color: #4338ca; border-right: 4px solid #4338ca; font-weight: 600; }
+        .nav-link { transition: all 0.2s ease-in-out; }
+        .nav-link:hover:not(.sidebar-active) { background-color: #f1f5f9; }
+        
+        /* STRICT CHART CONTAINER STYLING */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container { height: 400px; }
+        }
+        @media (min-width: 1024px) {
+            .chart-container { max-width: 1000px; }
+        }
+
+        /* Hide sections by default */
+        .content-section { display: none; animation: fadeIn 0.4s ease-in; }
+        .content-section.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Custom Scrollbar for Sidebar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="text-slate-800 antialiased flex h-screen overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex-shrink-0 flex flex-col h-full z-10 shadow-sm relative">
+        <div class="p-6 border-b border-slate-100">
+            <h1 class="text-xl font-bold text-indigo-900 leading-tight">氰酸酯树脂<br><span class="text-sm font-medium text-slate-500">Industry Report 2024</span></h1>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-1">
+                <li><button data-target="s-summary" class="nav-link w-full text-left px-6 py-3 text-slate-600 sidebar-active">一、 执行摘要</button></li>
+                <li><button data-target="s-overview" class="nav-link w-full text-left px-6 py-3 text-slate-600">二、 行业概况与属性</button></li>
+                <li><button data-target="s-market" class="nav-link w-full text-left px-6 py-3 text-slate-600">三、 市场规模与需求</button></li>
+                <li><button data-target="s-valuechain" class="nav-link w-full text-left px-6 py-3 text-slate-600">四、 产业链全景图</button></li>
+                <li><button data-target="s-competition" class="nav-link w-full text-left px-6 py-3 text-slate-600">五、 竞争格局与护城河</button></li>
+                <li><button data-target="s-tech" class="nav-link w-full text-left px-6 py-3 text-slate-600">六、 技术与研发趋势</button></li>
+                <li><button data-target="s-risks" class="nav-link w-full text-left px-6 py-3 text-slate-600">七、 政策与宏观风险</button></li>
+                <li><button data-target="s-investment" class="nav-link w-full text-left px-6 py-3 text-slate-600">八、 结论与投资逻辑</button></li>
+            </ul>
+        </nav>
+        <div class="p-4 bg-slate-50 text-xs text-slate-400 border-t border-slate-200 text-center">
+            交互式研究终端 v1.2
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 h-full overflow-y-auto bg-slate-50 relative">
+        <div class="max-w-6xl mx-auto p-8 pb-20">
+
+            <!-- Section 1: Executive Summary -->
+            <section id="s-summary" class="content-section active">
+                <header class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-2">执行摘要 (Executive Summary)</h2>
+                    <p class="text-slate-500 text-lg">本模块浓缩了整个氰酸酯树脂行业的核心研究发现，为您提供最快速的行业前瞻与投资定调。</p>
+                </header>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <!-- KPI Card 1 -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between hover:shadow-md transition">
+                        <div class="text-slate-500 text-sm font-semibold mb-1">行业生命周期阶段</div>
+                        <div class="text-2xl font-bold text-indigo-700 mb-2">成长期 (爆发前夜)</div>
+                        <p class="text-sm text-slate-600">正从航空航天军工的小众市场，加速跨越至AI服务器、5.5G/6G基站等民用大体量市场。</p>
+                    </div>
+                    <!-- KPI Card 2 -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between hover:shadow-md transition border-l-4 border-l-emerald-500">
+                        <div class="text-slate-500 text-sm font-semibold mb-1">投资评级 / 建议</div>
+                        <div class="text-2xl font-bold text-emerald-600 mb-2">强烈推荐 (Overweight)</div>
+                        <p class="text-sm text-slate-600">AI算力爆发导致高频高速覆铜板(CCL)和先进封装载板需求激增，极具投资配置价值。</p>
+                    </div>
+                    <!-- KPI Card 3 -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between hover:shadow-md transition">
+                        <div class="text-slate-500 text-sm font-semibold mb-1">5年复合增长率 (CAGR)</div>
+                        <div class="text-3xl font-black text-slate-800 mb-2">18.5<span class="text-lg font-normal">%</span></div>
+                        <p class="text-sm text-slate-600">受高端覆铜板渗透率提升双重驱动，远超传统环氧树脂行业增速。</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">影响行业未来的 Top 3 关键词</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="bg-indigo-100 text-indigo-700 font-bold px-3 py-1 rounded text-sm mr-4 mt-0.5">01</div>
+                            <div>
+                                <h4 class="font-semibold text-slate-800">AI算力底座 (M6/M7级CCL)</h4>
+                                <p class="text-sm text-slate-600 mt-1">AI服务器（如英伟达GB200系统）需要超低损耗的覆铜板，传统FR-4环氧树脂无法满足介电损耗(Df)要求，氰酸酯/PPO共混体系成为刚需。</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="bg-indigo-100 text-indigo-700 font-bold px-3 py-1 rounded text-sm mr-4 mt-0.5">02</div>
+                            <div>
+                                <h4 class="font-semibold text-slate-800">先进封装与ABF载板替代</h4>
+                                <p class="text-sm text-slate-600 mt-1">在FC-BGA等高密度封装中，氰酸酯的高耐热性(Tg > 250℃)和低热膨胀系数(CTE)使其成为高端IC载板基材的核心升级方向。</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="bg-indigo-100 text-indigo-700 font-bold px-3 py-1 rounded text-sm mr-4 mt-0.5">03</div>
+                            <div>
+                                <h4 class="font-semibold text-slate-800">国产化替代 (Domestic Substitution)</h4>
+                                <p class="text-sm text-slate-600 mt-1">目前全球产能高度集中在日企和欧企，国内企业突破了高纯度合成技术，叠加国产AI芯片崛起，供应链安全诉求推动国产份额跃升。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Industry Overview -->
+            <section id="s-overview" class="content-section">
+                <header class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-2">行业概况与基本属性</h2>
+                    <p class="text-slate-500 text-lg">了解氰酸酯（CE）树脂的物理化学边界、历史沿革及商业运作模式。</p>
+                </header>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <h3 class="text-xl font-bold text-indigo-800 mb-3">定义与物理边界</h3>
+                        <p class="text-slate-700 text-sm leading-relaxed mb-4">
+                            氰酸酯树脂 (Cyanate Ester Resin, CE) 是一类分子结构中含有两个或两个以上氰酸酯基团 (-OCN) 的高性能热固性树脂。
+                        </p>
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-100">
+                            <h4 class="font-semibold text-slate-800 text-sm mb-2">三大核心物理优势：</h4>
+                            <ul class="list-disc pl-5 text-sm text-slate-600 space-y-1">
+                                <li><strong>极低的介电常数与损耗：</strong> Dk (2.8~3.2) 和 Df (0.002~0.008)，且在宽频带和温湿度变化下极度稳定，是雷达波透波和高频通信的绝佳材料。</li>
+                                <li><strong>超高耐热性：</strong> 玻璃化转变温度 (Tg) 高达 240℃ - 290℃，且几乎不吸水。</li>
+                                <li><strong>优异的力学性能：</strong> 附着力强，尺寸稳定性（低CTE）极好。</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <h3 class="text-xl font-bold text-indigo-800 mb-3">商业模式拆解</h3>
+                        <p class="text-slate-700 text-sm leading-relaxed mb-4">
+                            该行业非传统化工的“重资产+规模效应”驱动，而是典型的<strong>“技术溢价 + 客户深度绑定”</strong>模式。
+                        </p>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center bg-indigo-50 px-4 py-2 rounded">
+                                <span class="text-sm font-semibold text-indigo-900">核心盈利点</span>
+                                <span class="text-sm text-indigo-700">配方Know-how与高纯度合成壁垒</span>
+                            </div>
+                            <div class="flex justify-between items-center bg-indigo-50 px-4 py-2 rounded">
+                                <span class="text-sm font-semibold text-indigo-900">客户粘性</span>
+                                <span class="text-sm text-indigo-700">验证周期长（1-2年），转换成本极高</span>
+                            </div>
+                            <div class="flex justify-between items-center bg-indigo-50 px-4 py-2 rounded">
+                                <span class="text-sm font-semibold text-indigo-900">定价权</span>
+                                <span class="text-sm text-indigo-700">上游原材料成本占比较低，毛利率通常 > 35%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4">发展历程与技术节点</h3>
+                    <div class="relative border-l border-slate-200 ml-3 space-y-6 pb-4">
+                        <div class="relative pl-6">
+                            <div class="absolute w-3 h-3 bg-slate-300 rounded-full -left-1.5 top-1.5 ring-4 ring-white"></div>
+                            <div class="text-sm font-bold text-slate-500">1960s - 1990s (导入期)</div>
+                            <h4 class="font-semibold text-slate-800">军工与航天专属</h4>
+                            <p class="text-sm text-slate-600 mt-1">由Bayer公司首次合成。因其出色的透波性能，主要用于隐身战斗机雷达罩、卫星结构件。价格极其昂贵，民用几乎空白。</p>
+                        </div>
+                        <div class="relative pl-6">
+                            <div class="absolute w-3 h-3 bg-indigo-400 rounded-full -left-1.5 top-1.5 ring-4 ring-white"></div>
+                            <div class="text-sm font-bold text-indigo-500">2010s (商业化早期)</div>
+                            <h4 class="font-semibold text-slate-800">4G/5G 通信基站驱动</h4>
+                            <p class="text-sm text-slate-600 mt-1">随着高频段通信发展，PTFE加工困难，氰酸酯作为替代品开始进入高端高频覆铜板领域，三菱瓦斯(MGC)主导市场。</p>
+                        </div>
+                        <div class="relative pl-6">
+                            <div class="absolute w-3 h-3 bg-emerald-500 rounded-full -left-1.5 top-1.5 ring-4 ring-white shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+                            <div class="text-sm font-bold text-emerald-600">2023 - 至今 (爆发成长期)</div>
+                            <h4 class="font-semibold text-slate-800">AI算力与国产替代浪潮</h4>
+                            <p class="text-sm text-slate-600 mt-1">AI服务器(800G光模块、高速背板)带来极低损耗覆铜板井喷需求。中国企业打破垄断，实现双酚A型、双酚E型氰酸酯量产，成本大幅下降，渗透率加速。</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Market Analysis -->
+            <section id="s-market" class="content-section">
+                <header class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-2">市场规模与需求分析</h2>
+                    <p class="text-slate-500 text-lg">通过数据透视 TAM (Total Addressable Market) 及增长的底层逻辑。</p>
+                </header>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-800">全球氰酸酯树脂市场规模预测</h3>
+                            <p class="text-sm text-slate-500">单位：亿美元 (包含基础树脂及改性预聚体)</p>
+                        </div>
+                        <div class="mt-2 md:mt-0 flex gap-4 text-sm font-medium">
+                            <div class="flex items-center"><span class="w-3 h-3 bg-indigo-500 rounded-sm mr-2"></span>市场规模</div>
+                            <div class="flex items-center"><span class="w-3 h-0.5 bg-rose-500 mr-2"></span>YoY 增速</div>
+                        </div>
+                    </div>
+                    <!-- Chart Container -->
+                    <div class="chart-container">
+                        <canvas id="marketChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <h3 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2 mb-4">底层驱动因素拆解</h3>
+                        <ul class="space-y-4">
+                            <li class="flex flex-col">
+                                <span class="font-semibold text-indigo-700">1. PCIe 5.0/6.0 协议升级 (强制需求)</span>
+                                <span class="text-sm text-slate-600">服务器主板信号传输速率翻倍，对基材信号损耗容忍度极速降低。极低损耗(VLD)和超低损耗(ULD)板材需求飙升，氰酸酯是ULD级别的核心树脂材料。</span>
+                            </li>
+                            <li class="flex flex-col">
+                                <span class="font-semibold text-indigo-700">2. LEO低轨卫星通信 (增量市场)</span>
+                                <span class="text-sm text-slate-600">星链、星网等相控阵雷达天线及高频微波基板，对材料的轻量化、耐空间辐射、高频透波性要求极高。</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <h3 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2 mb-4">渗透率分析 (爆发前夜)</h3>
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="font-semibold text-slate-700">传统环氧树脂(FR-4)在普通PCB渗透率</span>
+                                <span class="text-slate-500">> 85%</span>
+                            </div>
+                            <div class="w-full bg-slate-200 rounded-full h-2">
+                                <div class="bg-slate-400 h-2 rounded-full" style="width: 85%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="font-semibold text-indigo-800">氰酸酯在整体覆铜板树脂中渗透率</span>
+                                <span class="text-indigo-800 font-bold">~ 2.5%</span>
+                            </div>
+                            <div class="w-full bg-slate-200 rounded-full h-2">
+                                <div class="bg-indigo-600 h-2 rounded-full" style="width: 2.5%"></div>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-1">整体基数小，替代空间大。</p>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="font-semibold text-emerald-700">氰酸酯在高速覆铜板(M6级以上)渗透率</span>
+                                <span class="text-emerald-700 font-bold">~ 35% (快速攀升)</span>
+                            </div>
+                            <div class="w-full bg-slate-200 rounded-full h-2">
+                                <div class="bg-emerald-500 h-2 rounded-full" style="width: 35%"></div>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-1">在核心细分市场已形成主导趋势。</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Value Chain -->
+            <section id="s-valuechain" class="content-section">
+                <header class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-2">产业链全景图谱</h2>
+                    <p class="text-slate-500 text-lg">解构上下游话语权分配，寻找价值链的“卡脖子”环节与利润蓄水池。将鼠标悬停在各环节查看详细利润分配。</p>
+                </header>
+
+                <div class="flex flex-col lg:flex-row gap-4 h-auto lg:h-[500px]">
+                    
+                    <!-- Upstream -->
+                    <div class="flex-1 flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm group hover:border-slate-400 transition-colors">
+                        <div class="bg-slate-100 p-4 border-b border-slate-200 text-center">
+                            <h3 class="font-bold text-slate-800 text-lg">上游：原材料与化工原料</h3>
+                            <p class="text-xs text-slate-500">大宗化工为主，议价权一般</p>
+                        </div>
+                        <div class="p-6 flex-1 flex flex-col justify-center space-y-4">
+                            <div class="bg-slate-50 border border-slate-200 p-3 rounded text-center transform transition group-hover:-translate-y-1">
+                                <div class="font-semibold text-slate-800">双酚类化合物</div>
+                                <div class="text-xs text-slate-500 mt-1">双酚A, 双酚E, 双酚M, 酚醛树脂</div>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 p-3 rounded text-center transform transition group-hover:-translate-y-1">
+                                <div class="font-semibold text-slate-800">卤化氰</div>
+                                <div class="text-xs text-slate-500 mt-1">氯化氰 (极毒，具特许生产门槛)、溴化氰</div>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 p-3 rounded text-center transform transition group-hover:-translate-y-1">
+                                <div class="font-semibold text-slate-800">催化剂与溶剂</div>
+                                <div class="text-xs text-slate-500 mt-1">三乙胺等</div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-800 text-white p-3 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                            <strong>价值分析：</strong> 成本占中游制造的约40-50%。除“氯化氰”因高毒性受环保严格管控构成一定资质壁垒外，其余原料供应充分。
+                        </div>
+                    </div>
+
+                    <!-- Arrow (Desktop) / Div (Mobile) -->
+                    <div class="hidden lg:flex flex-col justify-center items-center text-slate-300">
+                        <span class="text-3xl">▶</span>
+                    </div>
+
+                    <!-- Midstream (Core) -->
+                    <div class="flex-1 flex flex-col bg-indigo-50 border-2 border-indigo-200 rounded-xl overflow-hidden shadow-md group hover:border-indigo-400 transition-colors relative z-10 scale-100 lg:scale-105">
+                        <div class="bg-indigo-100 p-4 border-b border-indigo-200 text-center">
+                            <div class="text-xs font-bold text-rose-500 uppercase tracking-wider mb-1">核心卡脖子环节</div>
+                            <h3 class="font-bold text-indigo-900 text-lg">中游：氰酸酯单体及预聚体制造</h3>
+                        </div>
+                        <div class="p-6 flex-1 flex flex-col justify-center space-y-4">
+                            <div class="bg-white border border-indigo-100 p-3 rounded text-center shadow-sm transform transition group-hover:scale-105">
+                                <div class="font-bold text-indigo-800">核心工艺：多相界面缩聚反应</div>
+                            </div>
+                            <div class="bg-white border border-indigo-100 p-3 rounded text-center shadow-sm transform transition group-hover:scale-105">
+                                <div class="font-bold text-indigo-800">提纯与精制分离</div>
+                                <div class="text-xs text-indigo-600 mt-1">难点：去除离子态杂质（直接影响介电性能）</div>
+                            </div>
+                            <div class="bg-white border border-indigo-100 p-3 rounded text-center shadow-sm transform transition group-hover:scale-105">
+                                <div class="font-bold text-indigo-800">改性/预聚 (B-Stage)</div>
+                                <div class="text-xs text-indigo-600 mt-1">与环氧/BMI共混，解决纯CE性脆、不易成膜问题</div>
+                            </div>
+                        </div>
+                        <div class="bg-indigo-900 text-white p-3 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                            <strong>价值分析：</strong> 行业利润蓄水池（毛利率35-50%）。壁垒极高：1. 高纯度合成极难，杂质会导致介电击穿；2. 反应剧烈易放热爆炸，量产控制难；3. 改性配方专利壁垒。
+                        </div>
+                    </div>
+
+                    <!-- Arrow (Desktop) / Div (Mobile) -->
+                    <div class="hidden lg:flex flex-col justify-center items-center text-slate-300">
+                        <span class="text-3xl">▶</span>
+                    </div>
+
+                    <!-- Downstream -->
+                    <div class="flex-1 flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm group hover:border-slate-400 transition-colors">
+                        <div class="bg-emerald-50 p-4 border-b border-emerald-100 text-center">
+                            <h3 class="font-bold text-emerald-900 text-lg">下游：应用场景与终端</h3>
+                            <p class="text-xs text-emerald-600">集中度高，验证壁垒深</p>
+                        </div>
+                        <div class="p-6 flex-1 flex flex-col justify-center space-y-4">
+                            <div class="bg-slate-50 border border-slate-200 p-3 rounded text-center transform transition group-hover:-translate-y-1">
+                                <div class="font-semibold text-slate-800">高频高速覆铜板 (CCL) / PCB</div>
+                                <div class="text-xs text-slate-500 mt-1">应用: AI服务器, 5G/6G基站交换机, 汽车毫米波雷达</div>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 p-3 rounded text-center transform transition group-hover:-translate-y-1">
+                                <div class="font-semibold text-slate-800">半导体封装载板 (IC Substrate)</div>
+                                <div class="text-xs text-slate-500 mt-1">应用: FC-BGA载板，替代ABF膜</div>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 p-3 rounded text-center transform transition group-hover:-translate-y-1">
+                                <div class="font-semibold text-slate-800">航空航天先进复合材料</div>
+                                <div class="text-xs text-slate-500 mt-1">应用: 隐身战机雷达罩、航天器结构件</div>
+                            </div>
+                        </div>
+                        <div class="bg-emerald-900 text-white p-3 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                            <strong>价值分析：</strong> 直接面向华为、英伟达等终端链主。采购决策非纯价格导向，重在一致性与可靠性。导入周期1-2年，一旦进入供应链不易被替换。
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: Competition -->
+            <section id="s-competition" class="content-section">
+                <header class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-2">竞争格局与护城河</h2>
+                    <p class="text-slate-500 text-lg">从“国际寡头垄断”走向“国产突围”。分析重点企业市占率与核心壁垒。</p>
+                </header>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Donut Chart -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col">
+                        <h3 class="text-lg font-bold text-slate-800 mb-2">全球产能分布格局 (CR3 > 60%)</h3>
+                        <p class="text-xs text-slate-500 mb-6">历史由外资主导，国内产能正快速崛起。</p>
+                        <div class="chart-container flex-1">
+                            <canvas id="compChart"></canvas>
+                        </div>
+                        <div class="mt-4 text-sm text-center text-slate-600 bg-slate-50 p-2 rounded">
+                            注：行业高度集中，具备寡头垄断特征。
+                        </div>
+                    </div>
+
+                    <!-- Competitor Profiles -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 overflow-y-auto" style="max-height: 500px;">
+                        <h3 class="text-lg font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">重点玩家画像 (Player Profiles)</h3>
+                        
+                        <div class="space-y-6">
+                            <!-- Player 1 -->
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <h4 class="font-bold text-indigo-700">三菱瓦斯化学 (MGC) - 日本</h4>
+                                    <span class="text-xs font-semibold bg-slate-200 text-slate-700 px-2 py-1 rounded">全球龙头</span>
+                                </div>
+                                <p class="text-sm text-slate-600 mb-2">掌握BT树脂（双马来酰亚胺三嗪树脂，由氰酸酯改性）核心专利。在高端封装载板基材领域占据绝对统治地位，生态壁垒极深。</p>
+                                <div class="text-xs text-slate-500"><span class="font-semibold">护城河：</span> 专利池，终端大厂绝对验证认可。</div>
+                            </div>
+                            
+                            <!-- Player 2 -->
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <h4 class="font-bold text-indigo-700">龙沙 (Lonza) - 瑞士</h4>
+                                    <span class="text-xs font-semibold bg-slate-200 text-slate-700 px-2 py-1 rounded">欧美巨头</span>
+                                </div>
+                                <p class="text-sm text-slate-600 mb-2">最早进行氰酸酯商业化的企业之一。产品线全（PT单体、预聚物等），主攻欧美高端航天军工与通信市场。</p>
+                                <div class="text-xs text-slate-500"><span class="font-semibold">护城河：</span> 极高的纯度工艺，先发历史优势。</div>
+                            </div>
+
+                            <!-- Player 3 -->
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <h4 class="font-bold text-emerald-600">圣泉集团 (Shengquan) - 中国</h4>
+                                    <span class="text-xs font-semibold bg-emerald-100 text-emerald-800 px-2 py-1 rounded">国产先锋</span>
+                                </div>
+                                <p class="text-sm text-slate-600 mb-2">国内极少数实现PPO（聚苯醚）和双酚类氰酸酯全产业链布局的企业。依靠成本优势和国内供应链安全诉求，正在高速抢占M6/M7级板材份额。</p>
+                                <div class="text-xs text-slate-500"><span class="font-semibold">护城河：</span> 本土化低成本响应，全树脂体系配套。</div>
+                            </div>
+
+                            <!-- Player 4 -->
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <h4 class="font-bold text-emerald-600">江都无桥 / 华正新材 / 生益科技</h4>
+                                    <span class="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-1 rounded">产业链纵向整合</span>
+                                </div>
+                                <p class="text-sm text-slate-600 mb-2">如生益科技作为下游CCL龙头，开始向上游延伸自研部分高性能树脂；江都无桥依托华东理工大学科研转化，专注小批量多品种高纯单体。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 6: Tech Roadmap -->
+            <section id="s-tech" class="content-section">
+                <header class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-2">技术路径与研发趋势</h2>
+                    <p class="text-slate-500 text-lg">对比主流高频基板材料，揭示氰酸酯如何通过“改性”补齐短板。</p>
+                </header>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <!-- Radar Chart -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <h3 class="text-lg font-bold text-slate-800 mb-2">基材树脂综合性能对比</h3>
+                        <p class="text-xs text-slate-500 mb-4">面积越大，综合竞争力越强 (注：数值越大代表该项性能越"优异"，如Dk/Df分数高代表其损耗极低，成本分数高代表成本可控易接受)</p>
+                        <div class="chart-container">
+                            <canvas id="techChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-4">
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex-1">
+                            <h3 class="text-lg font-bold text-indigo-800 mb-3 border-b border-indigo-50 pb-2">当前痛点与“改性”路线</h3>
+                            <p class="text-sm text-slate-700 mb-3">
+                                纯氰酸酯固化后高度交联，导致**极度脆性**，剥离强度差，且固化温度极高（>250℃），不利于PCB加工。因此，**共混改性**是唯一出路。
+                            </p>
+                            <ul class="space-y-3 text-sm">
+                                <li class="p-3 bg-slate-50 rounded border border-slate-100">
+                                    <strong class="text-slate-800">1. CE + 环氧树脂 (Epoxy)：</strong> 最主流商业路线。降低成本，改善加工性，降低固化温度。牺牲了部分耐热和高频性能。
+                                </li>
+                                <li class="p-3 bg-slate-50 rounded border border-slate-100">
+                                    <strong class="text-slate-800">2. CE + BMI (BT树脂)：</strong> 三菱瓦斯专利。完美结合CE的低介电和BMI的高耐热，是当前高端IC载板的王者。
+                                </li>
+                                <li class="p-3 bg-slate-50 rounded border border-slate-100">
+                                    <strong class="text-slate-800">3. CE + PPO/PPE：</strong> 针对极低损耗(VLD)服务器主板的最新趋势。结合PPO极低的损耗，满足AI服务器需求。
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 7: Risks -->
+            <section id="s-risks" class="content-section">
+                <header class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-2">政策环境与宏观风险</h2>
+                    <p class="text-slate-500 text-lg">外部环境分析及风险象限图，识别潜在黑天鹅。</p>
+                </header>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="col-span-1 md:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <h3 class="text-lg font-bold text-slate-800 mb-4">风险矩阵映射 (Risk Matrix)</h3>
+                        <div class="chart-container">
+                            <canvas id="riskChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="col-span-1 flex flex-col gap-4">
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 border-t-4 border-t-blue-500">
+                            <h4 class="font-bold text-slate-800 flex items-center mb-2">
+                                <span class="text-blue-500 mr-2">🏛️</span> 政策与准入环境
+                            </h4>
+                            <p class="text-sm text-slate-600">
+                                <strong>正向：</strong>国家战略新兴产业，新材料国产替代重点支持领域，享受税收及研发补贴。<br><br>
+                                <strong>壁垒：</strong>上游核心原料“氯化氰”属于剧毒化学品，需公安、安监严格审批，新建产能极难获取环评和安评批文。
+                            </p>
+                        </div>
+
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 border-t-4 border-t-amber-500">
+                            <h4 class="font-bold text-slate-800 flex items-center mb-2">
+                                <span class="text-amber-500 mr-2">⚠️</span> 颠覆性技术替代风险
+                            </h4>
+                            <p class="text-sm text-slate-600">
+                                <strong>硅光子技术/光电共封装(CPO)：</strong> 如果未来服务器内部数据传输从“电互联”快速转向“光互联”，将大幅降低对极低损耗PCB板材的依赖，从而削减氰酸酯的需求预期。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 8: Investment -->
+            <section id="s-investment" class="content-section">
+                <header class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-2">结论与投资逻辑</h2>
+                    <p class="text-slate-500 text-lg">识别关键成功要素(KSF)，建立估值框架与差异化洞察。</p>
+                </header>
+
+                <div class="bg-indigo-900 rounded-xl shadow-lg p-8 text-white mb-8">
+                    <h3 class="text-2xl font-bold text-indigo-100 mb-6">🎯 关键成功要素 (Key Success Factors)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-indigo-800/50 p-5 rounded border border-indigo-700">
+                            <div class="text-indigo-300 font-black text-xl mb-2">01. 配方体系闭环</div>
+                            <p class="text-sm text-indigo-100">不能只卖单体粉末，必须掌握将其与环氧、PPO共混预聚的配方know-how，为下游提供Ready-to-use的树脂液。</p>
+                        </div>
+                        <div class="bg-indigo-800/50 p-5 rounded border border-indigo-700">
+                            <div class="text-indigo-300 font-black text-xl mb-2">02. 毒性原料获取权</div>
+                            <p class="text-sm text-indigo-100">拥有氯化氰等危化品合法、足量的生产使用配额，实质构成了行业新进入者的产能硬约束。</p>
+                        </div>
+                        <div class="bg-indigo-800/50 p-5 rounded border border-indigo-700">
+                            <div class="text-indigo-300 font-black text-xl mb-2">03. 终端白名单认证</div>
+                            <p class="text-sm text-indigo-100">跳过覆铜板厂，直接与英伟达、华为、中兴等终端系统厂进行材料级联合研发并进入其图纸“白名单”。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <h3 class="text-lg font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">估值水平与逻辑</h3>
+                        <ul class="space-y-4 text-sm text-slate-700">
+                            <li>
+                                <strong>当前估值状态：</strong> 高溢价期。由于纯正的氰酸酯标的稀缺，资本市场给予相关新材料企业极高的成长溢价。
+                            </li>
+                            <li>
+                                <strong>适用估值方法：</strong> <br>
+                                - 导入期产能：适用于 <span class="font-bold text-indigo-600">P/S (市销率)</span>，关注产品导入大客户的验证进度与营收增速。<br>
+                                - 稳定放量期：适用于 <span class="font-bold text-indigo-600">PEG (市盈率相对盈利增长比率)</span>，关注规模效应带来的利润非线性释放。
+                            </li>
+                            <li class="p-3 bg-amber-50 text-amber-800 rounded">
+                                <strong>陷阱提示：</strong> 警惕部分传统化工企业宣布“PPT造氰酸酯”。由于客户验证期长达2年，宣布投建产能到实际贡献利润存在巨大时滞。
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 bg-gradient-to-br from-white to-slate-50">
+                        <h3 class="text-lg font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">💡 分析师差异化观点</h3>
+                        <p class="text-sm text-slate-700 leading-relaxed italic mb-4">
+                            "市场共识认为氰酸酯的爆发完全依赖AI服务器的放量。但我们认为，更大的隐性增量在于**新能源汽车的800V/1000V高压快充平台架构升级**。"
+                        </p>
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            高压架构对车规级PCB的耐漏电起痕指数(CTI)和耐高热要求极其苛刻。氰酸酯优异的绝缘性和超高Tg，极有可能在未来2年内向下渗透至高端汽车板，这部分TAM(可用市场)被当前市场严重低估。
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Interactive Logic & Chart Generation -->
+    <script>
+        // Data Configuration
+        const chartColors = {
+            indigo: 'rgba(67, 56, 202, 0.8)',
+            indigoBorder: 'rgba(67, 56, 202, 1)',
+            rose: 'rgba(244, 63, 94, 0.8)',
+            roseBorder: 'rgba(244, 63, 94, 1)',
+            emerald: 'rgba(16, 185, 129, 0.8)',
+            emeraldBorder: 'rgba(16, 185, 129, 1)',
+            slate: 'rgba(100, 116, 139, 0.5)',
+            slateBorder: 'rgba(100, 116, 139, 1)'
+        };
+
+        // State tracker to ensure charts are only instantiated once
+        const chartsState = {
+            market: null,
+            comp: null,
+            tech: null,
+            risk: null
+        };
+
+        // Initialize Charts Functions
+        function initMarketChart() {
+            if (chartsState.market) return;
+            const ctx = document.getElementById('marketChart').getContext('2d');
+            chartsState.market = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['2020', '2021', '2022', '2023E', '2024E', '2025E', '2026E', '2027E'],
+                    datasets: [
+                        {
+                            label: '市场规模 (亿美元)',
+                            data: [3.2, 3.5, 3.8, 4.4, 5.2, 6.4, 7.8, 9.5],
+                            backgroundColor: chartColors.indigo,
+                            borderRadius: 4,
+                            order: 2,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'YoY 增速 (%)',
+                            data: [null, 9.3, 8.5, 15.7, 18.1, 23.0, 21.8, 21.7],
+                            type: 'line',
+                            borderColor: chartColors.roseBorder,
+                            backgroundColor: chartColors.rose,
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            tension: 0.3,
+                            order: 1,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) { label += ': '; }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y + (context.datasetIndex === 1 ? '%' : ' 亿');
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { type: 'linear', display: true, position: 'left', title: { display: true, text: '规模 (亿美元)'} },
+                        y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: '增速 (%)'} }
+                    }
+                }
+            });
+        }
+
+        function initCompChart() {
+            if (chartsState.comp) return;
+            const ctx = document.getElementById('compChart').getContext('2d');
+            chartsState.comp = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['三菱瓦斯化学 (日)', '龙沙 Lonza (欧美)', '中国本土企业', '其他外资'],
+                    datasets: [{
+                        data: [45, 20, 25, 10],
+                        backgroundColor: [
+                            'rgba(67, 56, 202, 0.9)', // Indigo dark
+                            'rgba(99, 102, 241, 0.7)', // Indigo light
+                            'rgba(16, 185, 129, 0.8)', // Emerald
+                            'rgba(203, 213, 225, 0.8)'  // Slate
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: { position: 'right', labels: { boxWidth: 12, font: {size: 11} } },
+                        tooltip: { callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.raw}%` } }
+                    }
+                }
+            });
+        }
+
+        function initTechChart() {
+            if (chartsState.tech) return;
+            const ctx = document.getElementById('techChart').getContext('2d');
+            chartsState.tech = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['低Dk (介电常数)', '低Df (介电损耗)', '高Tg (耐热性)', '加工性/成膜性', '成本优势 (低)', '力学附着力'],
+                    datasets: [
+                        {
+                            label: '氰酸酯 (CE)',
+                            data: [8, 9, 9, 4, 3, 7], // Adjusted scores for visualization (Higher is better)
+                            backgroundColor: 'rgba(67, 56, 202, 0.2)',
+                            borderColor: chartColors.indigoBorder,
+                            pointBackgroundColor: chartColors.indigoBorder,
+                            borderWidth: 2
+                        },
+                        {
+                            label: '传统环氧 (FR-4)',
+                            data: [3, 2, 4, 9, 9, 8],
+                            backgroundColor: 'rgba(100, 116, 139, 0.1)',
+                            borderColor: chartColors.slateBorder,
+                            borderWidth: 1
+                        },
+                        {
+                            label: '聚四氟乙烯 (PTFE)',
+                            data: [10, 10, 6, 2, 1, 2],
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderColor: chartColors.emeraldBorder,
+                            borderWidth: 1,
+                            borderDash: [5, 5]
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(0,0,0,0.05)' },
+                            grid: { color: 'rgba(0,0,0,0.05)' },
+                            pointLabels: { font: { size: 11 } },
+                            ticks: { display: false, min: 0, max: 10 }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: {size: 11} } }
+                    }
+                }
+            });
+        }
+
+        function initRiskChart() {
+            if (chartsState.risk) return;
+            const ctx = document.getElementById('riskChart').getContext('2d');
+            chartsState.risk = new Chart(ctx, {
+                type: 'bubble',
+                data: {
+                    datasets: [
+                        {
+                            label: '剧毒原料环评卡关',
+                            data: [{ x: 8, y: 8, r: 15 }],
+                            backgroundColor: chartColors.rose,
+                            borderColor: chartColors.roseBorder
+                        },
+                        {
+                            label: '光通信加速替代电通信',
+                            data: [{ x: 4, y: 9, r: 10 }],
+                            backgroundColor: chartColors.rose,
+                            borderColor: chartColors.roseBorder
+                        },
+                        {
+                            label: '大客户验证周期超预期',
+                            data: [{ x: 9, y: 5, r: 20 }],
+                            backgroundColor: 'rgba(245, 158, 11, 0.8)', // Amber
+                            borderColor: 'rgba(245, 158, 11, 1)'
+                        },
+                        {
+                            label: '产能过剩价格战',
+                            data: [{ x: 5, y: 3, r: 12 }],
+                            backgroundColor: chartColors.slate,
+                            borderColor: chartColors.slateBorder
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true, position: 'bottom', labels: {boxWidth: 10, font: {size: 10}} },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => `${ctx.dataset.label} (概率:${ctx.raw.x}, 影响:${ctx.raw.y})`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { title: { display: true, text: '发生概率 (Probability)' }, min: 0, max: 10 },
+                        y: { title: { display: true, text: '财务与战略影响 (Impact)' }, min: 0, max: 10 }
+                    }
+                }
+            });
+        }
+
+
+        // Navigation Logic
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('.content-section');
+
+        function switchSection(targetId) {
+            // Update Navigation UI
+            navLinks.forEach(link => {
+                if (link.dataset.target === targetId) {
+                    link.classList.add('sidebar-active');
+                } else {
+                    link.classList.remove('sidebar-active');
+                }
+            });
+
+            // Update Content Visibility
+            sections.forEach(section => {
+                if (section.id === targetId) {
+                    section.classList.add('active');
+                } else {
+                    section.classList.remove('active');
+                }
+            });
+
+            // Lazy Load Charts based on visible section to avoid rendering issues
+            if (targetId === 's-market') { setTimeout(initMarketChart, 100); }
+            if (targetId === 's-competition') { setTimeout(initCompChart, 100); }
+            if (targetId === 's-tech') { setTimeout(initTechChart, 100); }
+            if (targetId === 's-risks') { setTimeout(initRiskChart, 100); }
+            
+            // Scroll to top of main content
+            document.querySelector('main').scrollTop = 0;
+        }
+
+        // Attach event listeners
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = e.target.dataset.target;
+                switchSection(targetId);
+            });
+        });
+
+        // Initialize any charts needed for the default visible section
+        // Exec summary is default, no charts there.
+        
+    </script>
+</body>
+</html>

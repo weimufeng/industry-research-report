@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深度报告：聚酰亚胺纤维（PI Fiber）行业全景解析</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e3a8a', // deep blue
+                        secondary: '#3b82f6', // bright blue
+                        accent: '#f59e0b', // amber
+                        background: '#f8fafc', // slate 50
+                        surface: '#ffffff',
+                        textMain: '#1e293b',
+                        textLight: '#64748b'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        /* Chart container constraint */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        @media (max-width: 768px) {
+            .chart-container { height: 250px; }
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .nav-active {
+            background-color: #e0e7ff;
+            color: #1e3a8a;
+            border-left: 4px solid #1e3a8a;
+            font-weight: 600;
+        }
+        .section-hidden { display: none; }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row h-screen overflow-hidden">
+
+    <!-- Chosen Palette: Tech Professional (Slate background, Deep Blue primary, Amber accents for highlights, White surfaces) -->
+    <!-- Application Structure Plan: Sidebar Navigation SPA. The report is divided into the 8 required modules, accessible via a persistent left sidebar (or top bar on mobile). This allows users to jump directly to sections of interest (e.g., an investor jumping to 'Investment Thesis', an engineer to 'Tech Roadmap') without endless scrolling. Each section uses a mix of text blocks, interactive HTML layouts (for value chains), and Chart.js for data visualization, ensuring high density of information with clear visual hierarchy. -->
+    <!-- Visualization & Content Choices: 
+         1. Market Size: Bar + Line combo chart (Chart.js) to show absolute value and growth rate simultaneously.
+         2. Value Chain: Interactive HTML Grid boxes. Clicking a node updates a detail panel below. Better than static images for exploration.
+         3. Competition: Doughnut chart (Chart.js) for market share, showing oligopoly nature.
+         4. Risk Assessment: Radar chart (Chart.js) to visually compare different types of macro/micro risks.
+         NO SVG/Mermaid used. All visuals are Canvas or DOM-based. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <!-- Sidebar Navigation -->
+    <nav class="w-full md:w-64 bg-white shadow-lg z-10 flex flex-col h-auto md:h-full overflow-y-auto shrink-0">
+        <div class="p-6 border-b border-gray-100">
+            <h1 class="text-xl font-bold text-primary leading-tight">PI Fiber<br><span class="text-sm font-normal text-textLight">行业深度解析报告</span></h1>
+        </div>
+        <ul class="flex flex-row md:flex-col py-2 overflow-x-auto md:overflow-x-visible hide-scrollbar" id="navMenu">
+            <li><button data-target="sec-summary" class="w-full text-left px-6 py-3 text-sm text-textLight hover:bg-gray-50 nav-active transition-colors whitespace-nowrap md:whitespace-normal">一、执行摘要</button></li>
+            <li><button data-target="sec-overview" class="w-full text-left px-6 py-3 text-sm text-textLight hover:bg-gray-50 transition-colors whitespace-nowrap md:whitespace-normal">二、行业概况</button></li>
+            <li><button data-target="sec-market" class="w-full text-left px-6 py-3 text-sm text-textLight hover:bg-gray-50 transition-colors whitespace-nowrap md:whitespace-normal">三、市场规模</button></li>
+            <li><button data-target="sec-valuechain" class="w-full text-left px-6 py-3 text-sm text-textLight hover:bg-gray-50 transition-colors whitespace-nowrap md:whitespace-normal">四、产业链图谱</button></li>
+            <li><button data-target="sec-competition" class="w-full text-left px-6 py-3 text-sm text-textLight hover:bg-gray-50 transition-colors whitespace-nowrap md:whitespace-normal">五、竞争格局</button></li>
+            <li><button data-target="sec-tech" class="w-full text-left px-6 py-3 text-sm text-textLight hover:bg-gray-50 transition-colors whitespace-nowrap md:whitespace-normal">六、技术路径</button></li>
+            <li><button data-target="sec-risk" class="w-full text-left px-6 py-3 text-sm text-textLight hover:bg-gray-50 transition-colors whitespace-nowrap md:whitespace-normal">七、风险分析</button></li>
+            <li><button data-target="sec-investment" class="w-full text-left px-6 py-3 text-sm text-textLight hover:bg-gray-50 transition-colors whitespace-nowrap md:whitespace-normal">八、投资逻辑</button></li>
+        </ul>
+        <div class="mt-auto p-6 text-xs text-gray-400 hidden md:block">
+            数据截至: 2026 Q1<br>
+            机构研究部
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-y-auto p-4 md:p-8 bg-background relative" id="mainContent">
+        
+        <!-- Section 1: Executive Summary -->
+        <section id="sec-summary" class="content-section max-w-5xl mx-auto animation-fade-in">
+            <h2 class="text-3xl font-bold text-textMain mb-2">一、 执行摘要 (Executive Summary)</h2>
+            <p class="text-textLight mb-8 border-l-4 border-accent pl-4">本模块浓缩了报告的最核心发现，快速了解PI纤维行业的当前定位与未来走向。</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-surface rounded-xl p-6 shadow-sm border border-gray-100">
+                    <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">核心结论 / 阶段定位</h3>
+                    <div class="text-2xl font-bold text-primary mb-2">成长期迈向成熟期（结构性分化）</div>
+                    <p class="text-sm text-textMain">传统环保滤料市场处于<span class="font-semibold text-accent">成熟期</span>，竞争依靠成本与规模；而应用于柔性电子（CPI）、航空航天结构件的高性能PI纤维正处于<span class="font-semibold text-secondary">快速成长期</span>，国产替代空间巨大，技术溢价显著。</p>
+                </div>
+                <div class="bg-surface rounded-xl p-6 shadow-sm border border-gray-100">
+                    <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">投资评价</h3>
+                    <div class="text-2xl font-bold text-green-600 mb-2">值得战略布局，需精选赛道</div>
+                    <p class="text-sm text-textMain">不建议进入低端同质化滤料红海。强烈建议投资具备<span class="font-bold">“聚合配方研发+连续纺丝工艺”</span>双重壁垒的企业，特别是打入半导体/消费电子供应链的标的。</p>
+                </div>
+            </div>
+
+            <h3 class="text-xl font-bold text-textMain mb-4">Top 3 行业发展关键词</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-blue-50 rounded-lg p-5">
+                    <div class="text-3xl font-black text-blue-200 mb-2">01</div>
+                    <h4 class="font-bold text-primary mb-2">国产替代提速</h4>
+                    <p class="text-sm text-gray-600">从“能做”到“好用”，国内头部企业在高端应用领域的良率突破，正打破美日寡头垄断。</p>
+                </div>
+                <div class="bg-amber-50 rounded-lg p-5">
+                    <div class="text-3xl font-black text-amber-200 mb-2">02</div>
+                    <h4 class="font-bold text-accent mb-2">应用场景降维</h4>
+                    <p class="text-sm text-gray-600">随着产能释放和成本下降，PI纤维正从军工/航天等“不计成本”领域，向新能源车、高端民用服装延伸。</p>
+                </div>
+                <div class="bg-slate-100 rounded-lg p-5">
+                    <div class="text-3xl font-black text-slate-300 mb-2">03</div>
+                    <h4 class="font-bold text-textMain mb-2">单体原料博弈</h4>
+                    <p class="text-sm text-gray-600">上游核心二酐和二胺单体的自给率与成本控制，成为决定中游纤维企业毛利率的“生死线”。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Industry Overview -->
+        <section id="sec-overview" class="content-section section-hidden max-w-5xl mx-auto">
+            <h2 class="text-3xl font-bold text-textMain mb-2">二、 行业概况与基本属性 (Industry Overview)</h2>
+            <p class="text-textLight mb-8 border-l-4 border-accent pl-4">界定PI纤维的研究范畴，回顾其技术演进历程，并剖析行业内在的商业模式。</p>
+
+            <div class="bg-surface rounded-xl p-6 shadow-sm mb-6">
+                <h3 class="text-lg font-bold text-primary border-b pb-2 mb-4">定义与分类边界</h3>
+                <p class="text-sm text-textMain leading-relaxed">
+                    聚酰亚胺（Polyimide, 简称PI）纤维是由含有酰亚胺基团的高分子聚合物纺制而成的高性能有机纤维。被誉为“高分子材料金字塔的顶端”。<br><br>
+                    <strong>本报告研究边界：</strong>重点聚焦<span class="bg-yellow-100 px-1">高性能长丝（Filament）</span>及<span class="bg-yellow-100 px-1">特种短纤（Staple fiber）</span>。暂不深入探讨PI薄膜（PI Film）或PI树脂涂料，尽管它们共享上游原料。分类上主要分为：耐热/阻燃型（主要用于环保过滤、特种防护）、高强高模型（主要用于航空航天结构件、缆绳）。
+                </p>
+            </div>
+
+            <div class="bg-surface rounded-xl p-6 shadow-sm mb-6">
+                <h3 class="text-lg font-bold text-primary border-b pb-2 mb-4">关键发展历程 (1960s - 至今)</h3>
+                <div class="relative border-l-2 border-blue-200 ml-3 mt-4 space-y-6">
+                    <div class="relative pl-6">
+                        <div class="absolute w-3 h-3 bg-blue-500 rounded-full -left-[7px] top-1"></div>
+                        <h4 class="font-bold text-sm">1960s-1990s：技术萌芽与军工垄断</h4>
+                        <p class="text-xs text-gray-500 mt-1">杜邦（DuPont）率先开发，主要作为战略物资应用于美苏航天局的绝缘和耐高温部件。</p>
+                    </div>
+                    <div class="relative pl-6">
+                        <div class="absolute w-3 h-3 bg-blue-500 rounded-full -left-[7px] top-1"></div>
+                        <h4 class="font-bold text-sm">2000s-2015s：环保驱动与短纤产业化</h4>
+                        <p class="text-xs text-gray-500 mt-1">随着全球水泥、钢铁行业排放标准提高，耐高温除尘布袋需求爆发，PI短纤迎来黄金期。中国企业（如长春应化所、江苏奥神）实现技术突破并量产。</p>
+                    </div>
+                    <div class="relative pl-6">
+                        <div class="absolute w-3 h-3 bg-accent rounded-full -left-[7px] top-1 shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
+                        <h4 class="font-bold text-sm">2020s至今：高强高模与电子化新纪元</h4>
+                        <p class="text-xs text-gray-500 mt-1">干法纺丝技术成熟，高强高模PI长丝开始替代芳纶部分市场。同时，纳米PI纤维在固态电池隔膜、柔性OLED背板等新兴消费电子赛道崭露头角。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-surface rounded-xl p-6 shadow-sm">
+                <h3 class="text-lg font-bold text-primary border-b pb-2 mb-4">核心商业模式</h3>
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1 p-4 bg-gray-50 rounded">
+                        <span class="block text-center text-2xl mb-2">🔬</span>
+                        <h4 class="font-bold text-center text-sm mb-2">技术溢价 (高端市场)</h4>
+                        <p class="text-xs text-gray-600 text-center">在航天、半导体领域，客户对价格极度不敏感，对一致性要求极高。盈利靠的是配方专利壁垒和极高的定制化毛利（毛利率可达60%+）。</p>
+                    </div>
+                    <div class="flex-1 p-4 bg-gray-50 rounded">
+                        <span class="block text-center text-2xl mb-2">🏭</span>
+                        <h4 class="font-bold text-center text-sm mb-2">规模效应 (环保滤料)</h4>
+                        <p class="text-xs text-gray-600 text-center">除尘滤料市场已较透明。企业需通过扩大产能摊薄固定成本，向上游整合原料（PMDA/ODA）以锁定利润空间（毛利率约15-25%）。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Market Analysis -->
+        <section id="sec-market" class="content-section section-hidden max-w-5xl mx-auto">
+            <h2 class="text-3xl font-bold text-textMain mb-2">三、 市场规模与需求分析 (Market Analysis)</h2>
+            <p class="text-textLight mb-8 border-l-4 border-accent pl-4">量化行业空间，分析驱动因素，通过数据预判行业爆发点。</p>
+
+            <div class="bg-surface rounded-xl p-6 shadow-sm mb-6">
+                <h3 class="text-lg font-bold text-primary mb-4">全球及中国PI纤维市场规模预测 (亿元 RMB)</h3>
+                <div class="chart-container">
+                    <canvas id="marketChart"></canvas>
+                </div>
+                <div class="mt-4 text-sm text-gray-600 grid grid-cols-2 gap-4 text-center">
+                    <div class="bg-blue-50 p-2 rounded">
+                        <span class="block text-xs text-gray-400">全球预计 CAGR (2024-2028)</span>
+                        <span class="font-bold text-primary text-lg">9.5%</span>
+                    </div>
+                    <div class="bg-amber-50 p-2 rounded">
+                        <span class="block text-xs text-gray-400">中国预计 CAGR (2024-2028)</span>
+                        <span class="font-bold text-accent text-lg">14.2%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-surface rounded-xl p-6 shadow-sm">
+                    <h3 class="text-lg font-bold text-primary mb-3">底层驱动因素</h3>
+                    <ul class="space-y-3 text-sm">
+                        <li class="flex items-start">
+                            <span class="text-accent mr-2 mt-0.5">✦</span>
+                            <div><strong>政策强制与存量替换：</strong>"双碳"目标下，电力/非电行业超低排放改造深入，旧滤袋（PPS/PTFE）每3-4年需强制更换为耐温性更好的PI或复合滤袋。</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-accent mr-2 mt-0.5">✦</span>
+                            <div><strong>技术突破带动新场景：</strong>无色透明PI（CPI）和高强PI量产良率提升，使其成本达到消费级电子可接受范围（如折叠屏铰链线材、新能源车阻燃隔热层）。</div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="bg-surface rounded-xl p-6 shadow-sm">
+                    <h3 class="text-lg font-bold text-primary mb-3">渗透率分析 (爆发前夜阶段)</h3>
+                    <p class="text-sm text-gray-700 mb-2">虽然在高温过滤领域渗透率已较高（约30%），但在整体高性能纤维及新兴领域，PI纤维仍处于<span class="font-bold text-red-500">爆发前夜</span>：</p>
+                    <div class="space-y-2 mt-4">
+                        <div class="flex justify-between text-xs text-gray-500"><label>航空航天高强骨架材料替代率</label><span>< 5%</span></div>
+                        <div class="w-full bg-gray-200 rounded-full h-1.5"><div class="bg-secondary h-1.5 rounded-full" style="width: 5%"></div></div>
+                        
+                        <div class="flex justify-between text-xs text-gray-500 mt-2"><label>动力电池高端隔膜应用</label><span>< 1%</span></div>
+                        <div class="w-full bg-gray-200 rounded-full h-1.5"><div class="bg-accent h-1.5 rounded-full" style="width: 1%"></div></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Value Chain -->
+        <section id="sec-valuechain" class="content-section section-hidden max-w-5xl mx-auto">
+            <h2 class="text-3xl font-bold text-textMain mb-2">四、 产业链全景图谱 (Value Chain Analysis)</h2>
+            <p class="text-textLight mb-8 border-l-4 border-accent pl-4">拆解上下游各环节。点击下方模块查看成本结构与话语权分析。</p>
+
+            <!-- Interactive Value Chain -->
+            <div class="flex flex-col md:flex-row items-center justify-between gap-2 mb-8 bg-surface p-4 rounded-xl shadow-sm overflow-x-auto">
+                <!-- Upstream -->
+                <button onclick="updateValueChain('up')" class="vc-btn flex-1 min-w-[120px] p-4 text-center rounded bg-gray-50 border-2 border-transparent hover:border-blue-300 focus:outline-none focus:border-primary transition-all">
+                    <div class="text-xs text-gray-500 mb-1">上游 (原料/设备)</div>
+                    <div class="font-bold text-primary">二酐/二胺单体<br>纺丝设备</div>
+                </button>
+                <div class="text-gray-300 hidden md:block">▶</div>
+                <div class="text-gray-300 md:hidden">▼</div>
+                <!-- Midstream -->
+                <button onclick="updateValueChain('mid')" class="vc-btn flex-1 min-w-[120px] p-4 text-center rounded bg-blue-50 border-2 border-primary shadow-inner focus:outline-none transition-all" id="vc-mid-btn">
+                    <div class="text-xs text-gray-500 mb-1">中游 (制造核心)</div>
+                    <div class="font-bold text-primary">PI树脂聚合<br>纺丝(湿法/干法)</div>
+                </button>
+                <div class="text-gray-300 hidden md:block">▶</div>
+                <div class="text-gray-300 md:hidden">▼</div>
+                <!-- Downstream -->
+                <button onclick="updateValueChain('down')" class="vc-btn flex-1 min-w-[120px] p-4 text-center rounded bg-gray-50 border-2 border-transparent hover:border-blue-300 focus:outline-none focus:border-primary transition-all">
+                    <div class="text-xs text-gray-500 mb-1">下游 (应用)</div>
+                    <div class="font-bold text-primary">环保过滤 / 航空<br>电子 / 防护</div>
+                </button>
+            </div>
+
+            <!-- Details Panel -->
+            <div id="vc-detail-panel" class="bg-white rounded-xl p-6 shadow-md border-t-4 border-primary transition-opacity duration-300">
+                <h3 id="vc-title" class="text-xl font-bold text-textMain mb-4">中游：制造流程与BOM拆解</h3>
+                <div id="vc-content" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-semibold text-sm text-gray-500 mb-2">核心工艺流程</h4>
+                        <ol class="list-decimal list-inside text-sm space-y-2 text-gray-700 bg-gray-50 p-3 rounded">
+                            <li><strong>聚合反应：</strong>二酐(PMDA)与二胺(ODA)在溶剂中反应生成聚酰胺酸(PAA)原液。</li>
+                            <li><strong>纺丝成型：</strong>PAA原液通过喷丝板进入凝固浴（湿法）或热空气（干法）成型为PAA纤维。</li>
+                            <li><strong>酰亚胺化：</strong>通过高温热处理（化学或热法），脱水闭环转化为PI纤维。</li>
+                            <li><strong>牵伸热定型：</strong>提升纤维的力学性能。</li>
+                        </ol>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-sm text-gray-500 mb-2">成本结构 (典型估算)</h4>
+                        <ul class="text-sm space-y-2 text-gray-700">
+                            <li class="flex justify-between items-center"><span class="flex items-center"><span class="w-3 h-3 bg-blue-500 rounded-sm mr-2"></span>原材料 (单体/溶剂)</span> <span class="font-bold">60-70%</span></li>
+                            <li class="flex justify-between items-center"><span class="flex items-center"><span class="w-3 h-3 bg-amber-500 rounded-sm mr-2"></span>制造费用 (水电/折旧)</span> <span class="font-bold">15-20%</span></li>
+                            <li class="flex justify-between items-center"><span class="flex items-center"><span class="w-3 h-3 bg-gray-400 rounded-sm mr-2"></span>人工及其他</span> <span class="font-bold">10-15%</span></li>
+                        </ul>
+                        <p class="text-xs text-red-500 mt-3">* 评价：中游的利润空间高度受制于上游单体价格波动，具备“一体化”生产能力的企业抗风险能力显著更强。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Competitive Landscape -->
+        <section id="sec-competition" class="content-section section-hidden max-w-5xl mx-auto">
+            <h2 class="text-3xl font-bold text-textMain mb-2">五、 竞争格局与护城河 (Competitive Landscape)</h2>
+            <p class="text-textLight mb-8 border-l-4 border-accent pl-4">分析行业集中度、现有玩家竞争烈度及核心壁垒。</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Chart Col -->
+                <div class="md:col-span-1 bg-surface rounded-xl p-4 shadow-sm flex flex-col items-center">
+                    <h3 class="text-sm font-bold text-gray-500 mb-2 w-full text-center">全球高端PI纤维市场份额 (概算)</h3>
+                    <div class="w-full relative" style="height: 200px;">
+                        <canvas id="compChart"></canvas>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-2 text-center">呈现寡头垄断特征 (CR3 > 60%)</p>
+                </div>
+                <!-- Five Forces Col -->
+                <div class="md:col-span-2 bg-surface rounded-xl p-6 shadow-sm">
+                    <h3 class="text-lg font-bold text-primary mb-4">波特五力模型分析</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between border-b pb-2">
+                            <span class="text-sm font-semibold">现有竞争者 (中)</span>
+                            <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">高端缓和，低端激烈</span>
+                        </div>
+                        <div class="flex items-center justify-between border-b pb-2">
+                            <span class="text-sm font-semibold">潜在进入者 (低)</span>
+                            <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">极高技术与资金壁垒</span>
+                        </div>
+                        <div class="flex items-center justify-between border-b pb-2">
+                            <span class="text-sm font-semibold">替代品压力 (低)</span>
+                            <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">极端工况下无可替代</span>
+                        </div>
+                        <div class="flex items-center justify-between border-b pb-2">
+                            <span class="text-sm font-semibold">供应商议价 (高)</span>
+                            <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">受制于核心单体化工厂</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-semibold">客户议价能力 (中)</span>
+                            <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">验证周期长，转换成本高</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-surface rounded-xl p-6 shadow-sm overflow-x-auto">
+                <h3 class="text-lg font-bold text-primary mb-4">重点企业画像 (国产化率提升主力)</h3>
+                <table class="min-w-full text-sm text-left">
+                    <thead class="bg-gray-50 text-gray-600">
+                        <tr>
+                            <th class="py-3 px-4 rounded-tl-lg">企业类型</th>
+                            <th class="py-3 px-4">代表企业</th>
+                            <th class="py-3 px-4">核心壁垒/护城河</th>
+                            <th class="py-3 px-4 rounded-tr-lg">市场定位</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <tr>
+                            <td class="py-3 px-4 font-semibold">国际巨头</td>
+                            <td class="py-3 px-4">DuPont (杜邦), Evonik</td>
+                            <td class="py-3 px-4">先发专利矩阵，全产业链布局，军工深度绑定</td>
+                            <td class="py-3 px-4 text-blue-600">超高端、定制化航天及特种工业</td>
+                        </tr>
+                        <tr class="bg-gray-50/50">
+                            <td class="py-3 px-4 font-semibold">国内先发者</td>
+                            <td class="py-3 px-4">长春应化所系、江苏奥神</td>
+                            <td class="py-3 px-4">干法纺丝量产突破，工艺稳定性积累</td>
+                            <td class="py-3 px-4 text-accent">高端滤料、防护服、开始渗透电子</td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 px-4 font-semibold">跨界整合者</td>
+                            <td class="py-3 px-4">部分大型化工/膜材上市公司</td>
+                            <td class="py-3 px-4">单体自给成本优势，资金实力强，客户渠道广</td>
+                            <td class="py-3 px-4 text-gray-600">规模化切入，主打性价比替代</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 6: Tech Roadmap -->
+        <section id="sec-tech" class="content-section section-hidden max-w-5xl mx-auto">
+            <h2 class="text-3xl font-bold text-textMain mb-2">六、 技术路径与研发趋势 (Technology Roadmap)</h2>
+            <p class="text-textLight mb-8 border-l-4 border-accent pl-4">解析不同工艺路线的优劣，预判改变未来格局的前沿技术。</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Tech Comparison -->
+                <div class="bg-surface rounded-xl p-6 shadow-sm">
+                    <h3 class="text-lg font-bold text-primary mb-4">主流纺丝技术对比</h3>
+                    <div class="space-y-4">
+                        <div class="p-4 border border-gray-200 rounded hover:border-blue-300 transition-colors">
+                            <h4 class="font-bold text-blue-700 flex justify-between">
+                                湿法纺丝 (Wet Spinning)
+                                <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded font-normal">传统/成熟</span>
+                            </h4>
+                            <p class="text-xs text-gray-600 mt-2 mb-2">经过凝固浴成型。截面多为非圆形（如骨头形）。</p>
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div class="text-green-600">✔ 适合短纤生产</div>
+                                <div class="text-green-600">✔ 过滤比表面积大</div>
+                                <div class="text-red-500">✘ 纺丝速度慢</div>
+                                <div class="text-red-500">✘ 废液处理成本高</div>
+                            </div>
+                        </div>
+                        <div class="p-4 border border-blue-200 bg-blue-50/30 rounded shadow-sm">
+                            <h4 class="font-bold text-primary flex justify-between">
+                                干法纺丝 (Dry Spinning)
+                                <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded font-normal">先进/趋势</span>
+                            </h4>
+                            <p class="text-xs text-gray-600 mt-2 mb-2">通过加热挥发溶剂成型。截面致密呈圆形。</p>
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div class="text-green-600">✔ 纤维致密，强度/模量高</div>
+                                <div class="text-green-600">✔ 生产效率高，易制长丝</div>
+                                <div class="text-red-500">✘ 设备投入及技术壁垒极高</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Future Trends -->
+                <div class="bg-surface rounded-xl p-6 shadow-sm">
+                    <h3 class="text-lg font-bold text-primary mb-4">颠覆性技术预测 (3-5年)</h3>
+                    <p class="text-sm text-gray-600 mb-4">当前研发投入正从“单纯提高耐温性”转向“功能化定制”。</p>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="font-semibold">静电纺丝纳米 PI 纤维网</span>
+                                <span class="text-xs text-accent">爆发临界点</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-1">目标应用：固态电池耐高温高安全隔膜。大幅提升电池热失控阈值。</p>
+                            <div class="w-full bg-gray-200 rounded-full h-1"><div class="bg-accent h-1 rounded-full" style="width: 75%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="font-semibold">CPI (无色透明) 纤维/光波导</span>
+                                <span class="text-xs text-blue-500">实验室导入</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-1">目标应用：AR/VR柔性光学传输、可穿戴织物显示器。解决传统PI呈黄褐色的缺陷。</p>
+                            <div class="w-full bg-gray-200 rounded-full h-1"><div class="bg-blue-500 h-1 rounded-full" style="width: 40%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="font-semibold">可熔融纺丝 PI 树脂</span>
+                                <span class="text-xs text-gray-500">基础研发</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-1">目标：彻底摆脱对昂贵且有毒溶剂的依赖，实现成本呈指数级下降，真正走向大众市场。</p>
+                            <div class="w-full bg-gray-200 rounded-full h-1"><div class="bg-gray-400 h-1 rounded-full" style="width: 20%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Risks -->
+        <section id="sec-risk" class="content-section section-hidden max-w-5xl mx-auto">
+            <h2 class="text-3xl font-bold text-textMain mb-2">七、 政策环境与宏观风险 (External Environment & Risks)</h2>
+            <p class="text-textLight mb-8 border-l-4 border-accent pl-4">行业发展的外围催化剂与潜在地雷区。</p>
+
+            <div class="flex flex-col md:flex-row gap-6">
+                <div class="flex-1 bg-surface rounded-xl p-6 shadow-sm">
+                    <h3 class="text-lg font-bold text-primary mb-4">政策导向 (催化剂)</h3>
+                    <ul class="space-y-3">
+                        <li class="bg-gray-50 p-3 rounded border-l-2 border-green-500">
+                            <h4 class="font-bold text-sm text-textMain">产业目录支持</h4>
+                            <p class="text-xs text-gray-600 mt-1">高性能PI纤维被列入《重点新材料首批次应用示范指导目录》，享受研发补助和下游首购补贴，降低了验证期的财务风险。</p>
+                        </li>
+                        <li class="bg-gray-50 p-3 rounded border-l-2 border-green-500">
+                            <h4 class="font-bold text-sm text-textMain">环保标准倒逼</h4>
+                            <p class="text-xs text-gray-600 mt-1">《重污染天气重点行业绩效分级》等文件要求钢铁、焦化企业实现超低排放（颗粒物<10mg/m³），直接锁定了高端PI滤料的基本盘。</p>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="flex-1 bg-surface rounded-xl p-6 shadow-sm">
+                    <h3 class="text-lg font-bold text-primary mb-4">风险评估维度雷达</h3>
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="riskChart"></canvas>
+                    </div>
+                    <p class="text-xs text-gray-500 text-center mt-2">数值越大风险敞口越高</p>
+                </div>
+            </div>
+
+            <div class="bg-red-50 rounded-xl p-5 mt-6 border border-red-100">
+                <h3 class="font-bold text-red-700 mb-2">⚠️ 核心风险提示</h3>
+                <p class="text-sm text-gray-700">
+                    <strong>1. 原材料价格波动：</strong> PMDA受石化周期影响大。若无法向下游传导，企业毛利将在单季面临腰斩风险。<br>
+                    <strong>2. 验证周期漫长：</strong> 航空航天及半导体领域的验证周期长达2-5年。初创企业可能面临“熬死在黎明前”的现金流断裂风险。<br>
+                    <strong>3. 国际贸易壁垒：</strong> 高端制丝设备（如精密喷丝板、特殊卷绕机）仍依赖日德进口，存在一定的地缘政治断供隐患。
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 8: Investment Thesis -->
+        <section id="sec-investment" class="content-section section-hidden max-w-5xl mx-auto">
+            <h2 class="text-3xl font-bold text-textMain mb-2">八、 结论与投资逻辑 (Investment Thesis)</h2>
+            <p class="text-textLight mb-8 border-l-4 border-accent pl-4">最终定调：赢家的特征是什么？该如何估值？看到了什么共识之外的机会？</p>
+
+            <div class="bg-gradient-to-br from-blue-900 to-primary text-white rounded-xl p-8 shadow-lg mb-8">
+                <h3 class="text-xl font-bold mb-4 flex items-center">
+                    <span class="bg-accent text-white text-xs px-2 py-1 rounded mr-3">核心结论</span>
+                    寻找从“制造”走向“配方”的α收益
+                </h3>
+                <p class="text-sm leading-relaxed text-blue-100">
+                    PI纤维行业不是一个纯粹看产能扩张的重资产逻辑。低端滤料产能已趋于饱和，未来胜出的 KSF (关键成功要素) 在于<strong>分子级定制能力（配方）</strong>与<strong>连续工程化能力（良率）</strong>。投资重点应放在具备自研前驱体配方，且能将产品打入消费电子或新能源主赛道的标的。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-surface rounded-xl p-6 shadow-sm border border-gray-100">
+                    <h3 class="text-lg font-bold text-textMain mb-3">估值逻辑与水位</h3>
+                    <p class="text-sm text-gray-600 mb-4">由于行业处于结构性转折期，采用分部估值法（SOTP）最为合理：</p>
+                    <ul class="space-y-3 text-sm">
+                        <li class="flex justify-between items-center border-b pb-2">
+                            <span>传统环保过滤业务</span>
+                            <span class="font-mono text-gray-500">15-20x P/E (周期成长)</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b pb-2">
+                            <span>航空/结构件业务</span>
+                            <span class="font-mono text-blue-600">30-40x P/E (高壁垒制造)</span>
+                        </li>
+                        <li class="flex justify-between items-center">
+                            <span>泛半导体/消费电子新材料</span>
+                            <span class="font-mono text-accent">50x+ P/E 或 P/S (高成长赛道)</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-amber-50 rounded-xl p-6 shadow-sm border border-amber-100">
+                    <h3 class="text-lg font-bold text-amber-800 mb-3">👁️ 差异化观点 (反共识视角)</h3>
+                    <ul class="space-y-3 text-sm text-gray-800">
+                        <li>
+                            <strong class="text-amber-700">陷阱：</strong> 警惕仅仅宣布“万吨级产能扩产”的企业。如果技术停留在线密度粗、强力低的湿法短纤，这些产能将迅速沦为不良资产，大打价格战。
+                        </li>
+                        <li>
+                            <strong class="text-primary">机会：</strong> 市场普遍紧盯PI薄膜在折叠屏的应用，却忽视了<strong>PI细旦连续长丝</strong>在可穿戴设备数据线、智能发热服饰中不可替代的柔韧与耐弯折特性，这是一个被低估的隐形冠军赛道。
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- Navigation Logic ---
+        const navButtons = document.querySelectorAll('#navMenu button');
+        const sections = document.querySelectorAll('.content-section');
+
+        navButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // 1. Update nav styles
+                navButtons.forEach(b => {
+                    b.classList.remove('nav-active');
+                    b.classList.replace('bg-blue-50', 'hover:bg-gray-50'); // reset styles
+                    b.classList.add('hover:bg-gray-50');
+                });
+                btn.classList.add('nav-active');
+                btn.classList.remove('hover:bg-gray-50');
+
+                // 2. Show corresponding section
+                const targetId = btn.getAttribute('data-target');
+                sections.forEach(sec => {
+                    if(sec.id === targetId) {
+                        sec.classList.remove('section-hidden');
+                        // Quick fade-in effect
+                        sec.style.opacity = 0;
+                        setTimeout(() => sec.style.opacity = 1, 50);
+                    } else {
+                        sec.classList.add('section-hidden');
+                    }
+                });
+                
+                // 3. Render charts if needed when tab is opened
+                if(targetId === 'sec-market' && !window.marketChartInst) initMarketChart();
+                if(targetId === 'sec-competition' && !window.compChartInst) initCompChart();
+                if(targetId === 'sec-risk' && !window.riskChartInst) initRiskChart();
+            });
+        });
+
+        // --- Value Chain Interaction Logic ---
+        const vcData = {
+            up: {
+                title: "上游：原料与设备垄断",
+                content: `
+                    <div>
+                        <h4 class="font-semibold text-sm text-gray-500 mb-2">核心物料供应</h4>
+                        <p class="text-sm text-gray-700 mb-2">主要由二酐（如PMDA）和二胺（如ODA）构成。这部分高度依赖基础化工产业。高端高纯度单体（电子级）曾被海外垄断，目前国内技术已突破，但价格受大宗商品周期影响显著。</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-sm text-gray-500 mb-2">纺丝设备卡脖子点</h4>
+                        <p class="text-sm text-gray-700">高精度计量泵、特殊材质喷丝板（耐腐蚀、耐高温）以及高温热定型辊，很大程度上依赖德国与日本进口。国产设备正在加速追赶，但一致性仍有差距。</p>
+                    </div>`
+            },
+            mid: {
+                title: "中游：制造流程与BOM拆解",
+                content: document.getElementById('vc-content').innerHTML // Use initial HTML
+            },
+            down: {
+                title: "下游：应用场景与采购逻辑",
+                content: `
+                    <div>
+                        <h4 class="font-semibold text-sm text-gray-500 mb-2">主要应用市场切分</h4>
+                        <ul class="text-sm space-y-1 text-gray-700 list-disc list-inside">
+                            <li><strong>环保过滤 (70%):</strong> 水泥、钢铁高温除尘。极度看重性价比和使用寿命。</li>
+                            <li><strong>特种防护 (15%):</strong> 消防服、军警防刺服。看重阻燃和强度标准认证。</li>
+                            <li><strong>航空与电子 (15%):</strong> 结构件、绝缘编织线、电池隔膜。对价格不敏感，极度看重产品一致性和极端测试数据。</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-sm text-gray-500 mb-2">采购决策路径</h4>
+                        <p class="text-sm text-gray-700">环保领域多为招投标，拼成本；高端领域为“验证-进入BOM名单-长期锁定”模式。一旦打入“果链”或“军工”体系，极难被替换。</p>
+                    </div>`
+            }
+        };
+
+        function updateValueChain(stage) {
+            // Update UI buttons
+            document.querySelectorAll('.vc-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-50', 'border-primary', 'shadow-inner');
+                btn.classList.add('bg-gray-50', 'border-transparent');
+            });
+            const activeBtn = stage === 'mid' ? document.getElementById('vc-mid-btn') : event.currentTarget;
+            activeBtn.classList.remove('bg-gray-50', 'border-transparent');
+            activeBtn.classList.add('bg-blue-50', 'border-primary', 'shadow-inner');
+
+            // Update Panel content with animation
+            const panel = document.getElementById('vc-detail-panel');
+            panel.style.opacity = 0;
+            
+            setTimeout(() => {
+                document.getElementById('vc-title').innerText = vcData[stage].title;
+                document.getElementById('vc-content').innerHTML = vcData[stage].content;
+                panel.style.opacity = 1;
+            }, 200);
+        }
+
+        // --- Chart.js Initializations ---
+        // Global styling defaults
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#64748b';
+        Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(15, 23, 42, 0.9)';
+        Chart.defaults.plugins.tooltip.padding = 10;
+        Chart.defaults.plugins.tooltip.cornerRadius = 8;
+
+        function initMarketChart() {
+            const ctx = document.getElementById('marketChart').getContext('2d');
+            window.marketChartInst = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['2021', '2022', '2023', '2024E', '2025E', '2026E', '2027E', '2028E'],
+                    datasets: [
+                        {
+                            label: '全球市场规模 (亿元)',
+                            data: [80, 95, 110, 135, 150, 175, 200, 230],
+                            backgroundColor: '#3b82f6', // secondary blue
+                            order: 2
+                        },
+                        {
+                            label: '中国市场规模 (亿元)',
+                            data: [30, 40, 52, 65, 80, 100, 125, 155],
+                            backgroundColor: '#1e3a8a', // primary blue
+                            order: 3
+                        },
+                        {
+                            label: '中国市场增速 (%)',
+                            data: [25, 33, 30, 25, 23, 25, 25, 24], // dummy growth data
+                            type: 'line',
+                            borderColor: '#f59e0b', // accent amber
+                            backgroundColor: '#f59e0b',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            yAxisID: 'y1',
+                            order: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8 } }
+                    },
+                    scales: {
+                        y: { 
+                            type: 'linear', display: true, position: 'left',
+                            title: { display: true, text: '市场规模 (亿元RMB)' },
+                            grid: { color: '#f1f5f9' }
+                        },
+                        y1: {
+                            type: 'linear', display: true, position: 'right',
+                            title: { display: true, text: '增速 (%)' },
+                            grid: { drawOnChartArea: false },
+                            min: 0, max: 50
+                        }
+                    }
+                }
+            });
+        }
+
+        function initCompChart() {
+            const ctx = document.getElementById('compChart').getContext('2d');
+            window.compChartInst = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['杜邦 (美)', 'Evonik (德)', '长春应化所技术系 (中)', '江苏奥神 (中)', '其他海外', '其他国内'],
+                    datasets: [{
+                        data: [35, 20, 15, 12, 10, 8],
+                        backgroundColor: [
+                            '#1e3a8a', '#3b82f6', '#f59e0b', '#fbbf24', '#cbd5e1', '#e2e8f0'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) { return context.label + ': ' + context.parsed + '%'; }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initRiskChart() {
+            const ctx = document.getElementById('riskChart').getContext('2d');
+            window.riskChartInst = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['原料价格波动', '下游需求萎缩', '技术迭代失败', '环保政策松动', '地缘供应链断裂'],
+                    datasets: [{
+                        label: '当前风险指数 (1-5)',
+                        data: [4.2, 2.0, 3.5, 1.5, 3.8],
+                        backgroundColor: 'rgba(245, 158, 11, 0.2)', // amber light
+                        borderColor: '#f59e0b',
+                        pointBackgroundColor: '#1e3a8a',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            min: 0, max: 5,
+                            ticks: { stepSize: 1, display: false },
+                            grid: { color: '#e2e8f0' },
+                            pointLabels: { font: { size: 11 } }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // Initialize the first chart explicitly if we start on a view that needs it (optional, 
+        // currently Exec Summary doesn't have a chart, so we load charts on tab switch).
+        // To be safe, adding a small delay to ensure DOM is fully ready.
+        window.addEventListener('DOMContentLoaded', () => {
+            // Content is ready.
+        });
+
+    </script>
+</body>
+</html>

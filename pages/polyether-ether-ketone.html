@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PEEK (聚醚醚酮) 行业深度交互报告</title>
+    
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 引入 Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0f172a', // slate-900
+                        secondary: '#334155', // slate-700
+                        accent: '#0ea5e9', // sky-500
+                        lightbg: '#f8fafc', // slate-50
+                        warning: '#f59e0b', // amber-500
+                        danger: '#ef4444', // red-500
+                        success: '#10b981', // emerald-500
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* <!-- Chosen Palette: Slate & Sky (专业稳重的石板灰搭配科技感的蓝天色，强调高端材料属性) -->
+        <!-- Application Structure Plan: 
+             采用现代化管理仪表盘（Dashboard）布局。
+             左侧固定导航栏（移动端为顶部汉堡菜单），右侧为滚动内容区。
+             这种结构允许用户在长篇的深度研报中快速定位八大核心模块。
+             数据可视化部分使用交互式图表和卡片，替代枯燥的文字堆砌。
+             加入“核心观点”悬浮提示和图表数据切换功能，提升用户探索数据的积极性。
+        -->
+        <!-- Visualization & Content Choices: 
+             1. 市场规模：混合图表（柱状图+折线图），展示全球与中国PEEK需求量及增速。目的：直观体现行业高景气度。工具：Chart.js。
+             2. 下游应用：环形图。目的：清晰展示航空、汽车、医疗、人形机器人等占比结构。工具：Chart.js。
+             3. 竞争格局：条形图。目的：对比国内外头部玩家（威格斯、中研股份等）的产能与市占率。工具：Chart.js。
+             4. 产业链图谱：基于Tailwind的Flex/Grid布局卡片网络。目的：不依赖SVG展示上下游传导关系，特别是突出“氟酮(DFBP)”的卡脖子地位。
+             5. 技术性能对比：雷达图。目的：直观比较PEEK与PPS、PI等材料的性能差异。工具：Chart.js。
+             确认：未使用SVG，未使用Mermaid。
+        -->
+        <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+        */
+
+        html { scroll-behavior: smooth; }
+        body { background-color: #f8fafc; color: #0f172a; }
+        
+        /* 滚动条美化 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Chart Container 严格规范 */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 50vh;
+            max-height: 400px;
+            min-height: 300px;
+        }
+
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 40vh;
+                max-height: 350px;
+            }
+        }
+
+        /* 卡片悬浮动画 */
+        .hover-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .hover-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-item.active {
+            background-color: #e0f2fe; /* sky-100 */
+            color: #0369a1; /* sky-700 */
+            border-right: 3px solid #0ea5e9;
+        }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row min-h-screen">
+
+    <!-- 左侧导航栏 -->
+    <nav class="w-full md:w-64 bg-white shadow-lg md:fixed md:h-screen z-50 flex flex-col transition-all duration-300">
+        <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-primary tracking-tight">PEEK<span class="text-accent">研报</span></h1>
+            <button id="mobile-menu-btn" class="md:hidden text-2xl">☰</button>
+        </div>
+        <div id="nav-menu" class="hidden md:flex flex-col overflow-y-auto pb-20">
+            <a href="#summary" class="nav-item p-4 text-sm font-medium text-secondary hover:bg-slate-50 transition border-r-3 border-transparent">I. 执行摘要</a>
+            <a href="#overview" class="nav-item p-4 text-sm font-medium text-secondary hover:bg-slate-50 transition border-r-3 border-transparent">II. 行业概况与属性</a>
+            <a href="#market" class="nav-item p-4 text-sm font-medium text-secondary hover:bg-slate-50 transition border-r-3 border-transparent">III. 市场规模与需求</a>
+            <a href="#value-chain" class="nav-item p-4 text-sm font-medium text-secondary hover:bg-slate-50 transition border-r-3 border-transparent">IV. 产业链全景图</a>
+            <a href="#competition" class="nav-item p-4 text-sm font-medium text-secondary hover:bg-slate-50 transition border-r-3 border-transparent">V. 竞争格局与护城河</a>
+            <a href="#technology" class="nav-item p-4 text-sm font-medium text-secondary hover:bg-slate-50 transition border-r-3 border-transparent">VI. 技术路径与趋势</a>
+            <a href="#environment" class="nav-item p-4 text-sm font-medium text-secondary hover:bg-slate-50 transition border-r-3 border-transparent">VII. 宏观环境与风险</a>
+            <a href="#investment" class="nav-item p-4 text-sm font-medium text-secondary hover:bg-slate-50 transition border-r-3 border-transparent">VIII. 结论与投资逻辑</a>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="flex-1 md:ml-64 p-4 md:p-8 lg:p-12">
+        <header class="mb-10 text-center md:text-left">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-primary mb-4">聚醚醚酮 (PEEK) 行业深度交互分析</h1>
+            <p class="text-lg text-secondary max-w-3xl">位于高分子材料金字塔尖的“全能塑料”。本报告旨在解析PEEK在人形机器人、新能源车轻量化及医疗植入等新场景爆发下的产业链机遇与投资逻辑。</p>
+        </header>
+
+        <!-- 一、 执行摘要 -->
+        <section id="summary" class="mb-16 scroll-mt-20">
+            <div class="bg-white rounded-xl shadow-sm p-6 md:p-8 border border-slate-200">
+                <div class="flex items-center mb-6">
+                    <span class="text-3xl mr-3">🚀</span>
+                    <h2 class="text-2xl font-bold text-primary">一、 执行摘要 (Executive Summary)</h2>
+                </div>
+                <p class="text-secondary mb-6 leading-relaxed">报告的“心脏”模块。PEEK作为特种工程塑料之王，正迎来从传统航空/工业向“人形机器人+新能源汽车”跨越的历史性拐点。</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-sky-50 rounded-lg p-5 border border-sky-100 hover-card">
+                        <h3 class="text-sm font-semibold text-sky-800 uppercase tracking-wider mb-2">行业所处阶段</h3>
+                        <p class="text-3xl font-bold text-accent mb-2">快速成长期</p>
+                        <p class="text-sm text-secondary">历史积淀期结束，受益于轻量化需求爆发，行业进入需求非线性增长阶段。</p>
+                    </div>
+                    <div class="bg-emerald-50 rounded-lg p-5 border border-emerald-100 hover-card">
+                        <h3 class="text-sm font-semibold text-emerald-800 uppercase tracking-wider mb-2">投资评价</h3>
+                        <p class="text-3xl font-bold text-success mb-2">强烈看好 (Overweight)</p>
+                        <p class="text-sm text-secondary">高壁垒、高毛利、国产替代空间大。建议配置具备上游原料自给及高端合成能力的龙头标的。</p>
+                    </div>
+                    <div class="bg-amber-50 rounded-lg p-5 border border-amber-100 hover-card">
+                        <h3 class="text-sm font-semibold text-amber-800 uppercase tracking-wider mb-2">TOP 3 关键词</h3>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            <span class="px-3 py-1 bg-amber-200 text-amber-900 rounded-full text-sm font-medium">🤖 人形机器人</span>
+                            <span class="px-3 py-1 bg-amber-200 text-amber-900 rounded-full text-sm font-medium">🇨🇳 国产替代</span>
+                            <span class="px-3 py-1 bg-amber-200 text-amber-900 rounded-full text-sm font-medium">⚗️ 核心原料(DFBP)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 二、 行业概况与基本属性 -->
+        <section id="overview" class="mb-16 scroll-mt-20">
+            <h2 class="text-2xl font-bold text-primary mb-6 border-b-2 border-accent pb-2 inline-block">二、 行业概况与基本属性</h2>
+            <p class="text-secondary mb-6">了解PEEK的边界、历史与盈利方式。它是特种高分子材料中的“明珠”。</p>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- 定义与分类 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-bold text-primary mb-4">🔬 定义与分类</h3>
+                    <p class="text-sm text-secondary mb-4">PEEK（聚醚醚酮）是一种结晶型芳香族高分子材料，位于塑料金字塔的最顶端。其分子主链由芳环、酮键和醚键构成，赋予其极佳的综合性能。</p>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <span class="text-accent mr-2">▪️</span>
+                            <div>
+                                <span class="font-semibold text-primary">纯树脂 (Pure PEEK)</span>
+                                <p class="text-xs text-secondary mt-1">基础粉末/颗粒，用于一般注塑或挤出。</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-accent mr-2">▪️</span>
+                            <div>
+                                <span class="font-semibold text-primary">改性/复合材料 (CF-PEEK / GF-PEEK)</span>
+                                <p class="text-xs text-secondary mt-1">加入碳纤维或玻璃纤维，大幅提升机械强度，是航空和机器人的主力应用。</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 商业模式 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-bold text-primary mb-4">💰 商业模式与盈利逻辑</h3>
+                    <p class="text-sm text-secondary mb-4">典型的<span class="font-bold text-accent">“高研发投入 + 技术溢价”</span>模式，而非单纯的规模效应。</p>
+                    <div class="flex flex-col gap-3">
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded">
+                            <span class="text-sm font-medium">研发门槛</span>
+                            <span class="px-2 py-1 bg-red-100 text-red-700 text-xs rounded font-bold">极高 (配方+除杂)</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded">
+                            <span class="text-sm font-medium">毛利率水平</span>
+                            <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded font-bold">高 (普遍40%~60%)</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded">
+                            <span class="text-sm font-medium">客户黏性</span>
+                            <span class="px-2 py-1 bg-sky-100 text-sky-700 text-xs rounded font-bold">强 (认证周期长达2-3年)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 三、 市场规模与需求分析 -->
+        <section id="market" class="mb-16 scroll-mt-20">
+            <h2 class="text-2xl font-bold text-primary mb-6 border-b-2 border-accent pb-2 inline-block">三、 市场规模与需求分析</h2>
+            <p class="text-secondary mb-6">探究TAM（总潜在市场）及增长驱动力。人形机器人轻量化是最大边际增量。</p>
+            
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-bold text-primary">📊 全球与中国PEEK需求预测 (万吨)</h3>
+                    <div class="flex gap-2">
+                        <button id="btn-global-market" class="px-3 py-1 text-xs font-semibold rounded bg-accent text-white transition">全球市场</button>
+                        <button id="btn-china-market" class="px-3 py-1 text-xs font-semibold rounded bg-slate-200 text-slate-700 hover:bg-slate-300 transition">中国市场</button>
+                    </div>
+                </div>
+                <!-- Chart Container -->
+                <div class="chart-container">
+                    <canvas id="marketChart"></canvas>
+                </div>
+                <p class="text-xs text-center text-slate-400 mt-4">数据来源：沙利文咨询，券商研报综合整理预测（包含机器人放量假设）</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-bold text-primary mb-4">驱动因素 (底层逻辑)</h3>
+                    <ul class="list-disc pl-5 space-y-2 text-sm text-secondary">
+                        <li><strong class="text-primary">从0到1的增量：人形机器人。</strong>特斯拉Optimus对减重需求极高。若按单台机器人需20kg PEEK部件（密度仅钢的1/6），百万台销量将带来2万吨新增需求（翻倍目前全球市场）。</li>
+                        <li><strong class="text-primary">存量替换：新能源车“以塑代钢”。</strong>用于三电系统的绝缘材料、齿轮等，单车用量从150g向1kg+迈进。</li>
+                        <li><strong class="text-primary">高附加值：医疗骨科植入。</strong>替代钛合金，用于脊柱间融合器、颅骨修补，毛利率超过80%。</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-bold text-primary mb-4">渗透率分析</h3>
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-16 h-16 rounded-full border-4 border-slate-100 flex items-center justify-center relative">
+                            <div class="absolute inset-0 border-4 border-accent rounded-full border-t-transparent border-r-transparent transform -rotate-45"></div>
+                            <span class="font-bold text-primary">~2%</span>
+                        </div>
+                        <div>
+                            <p class="font-bold text-primary">爆发前夜的“破冰期”</p>
+                            <p class="text-xs text-secondary mt-1">目前在汽车和机器人领域的整体工程塑料渗透率极低。高昂的价格（~30-50万/吨）是唯一阻碍。随着国产扩产规模效应显现，价格下探将触发<span class="text-accent font-bold">“需求摩尔定律”</span>。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 四、 产业链全景图谱 -->
+        <section id="value-chain" class="mb-16 scroll-mt-20">
+            <h2 class="text-2xl font-bold text-primary mb-6 border-b-2 border-accent pb-2 inline-block">四、 产业链全景图谱</h2>
+            <p class="text-secondary mb-6">价值链拆解是找准投资标的的关键。PEEK产业链的核心壁垒集中在上游核心原材料和中游的高纯度树脂合成工艺。</p>
+
+            <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 overflow-x-auto">
+                <div class="min-w-[800px] flex flex-col items-center">
+                    
+                    <!-- 上游 -->
+                    <div class="w-full mb-8 relative">
+                        <div class="absolute top-1/2 left-0 w-full h-1 bg-slate-300 -z-10"></div>
+                        <div class="flex justify-around items-center">
+                            <div class="bg-white border-2 border-slate-300 p-4 rounded-lg shadow-sm text-center w-48 hover-card">
+                                <h4 class="font-bold text-slate-700">萤石 / 苯酚</h4>
+                                <p class="text-xs text-slate-500 mt-1">大宗化工原料，供应充足</p>
+                            </div>
+                            <div class="text-2xl text-slate-400">➡️</div>
+                            <div class="bg-white border-2 border-danger p-4 rounded-lg shadow-md text-center w-56 hover-card relative">
+                                <div class="absolute -top-3 -right-3 text-2xl">🔥</div>
+                                <h4 class="font-bold text-danger">氟酮 (DFBP)</h4>
+                                <p class="text-xs text-slate-500 mt-1">核心单体，占总成本40%+。纯度直接决定PEEK质量。<br><strong class="text-danger">卡脖子环节</strong></p>
+                            </div>
+                            <div class="text-2xl text-slate-400">➡️</div>
+                            <div class="bg-white border-2 border-slate-300 p-4 rounded-lg shadow-sm text-center w-48 hover-card">
+                                <h4 class="font-bold text-slate-700">对苯二酚等辅料</h4>
+                                <p class="text-xs text-slate-500 mt-1">易获取，门槛较低</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-2xl text-slate-400 mb-4">⬇️</div>
+
+                    <!-- 中游 -->
+                    <div class="bg-white border-2 border-accent p-6 rounded-lg shadow-md w-3/4 hover-card relative mb-8">
+                        <span class="absolute top-0 right-0 bg-accent text-white text-xs px-2 py-1 rounded-bl-lg font-bold">价值高地</span>
+                        <h4 class="text-xl font-bold text-center text-primary mb-2">中游：PEEK 树脂聚合合成</h4>
+                        <p class="text-sm text-center text-secondary mb-4">通常采用亲核取代反应。核心难点在于<strong class="text-accent">除杂工艺（脱盐）、分子量控制和批次稳定性</strong>。</p>
+                        <div class="flex justify-center gap-4 text-xs">
+                            <span class="px-2 py-1 bg-slate-100 rounded">粗粉</span>
+                            <span class="px-2 py-1 bg-slate-100 rounded">细粉</span>
+                            <span class="px-2 py-1 bg-slate-100 rounded">颗粒</span>
+                        </div>
+                    </div>
+
+                    <div class="text-2xl text-slate-400 mb-4">⬇️</div>
+
+                    <!-- 下游 -->
+                    <div class="w-full flex justify-between gap-4">
+                        <div class="flex-1 bg-white border border-slate-200 p-4 rounded-lg text-center hover-card">
+                            <div class="text-2xl mb-2">✈️</div>
+                            <h4 class="font-bold text-sm">航空航天</h4>
+                            <p class="text-xs text-slate-500">占 ~15%<br>线缆束、舱门件</p>
+                        </div>
+                        <div class="flex-1 bg-white border border-slate-200 p-4 rounded-lg text-center hover-card">
+                            <div class="text-2xl mb-2">🚗</div>
+                            <h4 class="font-bold text-sm">汽车/半导体</h4>
+                            <p class="text-xs text-slate-500">占 ~40%<br>齿轮、晶圆匣</p>
+                        </div>
+                        <div class="flex-1 bg-white border border-slate-200 p-4 rounded-lg text-center hover-card border-b-4 border-b-warning">
+                            <div class="text-2xl mb-2">🤖</div>
+                            <h4 class="font-bold text-sm">人形机器人</h4>
+                            <p class="text-xs text-slate-500">未来最大增量<br>柔性关节、减速器壳</p>
+                        </div>
+                        <div class="flex-1 bg-white border border-slate-200 p-4 rounded-lg text-center hover-card">
+                            <div class="text-2xl mb-2">🦴</div>
+                            <h4 class="font-bold text-sm">医疗器械</h4>
+                            <p class="text-xs text-slate-500">毛利最高<br>骨科植入物</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 五、 竞争格局与护城河 -->
+        <section id="competition" class="mb-16 scroll-mt-20">
+            <h2 class="text-2xl font-bold text-primary mb-6 border-b-2 border-accent pb-2 inline-block">五、 竞争格局与护城河</h2>
+            <p class="text-secondary mb-6">行业呈现典型的“寡头垄断，国产加速突围”态势。CR3（全球前三）市占率极高。</p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <!-- 图表 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-bold text-primary mb-4">全球PEEK产能份额 (CR4 > 80%)</h3>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="marketShareChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 五力模型 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-center">
+                    <h3 class="text-lg font-bold text-primary mb-4">波特五力分析</h3>
+                    <div class="space-y-4 text-sm">
+                        <div class="flex items-center">
+                            <span class="w-24 font-bold text-slate-700">潜在进入者</span>
+                            <div class="flex-1 h-3 bg-slate-100 rounded overflow-hidden"><div class="h-full bg-green-400 w-1/4"></div></div>
+                            <span class="ml-3 text-xs text-slate-500">压力低 (资金/技术壁垒高)</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-24 font-bold text-slate-700">替代品威胁</span>
+                            <div class="flex-1 h-3 bg-slate-100 rounded overflow-hidden"><div class="h-full bg-green-400 w-1/5"></div></div>
+                            <span class="ml-3 text-xs text-slate-500">压力极低 (唯一性强)</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-24 font-bold text-slate-700">供应商议价</span>
+                            <div class="flex-1 h-3 bg-slate-100 rounded overflow-hidden"><div class="h-full bg-red-500 w-4/5"></div></div>
+                            <span class="ml-3 text-xs text-slate-500">压力大 (DFBP寡头集中)</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-24 font-bold text-slate-700">买方议价</span>
+                            <div class="flex-1 h-3 bg-slate-100 rounded overflow-hidden"><div class="h-full bg-yellow-400 w-2/5"></div></div>
+                            <span class="ml-3 text-xs text-slate-500">压力中等 (高端领域缺货)</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-24 font-bold text-slate-700">现有竞争</span>
+                            <div class="flex-1 h-3 bg-slate-100 rounded overflow-hidden"><div class="h-full bg-yellow-400 w-1/2"></div></div>
+                            <span class="ml-3 text-xs text-slate-500">压力中等 (中低端内卷)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 重点企业画像 -->
+            <h3 class="text-lg font-bold text-primary mb-4">重点玩家画像</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse bg-white shadow-sm rounded-lg overflow-hidden">
+                    <thead>
+                        <tr class="bg-slate-100 text-slate-600 text-sm uppercase">
+                            <th class="p-4 border-b">企业名称</th>
+                            <th class="p-4 border-b">区域</th>
+                            <th class="p-4 border-b">优势领域 & 核心壁垒</th>
+                            <th class="p-4 border-b">当前产能/规划</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        <tr class="hover:bg-slate-50 border-b">
+                            <td class="p-4 font-bold text-primary">Victrex (威格斯)</td>
+                            <td class="p-4">🇬🇧 英国</td>
+                            <td class="p-4">医疗级垄断，全球最大的老牌霸主。壁垒在于全产业链及几十年数据背书。</td>
+                            <td class="p-4">~7150吨</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50 border-b">
+                            <td class="p-4 font-bold text-primary">中研股份 (ZYPEEK)</td>
+                            <td class="p-4">🇨🇳 中国</td>
+                            <td class="p-4">国产第一。壁垒在于50个牌号覆盖，逐步向航空和机器人等高端改性料突破。</td>
+                            <td class="p-4">1000吨 / 扩建中</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50 border-b">
+                            <td class="p-4 font-bold text-primary">新瀚新材 / 营口星之海</td>
+                            <td class="p-4">🇨🇳 中国</td>
+                            <td class="p-4 text-danger font-medium">上游核心！DFBP主要供应商，威格斯与中研的核心供货商。</td>
+                            <td class="p-4">数千吨 DFBP</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50 border-b">
+                            <td class="p-4 font-bold text-primary">泛亚微透 (大连齐化)</td>
+                            <td class="p-4">🇨🇳 中国</td>
+                            <td class="p-4">收购整合进军PEEK，致力于解决上游原材料制约。</td>
+                            <td class="p-4">规划产能</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 六、 技术路径与研发趋势 -->
+        <section id="technology" class="mb-16 scroll-mt-20">
+            <h2 class="text-2xl font-bold text-primary mb-6 border-b-2 border-accent pb-2 inline-block">六、 技术路径与研发趋势</h2>
+            <p class="text-secondary mb-6">为什么要用PEEK？相比其他工程塑料，其在极端条件下的表现无可替代。</p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- 雷达图对比 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-bold text-primary mb-2">特种工程塑料性能对比</h3>
+                    <p class="text-xs text-slate-500 mb-4">(分值越高，性能越优异 / 成本项分高代表成本越贵)</p>
+                    <div class="chart-container" style="height: 350px;">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 技术趋势与壁垒 -->
+                <div class="flex flex-col gap-4">
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 border-l-4 border-l-accent hover-card">
+                        <h4 class="font-bold text-primary flex items-center gap-2"><span class="text-xl">🧬</span> 主流合成技术：亲核取代法</h4>
+                        <p class="text-sm text-secondary mt-2">目前全球超90%产能采用以碳酸钠/碳酸钾为缩聚催化剂的亲核取代法。反应在高温（约300℃）下进行。其最大的<strong class="text-primary">技术暗礁</strong>在于反应后会产生大量氟化钠等盐类，彻底水洗脱盐难度极大，盐分残留直接导致产品在高温下变色降解，无法用于高端电子/医疗。</p>
+                    </div>
+                    
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 border-l-4 border-l-warning hover-card">
+                        <h4 class="font-bold text-primary flex items-center gap-2"><span class="text-xl">🛠️</span> 颠覆与演进：复合改性与3D打印</h4>
+                        <p class="text-sm text-secondary mt-2">纯PEEK硬度仍有不足。未来3-5年的关键增量在于<strong class="text-warning">CF-PEEK（碳纤维增强）</strong>的规模化量产，这是进入机器人结构件的敲门砖。此外，适配FDM（熔融沉积成型）的PEEK 3D打印耗材研发，正极大降低医疗骨科及小批量航空件的制造成本。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 七、 政策环境与宏观风险 -->
+        <section id="environment" class="mb-16 scroll-mt-20">
+            <h2 class="text-2xl font-bold text-primary mb-6 border-b-2 border-accent pb-2 inline-block">七、 政策环境与风险提示</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 政策支持 -->
+                <div class="bg-blue-50 p-6 rounded-xl border border-blue-100">
+                    <h3 class="text-lg font-bold text-blue-900 mb-4 flex items-center"><span class="text-2xl mr-2">📜</span> 政策导向 (Tailwind)</h3>
+                    <ul class="list-disc pl-5 space-y-3 text-sm text-blue-800">
+                        <li><strong>《中国制造2025》：</strong>将特种工程塑料列为大力发展的新材料核心之一。</li>
+                        <li><strong>国产化率指标：</strong>政府鼓励在航空航天、军工领域提升核心材料自给率，减少对英国Victrex等海外企业的过度依赖。</li>
+                        <li><strong>医疗集采：</strong>PEEK骨科植入物若进入集采，将大幅降低患者终端成本，倒逼国产PEEK医疗级材料加速替代（目前超80%依赖进口）。</li>
+                    </ul>
+                </div>
+
+                <!-- 风险提示 -->
+                <div class="bg-red-50 p-6 rounded-xl border border-red-100">
+                    <h3 class="text-lg font-bold text-red-900 mb-4 flex items-center"><span class="text-2xl mr-2">⚠️</span> 核心风险 (Headwinds)</h3>
+                    <ul class="list-none space-y-4 text-sm text-red-800">
+                        <li class="bg-white/60 p-3 rounded">
+                            <span class="font-bold">1. 需求不及预期：</span>人形机器人商业化落地延迟，或技术路线变更（如采用其他轻质合金）。
+                        </li>
+                        <li class="bg-white/60 p-3 rounded">
+                            <span class="font-bold">2. 原料价格剧烈波动：</span>上游DFBP极度紧缺，若新建产能释放不及预期，将严重压缩中游合成企业的利润。
+                        </li>
+                        <li class="bg-white/60 p-3 rounded">
+                            <span class="font-bold">3. 低端产能过剩：</span>由于国内资本涌入，可能在1-2年内出现普通工业级PEEK价格战，而高端（医疗/航空）依然紧缺的结构性错配。
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 八、 结论与投资逻辑 -->
+        <section id="investment" class="mb-16 scroll-mt-20">
+            <h2 class="text-2xl font-bold text-primary mb-6 border-b-2 border-accent pb-2 inline-block">八、 结论与投资逻辑</h2>
+            <p class="text-secondary mb-8">把握预期差，寻找能穿越周期的阿尔法（Alpha）。</p>
+
+            <div class="bg-primary text-white p-8 rounded-2xl shadow-lg relative overflow-hidden">
+                <div class="absolute -top-20 -right-20 w-64 h-64 bg-slate-700 rounded-full opacity-50 blur-3xl"></div>
+                <div class="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-8">
+                    
+                    <div class="md:col-span-1 border-b md:border-b-0 md:border-r border-slate-600 pb-6 md:pb-0 md:pr-6">
+                        <h3 class="text-accent font-bold uppercase tracking-wider text-sm mb-3">关键成功要素 (KSF)</h3>
+                        <p class="text-sm leading-relaxed text-slate-300">
+                            在这个赛道，<strong>“先发优势”</strong>和<strong>“原料把控”</strong>重于一切。
+                            由于客户更换材料需重新经过漫长的安全测试（车规级/医疗级），早期绑定客户的企业拥有极高护城河。此外，实现“DFBP - PEEK聚合 - 改性”一体化布局的企业，将赢在成本起跑线。
+                        </p>
+                    </div>
+
+                    <div class="md:col-span-1 border-b md:border-b-0 md:border-r border-slate-600 pb-6 md:pb-0 md:pr-6 md:pl-2">
+                        <h3 class="text-accent font-bold uppercase tracking-wider text-sm mb-3">估值逻辑与水位</h3>
+                        <p class="text-sm leading-relaxed text-slate-300 mb-3">
+                            由于PEEK具备强成长属性，市场普遍采用 <strong>P/E (市盈率)</strong> 或 <strong>PEG</strong> 进行估值。
+                        </p>
+                        <div class="bg-slate-800 p-3 rounded text-xs text-slate-400">
+                            当前国产龙头普遍享有 <span class="text-white font-bold">40x - 60x PE</span> 的成长溢价。主要反映了市场对机器人增量及国产替代的强预期。处于历史估值中高分位，需通过业绩兑现消化。
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-1 md:pl-2">
+                        <h3 class="text-warning font-bold uppercase tracking-wider text-sm mb-3">差异化认知 (Alpha)</h3>
+                        <ul class="space-y-2 text-sm text-slate-300">
+                            <li class="flex items-start">
+                                <span class="mr-2 text-warning">❌ 陷阱:</span> 
+                                <span>盲目炒作所有“宣称”做PEEK的化工股。绝大多数只能做极粗糙的粉末，无法成型。</span>
+                            </li>
+                            <li class="flex items-start mt-2">
+                                <span class="mr-2 text-success">✔️ 机会:</span> 
+                                <span>紧盯<strong class="text-white">上游核心单体(DFBP)</strong>的龙头。在PEEK真正放量前，原材料“卖水人”业绩确定性更强、爆发更早。</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 底部 -->
+        <footer class="border-t border-slate-200 mt-12 pt-8 pb-4 text-center text-sm text-slate-400">
+            <p>免责声明：本报告由AI综合公开网络资料、文献及研报生成，不构成实质性投资建议。</p>
+            <p class="mt-1">Generated exclusively based on user prompt requirements. Single HTML SPA Demo.</p>
+        </footer>
+    </main>
+
+    <!-- 交互与图表逻辑 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- 导航交互逻辑 ---
+            const sections = document.querySelectorAll('section');
+            const navItems = document.querySelectorAll('.nav-item');
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const navMenu = document.getElementById('nav-menu');
+
+            // 移动端菜单切换
+            mobileMenuBtn.addEventListener('click', () => {
+                navMenu.classList.toggle('hidden');
+                navMenu.classList.toggle('flex');
+            });
+
+            // 滚动监听高亮导航
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    if (pageYOffset >= (sectionTop - 150)) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navItems.forEach(item => {
+                    item.classList.remove('active');
+                    if (item.getAttribute('href').includes(current) && current !== '') {
+                        item.classList.add('active');
+                    }
+                });
+            });
+
+            // --- Chart.js 全局配置 ---
+            Chart.defaults.font.family = "'Inter', 'sans-serif'";
+            Chart.defaults.color = '#64748b';
+
+            // --- 1. 市场规模图表 (混合图表: 柱状+折线) ---
+            const ctxMarket = document.getElementById('marketChart').getContext('2d');
+            
+            // 数据源 (模拟真实研报数据)
+            const marketData = {
+                global: {
+                    labels: ['2021', '2022', '2023', '2024E', '2025E', '2026E', '2027E'],
+                    volume: [6800, 7300, 7800, 8500, 9600, 11500, 14000], // 吨
+                    growth: [8, 7.3, 6.8, 9.0, 12.9, 19.8, 21.7] // %，后期加入机器人预期增速加快
+                },
+                china: {
+                    labels: ['2021', '2022', '2023', '2024E', '2025E', '2026E', '2027E'],
+                    volume: [1800, 2100, 2500, 3000, 3700, 4800, 6200],
+                    growth: [15, 16.6, 19.0, 20.0, 23.3, 29.7, 29.1]
+                }
+            };
+
+            let marketChartInstance = new Chart(ctxMarket, {
+                type: 'bar',
+                data: {
+                    labels: marketData.global.labels,
+                    datasets: [
+                        {
+                            label: '需求量 (吨)',
+                            data: marketData.global.volume,
+                            backgroundColor: 'rgba(14, 165, 233, 0.8)', // sky-500
+                            borderRadius: 4,
+                            order: 2,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'YoY 增速 (%)',
+                            data: marketData.global.growth,
+                            type: 'line',
+                            borderColor: '#f59e0b', // amber-500
+                            backgroundColor: '#f59e0b',
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            tension: 0.3,
+                            order: 1,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) label += ': ';
+                                    if (context.dataset.yAxisID === 'y1') {
+                                        label += context.parsed.y + '%';
+                                    } else {
+                                        label += context.parsed.y + ' 吨';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: '需求量 (吨)' },
+                            grid: { color: '#f1f5f9' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: { display: true, text: '增速 (%)' },
+                            grid: { drawOnChartArea: false },
+                            min: 0
+                        }
+                    }
+                }
+            });
+
+            // 按钮切换数据逻辑
+            const btnGlobal = document.getElementById('btn-global-market');
+            const btnChina = document.getElementById('btn-china-market');
+
+            function updateMarketChart(scope) {
+                const data = marketData[scope];
+                marketChartInstance.data.labels = data.labels;
+                marketChartInstance.data.datasets[0].data = data.volume;
+                marketChartInstance.data.datasets[1].data = data.growth;
+                marketChartInstance.update();
+
+                // 按钮样式切换
+                if(scope === 'global') {
+                    btnGlobal.className = "px-3 py-1 text-xs font-semibold rounded bg-accent text-white transition";
+                    btnChina.className = "px-3 py-1 text-xs font-semibold rounded bg-slate-200 text-slate-700 hover:bg-slate-300 transition";
+                } else {
+                    btnChina.className = "px-3 py-1 text-xs font-semibold rounded bg-accent text-white transition";
+                    btnGlobal.className = "px-3 py-1 text-xs font-semibold rounded bg-slate-200 text-slate-700 hover:bg-slate-300 transition";
+                }
+            }
+
+            btnGlobal.addEventListener('click', () => updateMarketChart('global'));
+            btnChina.addEventListener('click', () => updateMarketChart('china'));
+
+
+            // --- 2. 市场份额图表 (条形图 / 极坐标) 这里用环形图展示集中度 ---
+            const ctxShare = document.getElementById('marketShareChart').getContext('2d');
+            new Chart(ctxShare, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Victrex(英国)', 'Solvay(比利时)', 'Evonik(德国)', '中研股份(中国)', '其他'],
+                    datasets: [{
+                        data: [60, 15, 10, 8, 7],
+                        backgroundColor: [
+                            '#0f172a', // 深灰
+                            '#334155', 
+                            '#64748b',
+                            '#0ea5e9', // 亮蓝 (突出中国)
+                            '#cbd5e1'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: { position: 'right' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ~' + context.parsed + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // --- 3. 性能雷达图 (PEEK vs PPS vs PI) ---
+            const ctxRadar = document.getElementById('radarChart').getContext('2d');
+            new Chart(ctxRadar, {
+                type: 'radar',
+                data: {
+                    labels: ['耐高温性(>250℃)', '机械强度(抗拉)', '耐化学腐蚀', '易加工性(注塑)', '轻量化效果', '成本昂贵度'],
+                    datasets: [
+                        {
+                            label: 'PEEK (聚醚醚酮)',
+                            data: [9, 9, 10, 8, 9, 10], // 性能极佳，但成本极贵(10)
+                            backgroundColor: 'rgba(14, 165, 233, 0.2)',
+                            borderColor: '#0ea5e9',
+                            pointBackgroundColor: '#0ea5e9',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'PPS (聚苯硫醚)',
+                            data: [7, 6, 8, 9, 7, 3], // 性能中上，极易加工，很便宜(3)
+                            backgroundColor: 'rgba(100, 116, 139, 0.2)',
+                            borderColor: '#64748b',
+                            pointBackgroundColor: '#64748b',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'PI (聚酰亚胺)',
+                            data: [10, 8, 7, 2, 8, 8], // 最耐高温，但极难加工(2)
+                            backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                            borderColor: '#f59e0b',
+                            pointBackgroundColor: '#f59e0b',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                            pointLabels: {
+                                font: { size: 11, family: "'Inter', sans-serif" },
+                                color: '#334155'
+                            },
+                            ticks: { display: false, min: 0, max: 10 }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>

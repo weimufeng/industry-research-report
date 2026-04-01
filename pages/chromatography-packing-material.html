@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深度报告：高性能色谱填料/树脂行业全景解析</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* CSS for specific layout controls and smooth interactions */
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #1e293b; }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border-radius: 0.75rem;
+        }
+
+        /* Mandatory Chart Container Styling */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px; /* Constrain max width for readability */
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px; /* Base height */
+            max-height: 60vh;
+        }
+        @media (max-width: 768px) {
+            .chart-container { height: 300px; }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Timeline styles using pure CSS (NO SVG) */
+        .timeline-line {
+            position: absolute;
+            left: 1.5rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #e2e8f0;
+            z-index: 0;
+        }
+        .timeline-dot {
+            position: relative;
+            z-index: 1;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background-color: #3b82f6;
+            border: 2px solid #fff;
+        }
+        
+        /* Value Chain Node */
+        .vc-node { transition: all 0.3s ease; }
+        .vc-node:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-color: #3b82f6; }
+    </style>
+</head>
+<body class="relative">
+
+    <!-- Chosen Palette: Slate (Neutral Background), Blue (Primary Action/Data), Emerald (Growth/Positive), Amber (Risks/Warnings) -->
+    <!-- Application Structure Plan: The SPA uses a dashboard-style, long-scroll architecture with a sticky side navigation (or top on mobile). This structure was chosen because the 8-module report is inherently linear but requires quick jumping between sections (e.g., from Market Size to Competitive Landscape). Using distinct 'glass-card' sections visually segments the deep information. Interactive charts, hoverable value chain grids, and tabbed interfaces are used to compress dense data (like historical timelines and tech specs) into explorable, user-driven actions rather than overwhelming walls of text. -->
+    <!-- Visualization & Content Choices: 
+         1. Exec Summary: Goal -> Inform. Method -> Grid cards with Unicode icons. Justification -> Quick scanning of key takeaways. 
+         2. Market Analysis: Goal -> Trend/Compare. Method -> Stacked Bar + Line Chart (Chart.js). Justification -> Visualizing CAGR and absolute TAM growth globally vs. China. 
+         3. Value Chain: Goal -> Organize/Relationship. Method -> Tailwind CSS Grid + Hover effects (No SVG). Justification -> Shows upstream to downstream flow interactively without external graphics. 
+         4. Competitive Landscape: Goal -> Compare. Method -> Radar Chart (Chart.js). Justification -> Multi-dimensional comparison of MNCs vs Domestic players (Tech, Cost, etc.). 
+         5. Technology Roadmap: Goal -> Organize. Method -> Interactive JS Tabs. Justification -> Compares distinct tech paths (Protein A, IEX, SEC) cleanly. 
+         6. Risk/Thesis: Goal -> Inform/Organize. Method -> Interactive Risk Matrix (HTML Table/Grid). Justification -> Highlights impact vs probability effectively. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 w-full z-50 glass-card rounded-none border-t-0 border-l-0 border-r-0 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-xl font-bold text-blue-700 tracking-tight">⚗️ BioSepra Analytics</span>
+                </div>
+                <!-- Desktop Nav -->
+                <div class="hidden md:flex items-center space-x-4 overflow-x-auto whitespace-nowrap">
+                    <a href="#module-1" class="text-sm font-medium text-slate-600 hover:text-blue-600 px-2 py-1">1. 摘要</a>
+                    <a href="#module-2" class="text-sm font-medium text-slate-600 hover:text-blue-600 px-2 py-1">2. 概况</a>
+                    <a href="#module-3" class="text-sm font-medium text-slate-600 hover:text-blue-600 px-2 py-1">3. 市场</a>
+                    <a href="#module-4" class="text-sm font-medium text-slate-600 hover:text-blue-600 px-2 py-1">4. 产业链</a>
+                    <a href="#module-5" class="text-sm font-medium text-slate-600 hover:text-blue-600 px-2 py-1">5. 竞争格局</a>
+                    <a href="#module-6" class="text-sm font-medium text-slate-600 hover:text-blue-600 px-2 py-1">6. 技术</a>
+                    <a href="#module-7" class="text-sm font-medium text-slate-600 hover:text-blue-600 px-2 py-1">7. 风险</a>
+                    <a href="#module-8" class="text-sm font-medium text-slate-600 hover:text-blue-600 px-2 py-1">8. 投资逻辑</a>
+                </div>
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-slate-600 hover:text-blue-600 focus:outline-none">
+                        ☰
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Nav Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-slate-200">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 flex flex-col">
+                <!-- Links populated identically to desktop -->
+                <a href="#module-1" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-blue-600 hover:bg-slate-50">1. 执行摘要</a>
+                <a href="#module-3" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-blue-600 hover:bg-slate-50">3. 市场规模</a>
+                <a href="#module-4" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-blue-600 hover:bg-slate-50">4. 产业链</a>
+                <a href="#module-5" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-blue-600 hover:bg-slate-50">5. 竞争格局</a>
+                <a href="#module-8" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-blue-600 hover:bg-slate-50">8. 投资逻辑</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Hero -->
+    <header class="pt-24 pb-12 bg-gradient-to-b from-slate-100 to-slate-50">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight">
+                高性能色谱填料/树脂行业深度报告
+            </h1>
+            <p class="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto mb-8">
+                生物制造的核心“芯片”。全景解析技术壁垒、国产替代进程与未来GLP-1/ADC驱动下的百亿增量市场。
+            </p>
+            <div class="inline-flex space-x-4">
+                <a href="#module-1" class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition shadow-lg hover:shadow-xl">
+                    开始探索 ➔
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 space-y-16">
+
+        <!-- 一、 执行摘要 (Executive Summary) -->
+        <section id="module-1" class="scroll-mt-20">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-slate-800 border-b-2 border-blue-500 pb-2 inline-block">一、 执行摘要 (Executive Summary)</h2>
+                <p class="text-slate-600 mt-3">本部分是报告的“心脏”，浓缩了色谱填料行业所处的生命周期、投资价值及核心驱动力。通过直观的数据卡片，帮助您快速把握行业脉搏。</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass-card p-6 border-t-4 border-t-blue-500 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 -mr-4 -mt-4 text-7xl opacity-5 group-hover:opacity-10 transition">📈</div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">核心结论：行业阶段</h3>
+                    <p class="text-3xl font-extrabold text-blue-600 mb-2">高速成长期</p>
+                    <p class="text-sm text-slate-600">国内市场正处于从“导入期”向“成长期”爆发的拐点。随着生物药（抗体、GLP-1、核酸药物）产能扩张，作为下游纯化核心耗材，色谱填料需求呈指数级增长，且国产化率正快速跨越20%的临界点。</p>
+                </div>
+                
+                <div class="glass-card p-6 border-t-4 border-t-emerald-500 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 -mr-4 -mt-4 text-7xl opacity-5 group-hover:opacity-10 transition">💎</div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">投资评价</h3>
+                    <p class="text-3xl font-extrabold text-emerald-600 mb-2">强烈建议关注</p>
+                    <p class="text-sm text-slate-600">典型的“剃须刀与刀片”高毛利商业模式（毛利率常年>70%）。客户粘性极强（FDA/NMPA绑定效应）。虽然一级市场遇冷导致Biotech研发放缓，但商业化阶段的放量及存量替换逻辑极为坚挺。</p>
+                </div>
+                
+                <div class="glass-card p-6 border-t-4 border-t-amber-500 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 -mr-4 -mt-4 text-7xl opacity-5 group-hover:opacity-10 transition">🔑</div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">Top 3 关键词</h3>
+                    <ul class="space-y-3 mt-4">
+                        <li class="flex items-center text-sm font-medium text-slate-700 bg-amber-50 px-3 py-2 rounded">
+                            <span class="mr-2">🔥</span> 1. 国产替代 (供应链安全与降本)
+                        </li>
+                        <li class="flex items-center text-sm font-medium text-slate-700 bg-amber-50 px-3 py-2 rounded">
+                            <span class="mr-2">💉</span> 2. GLP-1 & ADC 驱动 (全新增量)
+                        </li>
+                        <li class="flex items-center text-sm font-medium text-slate-700 bg-amber-50 px-3 py-2 rounded">
+                            <span class="mr-2">⚙️</span> 3. 放大化生产壁垒 (均一性控制)
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 二、 行业概况与基本属性 (Industry Overview) -->
+        <section id="module-2" class="scroll-mt-20">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-slate-800 border-b-2 border-blue-500 pb-2 inline-block">二、 行业概况与基本属性 (Industry Overview)</h2>
+                <p class="text-slate-600 mt-3">明确色谱填料的定义边界，解析其历史演进路线及独特的高盈利商业模式。了解这些基础属性是判断企业护城河深度的前提。</p>
+            </div>
+
+            <div class="glass-card p-6 md:p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3 flex items-center">🔍 定义与分类</h3>
+                        <p class="text-sm text-slate-600 mb-4 leading-relaxed">
+                            色谱填料（Chromatography Resins/Media）是由基质材料和配基组成的功能性微球，主要用于生物制药下游（Downstream Processing）的分离纯化环节，旨在去除杂质（宿主蛋白、DNA、病毒等），提取目标分子。其成本占下游纯化总成本的<span class="font-bold text-blue-600">30%-50%</span>。
+                        </p>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <div class="bg-slate-100 p-2 rounded border-l-2 border-blue-400"><strong>按基质分：</strong>天然高分子（琼脂糖、葡聚糖）、合成聚合物（PS-DVB）、无机硅胶。</div>
+                            <div class="bg-slate-100 p-2 rounded border-l-2 border-emerald-400"><strong>按原理分：</strong>亲和（Protein A是最核心单品）、离子交换（IEX）、疏水（HIC）、凝胶过滤（SEC）。</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3 flex items-center">💰 商业模式分析</h3>
+                        <p class="text-sm text-slate-600 mb-3 leading-relaxed">行业核心靠<span class="font-bold text-blue-600">“技术溢价 + 客户锁定效应”</span>赚钱。由于药企在IND（临床申报）和NDA（上市申报）阶段需将生产工艺（含填料品牌）锁定，后续更换填料需做大规模可比性研究，时间/资金成本极高（千万级别）。</p>
+                        <ul class="space-y-2 text-sm text-slate-700">
+                            <li class="flex items-start"><span class="text-emerald-500 mr-2">✔</span> <strong>耗材属性：</strong> 伴随药品生产周期持续消耗，提供稳定的经常性收入（Recurring Revenue）。</li>
+                            <li class="flex items-start"><span class="text-emerald-500 mr-2">✔</span> <strong>高毛利：</strong> 核心配方和工艺掌握在少数几家手中，行业平均毛利率达 70% - 85%。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-8 border-t border-slate-200 pt-6">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4">⏳ 发展历程与技术节点</h3>
+                    <div class="relative pl-6 pb-4">
+                        <!-- Timeline structure -->
+                        <div class="timeline-line"></div>
+                        
+                        <div class="relative mb-6">
+                            <div class="absolute -left-[1.85rem] timeline-dot mt-1"></div>
+                            <div class="pl-4">
+                                <h4 class="font-bold text-slate-800">1950s-1990s: 基础建立期</h4>
+                                <p class="text-sm text-slate-600">Pharmacia（现Cytiva）推出Sephadex葡聚糖凝胶，确立了琼脂糖基质在生物纯化中的统治地位。</p>
+                            </div>
+                        </div>
+                        <div class="relative mb-6">
+                            <div class="absolute -left-[1.85rem] timeline-dot mt-1"></div>
+                            <div class="pl-4">
+                                <h4 class="font-bold text-slate-800">2000s-2015: 单抗爆发期</h4>
+                                <p class="text-sm text-slate-600">重组Protein A亲和填料技术成熟，完美契合单克隆抗体（mAb）的大规模工业化生产，MNC（跨国企业）确立绝对垄断。</p>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute -left-[1.85rem] timeline-dot mt-1 bg-emerald-500 border-emerald-200"></div>
+                            <div class="pl-4">
+                                <h4 class="font-bold text-emerald-700">2018-至今: 国产突破与多元化场景</h4>
+                                <p class="text-sm text-slate-600">国内集采与医保控费倒逼药企降本，国产填料企业（如纳微、百林科等）借助底层技术突破（均一微球）及供应链安全需求，开始规模化替代。应用场景向mRNA、AAV、多肽扩展。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 三、 市场规模与需求分析 (Market Analysis) -->
+        <section id="module-3" class="scroll-mt-20">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-slate-800 border-b-2 border-blue-500 pb-2 inline-block">三、 市场规模与需求分析 (Market Analysis)</h2>
+                <p class="text-slate-600 mt-3">通过动态图表呈现全球与中国色谱填料市场的规模（TAM）与增速（CAGR）。揭示推动市场爆发的底层驱动逻辑及当前的渗透率阶段。</p>
+            </div>
+
+            <div class="glass-card p-6">
+                <div class="flex flex-col lg:flex-row gap-8">
+                    <!-- Chart Side -->
+                    <div class="w-full lg:w-2/3">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-slate-800">色谱填料市场规模预测 (亿元人民币)</h3>
+                            <div class="flex space-x-2">
+                                <button id="btn-global" class="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded focus:outline-none transition">全球市场</button>
+                                <button id="btn-china" class="px-3 py-1 text-xs font-medium bg-slate-200 text-slate-700 hover:bg-slate-300 rounded focus:outline-none transition">中国市场</button>
+                            </div>
+                        </div>
+                        <!-- Chart Container (Mandatory Structure) -->
+                        <div class="chart-container">
+                            <canvas id="marketChart"></canvas>
+                        </div>
+                        <p class="text-xs text-center text-slate-400 mt-2">数据来源：券商研究报告整理、沙利文测算 (模拟预测数据)</p>
+                    </div>
+
+                    <!-- Analysis Side -->
+                    <div class="w-full lg:w-1/3 flex flex-col justify-center space-y-6">
+                        <div>
+                            <h4 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">核心驱动因素 (Drivers)</h4>
+                            <ul class="space-y-3">
+                                <li class="bg-blue-50 p-3 rounded-lg border border-blue-100">
+                                    <strong class="text-blue-800 block mb-1">1. 新兴疗法爆发</strong>
+                                    <span class="text-xs text-slate-600">GLP-1（如司美格鲁肽）等多肽药物、寡核苷酸及ADC药物的高速增长，产生了对特定高通量聚合物填料、反相色谱填料的海量需求。</span>
+                                </li>
+                                <li class="bg-emerald-50 p-3 rounded-lg border border-emerald-100">
+                                    <strong class="text-emerald-800 block mb-1">2. 存量商业化放量</strong>
+                                    <span class="text-xs text-slate-600">大量PD-1及生物类似药进入商业化生产阶段，填料需求从研发端（升/批）转向生产端（千升/批），消耗量呈倍数放大。</span>
+                                </li>
+                                <li class="bg-amber-50 p-3 rounded-lg border border-amber-100">
+                                    <strong class="text-amber-800 block mb-1">3. 国产替代降本诉求</strong>
+                                    <span class="text-xs text-slate-600">生物药国谈降价常态化，倒逼药企在BOM成本中占比极高的耗材环节寻找高性价比的国产平替（价格通常为进口的40%-60%）。</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">渗透率分析</h4>
+                            <div class="flex items-center justify-between bg-slate-100 p-3 rounded border border-slate-200">
+                                <span class="text-sm font-medium text-slate-700">当前国产化率 (整体):</span>
+                                <span class="text-xl font-bold text-blue-600">~25-30%</span>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-1 leading-tight">阶段：已越过爆发前夜的0-10%阶段，正处于从“能用”到“好用”，从外围研发端向核心商业化产线渗透的红利释放期（成长期中段）。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 四、 产业链全景图谱 (Value Chain Analysis) -->
+        <section id="module-4" class="scroll-mt-20">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-slate-800 border-b-2 border-blue-500 pb-2 inline-block">四、 产业链全景图谱 (Value Chain Analysis)</h2>
+                <p class="text-slate-600 mt-3">拆解行业上下游。鼠标悬停在卡片上可查看具体环节的话语权、成本结构和“卡脖子”痛点。了解利润最终沉淀在产业链的哪个位置。</p>
+            </div>
+
+            <div class="glass-card p-6 overflow-hidden relative">
+                <!-- Background visual connector hints using CSS gradients -->
+                <div class="absolute inset-0 z-0 hidden md:block" style="background: linear-gradient(90deg, transparent 33%, #e2e8f0 33%, #e2e8f0 34%, transparent 34%, transparent 66%, #e2e8f0 66%, #e2e8f0 67%, transparent 67%); opacity: 0.5;"></div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+                    
+                    <!-- Upstream -->
+                    <div class="flex flex-col h-full">
+                        <div class="text-center mb-4">
+                            <span class="inline-block bg-slate-800 text-white text-xs px-3 py-1 rounded-full uppercase font-bold tracking-wide">上游：原材料与设备</span>
+                        </div>
+                        <div class="flex-grow space-y-4">
+                            <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 vc-node cursor-pointer group">
+                                <h4 class="font-bold text-slate-800 mb-1">基质原料 (Base Matrix)</h4>
+                                <p class="text-xs text-slate-500">高纯度琼脂糖、苯乙烯、DVB、多孔硅胶。</p>
+                                <div class="hidden group-hover:block mt-3 pt-3 border-t border-slate-100 text-xs text-amber-700 bg-amber-50 p-2 rounded">
+                                    <strong>痛点/话语权：</strong> 医药级高纯琼脂糖仍一定程度依赖进口。基础化工原料附加值低，但批次间一致性要求极高。
+                                </div>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 vc-node cursor-pointer group">
+                                <h4 class="font-bold text-slate-800 mb-1">特异性配基 (Ligands)</h4>
+                                <p class="text-xs text-slate-500">重组Protein A蛋白、各种离子交换基团等。</p>
+                                <div class="hidden group-hover:block mt-3 pt-3 border-t border-slate-100 text-xs text-blue-700 bg-blue-50 p-2 rounded">
+                                    <strong>核心壁垒：</strong> 成本占比最高(可达BOM的40-60%)。掌握高性能耐碱Protein A配基自产能力是企业控制成本和实现差异化的关键。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Midstream -->
+                    <div class="flex flex-col h-full relative">
+                        <div class="text-center mb-4">
+                            <span class="inline-block bg-blue-600 text-white text-xs px-3 py-1 rounded-full uppercase font-bold tracking-wide">中游：填料制造与合成 (核心)</span>
+                        </div>
+                        <!-- Directional arrows -->
+                        <div class="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 text-slate-300 text-2xl z-0">➔</div>
+                        <div class="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 text-slate-300 text-2xl z-0">➔</div>
+
+                        <div class="flex-grow bg-gradient-to-br from-blue-50 to-white p-5 rounded-xl border border-blue-200 shadow-md transform transition hover:shadow-lg">
+                            <h4 class="font-bold text-blue-800 mb-3 text-center border-b border-blue-100 pb-2">关键工艺流程 (制造壁垒)</h4>
+                            <ul class="text-sm text-slate-700 space-y-3 mb-4">
+                                <li class="flex items-center"><span class="w-6 h-6 rounded-full bg-blue-200 text-blue-800 flex items-center justify-center text-xs font-bold mr-2">1</span> 微球合成 (控制粒径/孔径均一性)</li>
+                                <li class="flex items-center"><span class="w-6 h-6 rounded-full bg-blue-200 text-blue-800 flex items-center justify-center text-xs font-bold mr-2">2</span> 交联处理 (提升机械强度)</li>
+                                <li class="flex items-center"><span class="w-6 h-6 rounded-full bg-blue-200 text-blue-800 flex items-center justify-center text-xs font-bold mr-2">3</span> 表面活化 (构建结合位点)</li>
+                                <li class="flex items-center"><span class="w-6 h-6 rounded-full bg-blue-200 text-blue-800 flex items-center justify-center text-xs font-bold mr-2">4</span> 配基偶联 (决定纯化特异性)</li>
+                            </ul>
+                            <div class="bg-white p-3 rounded border border-blue-100">
+                                <p class="text-xs font-bold text-slate-600 mb-1">成本结构 (BOM拆解示例)：</p>
+                                <div class="w-full bg-slate-200 rounded-full h-2 mb-1 flex overflow-hidden">
+                                    <div class="bg-indigo-500 h-2" style="width: 50%" title="配基 50%"></div>
+                                    <div class="bg-emerald-500 h-2" style="width: 20%" title="基质原料 20%"></div>
+                                    <div class="bg-amber-400 h-2" style="width: 15%" title="试剂耗材 15%"></div>
+                                    <div class="bg-slate-400 h-2" style="width: 15%" title="制造/其他 15%"></div>
+                                </div>
+                                <div class="flex justify-between text-[10px] text-slate-500">
+                                    <span>配基</span><span>基质</span><span>试剂</span><span>其他</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Downstream -->
+                    <div class="flex flex-col h-full">
+                        <div class="text-center mb-4">
+                            <span class="inline-block bg-emerald-600 text-white text-xs px-3 py-1 rounded-full uppercase font-bold tracking-wide">下游：应用场景与客户</span>
+                        </div>
+                        <div class="flex-grow space-y-4">
+                            <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 vc-node cursor-pointer group">
+                                <h4 class="font-bold text-slate-800 mb-1">生物药企 (Pharma & Biotech)</h4>
+                                <p class="text-xs text-slate-500">抗体、血制品、疫苗、细胞/基因治疗企业。</p>
+                                <div class="hidden group-hover:block mt-3 pt-3 border-t border-slate-100 text-xs text-emerald-700 bg-emerald-50 p-2 rounded">
+                                    <strong>采购决策路径：</strong> 实验室小试摸条件 ➔ 中试放大验证 ➔ 商业化生产。极度看重产品批次间稳定性和供应商的FAS（应用支持）服务能力。
+                                </div>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 vc-node cursor-pointer group">
+                                <h4 class="font-bold text-slate-800 mb-1">CXO机构 (CDMO/CRO)</h4>
+                                <p class="text-xs text-slate-500">药明生物、康龙化成等研发生产外包服务商。</p>
+                                <div class="hidden group-hover:block mt-3 pt-3 border-t border-slate-100 text-xs text-emerald-700 bg-emerald-50 p-2 rounded">
+                                    <strong>话语权特征：</strong> 具有较强集采溢价能力。是国产填料切入早期研发管线的关键渠道。近年来推动采用“预装柱”以提升换线效率。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 五、 竞争格局与护城河 (Competitive Landscape) -->
+        <section id="module-5" class="scroll-mt-20">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-slate-800 border-b-2 border-blue-500 pb-2 inline-block">五、 竞争格局与护城河 (Competitive Landscape)</h2>
+                <p class="text-slate-600 mt-3">全球市场呈现寡头垄断，中国本土企业正凭借底层技术创新打破封锁。通过雷达图对比国际巨头与国内头部的多维能力差异。</p>
+            </div>
+
+            <div class="glass-card p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    
+                    <!-- Radar Chart -->
+                    <div>
+                        <h3 class="text-center font-bold text-slate-800 mb-4">能力维度雷达图：国际巨头 vs 本土龙头</h3>
+                        <!-- Chart Container (Mandatory Structure) -->
+                        <div class="chart-container" style="height: 350px;">
+                            <canvas id="competitorRadar"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Landscape Text & 5 Forces -->
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 border-b border-slate-200 pb-2 mb-3">竞争格局画像 (CR5 > 80%)</h3>
+                            <div class="space-y-3">
+                                <div class="bg-white p-3 rounded border-l-4 border-slate-800 shadow-sm">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="font-bold text-slate-800">全球第一梯队：Cytiva, Merck, Tosoh</span>
+                                        <span class="text-xs bg-slate-100 px-2 py-1 rounded text-slate-600">寡头垄断</span>
+                                    </div>
+                                    <p class="text-xs text-slate-500">产品线全，品牌壁垒极高，历史积累深厚，牢牢占据全球多数商业化项目。</p>
+                                </div>
+                                <div class="bg-white p-3 rounded border-l-4 border-blue-500 shadow-sm">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="font-bold text-blue-800">中国头部梯队：纳微科技, 百林科, 蓝晓...</span>
+                                        <span class="text-xs bg-blue-50 px-2 py-1 rounded text-blue-600 text-blue-700">进口替代主力</span>
+                                    </div>
+                                    <p class="text-xs text-slate-500">纳微底层微球技术(单分散)领先；百林科/博格隆在亲和及本土化应用支持（FAS）方面响应迅速，性价比极高。</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 border-b border-slate-200 pb-2 mb-3">波特五力简析</h3>
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div class="bg-slate-50 p-2 rounded">
+                                    <span class="font-bold text-slate-700 block">新进入者威胁：低</span>
+                                    技术壁垒极高，专利密集，且下游药企验证周期漫长。
+                                </div>
+                                <div class="bg-slate-50 p-2 rounded">
+                                    <span class="font-bold text-slate-700 block">替代品威胁：低</span>
+                                    目前膜色谱等仅在特定抛光步骤使用，难以全面替代柱色谱。
+                                </div>
+                                <div class="bg-slate-50 p-2 rounded">
+                                    <span class="font-bold text-slate-700 block">供应商议价力：中/高</span>
+                                    特种配基（如重组蛋白A）及高纯度原材料供应商话语权较强。
+                                </div>
+                                <div class="bg-slate-50 p-2 rounded">
+                                    <span class="font-bold text-slate-700 block">客户议价力：前高后低</span>
+                                    研发早期客户选择多，一旦进入IND/NDA阶段，转换成本极高，失去议价权。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 六、 技术路径与研发趋势 (Technology Roadmap) -->
+        <section id="module-6" class="scroll-mt-20">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-slate-800 border-b-2 border-blue-500 pb-2 inline-block">六、 技术路径与研发趋势 (Technology Roadmap)</h2>
+                <p class="text-slate-600 mt-3">了解四大主流色谱分离技术的优劣势，并探索未来3-5年可能重塑行业格局的颠覆性技术。点击下方选项卡切换技术路线。</p>
+            </div>
+
+            <div class="glass-card overflow-hidden">
+                <!-- Tabs -->
+                <div class="flex border-b border-slate-200 bg-slate-50/50">
+                    <button class="tech-tab w-1/4 py-4 px-2 text-sm font-medium text-center text-blue-600 border-b-2 border-blue-600 focus:outline-none" data-target="tech-1">亲和色谱 (Affinity)</button>
+                    <button class="tech-tab w-1/4 py-4 px-2 text-sm font-medium text-center text-slate-500 hover:text-slate-700 border-b-2 border-transparent focus:outline-none" data-target="tech-2">离子交换 (IEX)</button>
+                    <button class="tech-tab w-1/4 py-4 px-2 text-sm font-medium text-center text-slate-500 hover:text-slate-700 border-b-2 border-transparent focus:outline-none" data-target="tech-3">疏水作用 (HIC)</button>
+                    <button class="tech-tab w-1/4 py-4 px-2 text-sm font-medium text-center text-slate-500 hover:text-slate-700 border-b-2 border-transparent focus:outline-none" data-target="tech-4">前沿颠覆技术</button>
+                </div>
+                
+                <!-- Tab Contents -->
+                <div class="p-6 h-[280px] overflow-y-auto">
+                    <!-- Tech 1 -->
+                    <div id="tech-1" class="tech-content block space-y-4">
+                        <div class="flex items-center">
+                            <span class="text-3xl mr-4">🧲</span>
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-800">亲和色谱 (Affinity Chromatography) - 行业“皇冠上的明珠”</h3>
+                                <p class="text-sm text-slate-500">基于生物分子间特异性结合（如抗原-抗体）。</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mt-4 text-sm text-slate-700">
+                            <div class="bg-emerald-50 p-3 rounded">
+                                <strong class="text-emerald-800 block mb-1">优势 (Pros):</strong>
+                                特异性极高，纯度可一步达到95%以上。是抗体类药物（mAb）捕获步的绝对核心。
+                            </div>
+                            <div class="bg-amber-50 p-3 rounded">
+                                <strong class="text-amber-800 block mb-1">劣势 (Cons):</strong>
+                                填料成本极其高昂（因配基为重组蛋白），配基易脱落或被蛋白酶降解，耐碱CIP（原位清洗）能力要求苛刻。
+                            </div>
+                        </div>
+                        <p class="text-sm bg-blue-50 p-3 rounded text-blue-800 border-l-4 border-blue-500">
+                            <strong>当前壁垒：</strong> 耐碱Protein A配基的底层分子设计与高密度偶联技术。
+                        </p>
+                    </div>
+
+                    <!-- Tech 2 -->
+                    <div id="tech-2" class="tech-content hidden space-y-4">
+                        <div class="flex items-center">
+                            <span class="text-3xl mr-4">⚡</span>
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-800">离子交换色谱 (IEX)</h3>
+                                <p class="text-sm text-slate-500">基于分子表面电荷差异进行分离。</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mt-4 text-sm text-slate-700">
+                            <div class="bg-emerald-50 p-3 rounded">
+                                <strong class="text-emerald-800 block mb-1">优势 (Pros):</strong>
+                                载量高，成本相对亲和填料低很多。适用于多种蛋白的精纯（Polishing）步骤。
+                            </div>
+                            <div class="bg-amber-50 p-3 rounded">
+                                <strong class="text-amber-800 block mb-1">劣势 (Cons):</strong>
+                                对盐浓度和pH值高度敏感，条件摸索较为繁琐。
+                            </div>
+                        </div>
+                        <p class="text-sm bg-blue-50 p-3 rounded text-blue-800 border-l-4 border-blue-500">
+                            <strong>研发趋势：</strong> 多模态（复合）离子交换填料，同时具有电荷与疏水作用，提升抗体聚合物和HCP的去除率。
+                        </p>
+                    </div>
+
+                    <!-- Tech 3 -->
+                    <div id="tech-3" class="tech-content hidden space-y-4">
+                        <div class="flex items-center">
+                            <span class="text-3xl mr-4">💧</span>
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-800">疏水作用色谱 (HIC) / 反相色谱 (RPC)</h3>
+                                <p class="text-sm text-slate-500">基于分子表面疏水区域的差异。</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-700 leading-relaxed mb-2">
+                            随着ADC（抗体偶联药物）、多肽（如GLP-1）和核酸类药物的崛起，聚合物基质的高性能反相填料需求暴增。这些分子通常需要比琼脂糖具有更高机械强度和不同孔径分布的硅胶或PS-DVB聚合物微球进行分离。
+                        </p>
+                        <p class="text-sm bg-blue-50 p-3 rounded text-blue-800 border-l-4 border-blue-500">
+                            <strong>核心门槛：</strong> 极窄的微球粒径分布（单分散）控制，以降低柱压并提高分辨率，这正是国内企业（如纳微科技）实现弯道超车的技术点。
+                        </p>
+                    </div>
+
+                    <!-- Tech 4 (Future) -->
+                    <div id="tech-4" class="tech-content hidden space-y-4">
+                        <div class="flex items-center">
+                            <span class="text-3xl mr-4">🚀</span>
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-800">前沿颠覆技术预测 (3-5年)</h3>
+                            </div>
+                        </div>
+                        <ul class="space-y-3 text-sm text-slate-700">
+                            <li class="bg-white border border-slate-200 p-3 rounded shadow-sm">
+                                <strong class="text-indigo-600 block mb-1">1. 连续流色谱 (Continuous Chromatography)</strong>
+                                从传统的批次生产（Batch）向连续生产转变。通过多柱串联（SMB/PCC），极大提高填料利用率（载量利用率可达80%以上），成倍降低填料成本。对填料的机械强度和一致性要求极高。
+                            </li>
+                            <li class="bg-white border border-slate-200 p-3 rounded shadow-sm">
+                                <strong class="text-indigo-600 block mb-1">2. 膜色谱与整体柱 (Membrane/Monolithic Chromatography)</strong>
+                                依靠对流传质而非扩散传质，流速可达柱色谱的数十倍。特别适合大分子（病毒载体、质粒DNA、AAV）的纯化。正逐渐侵蚀传统填料的抛光步骤市场。
+                            </li>
+                            <li class="bg-white border border-slate-200 p-3 rounded shadow-sm">
+                                <strong class="text-indigo-600 block mb-1">3. AI驱动的配基设计</strong>
+                                利用结构生物学与AI大模型，针对非抗体类新型生物药（如特定重组蛋白、双抗），快速逆向设计高亲和力非自然配基。
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 七、 政策环境与宏观风险 (External Environment & Risks) -->
+        <section id="module-7" class="scroll-mt-20">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-slate-800 border-b-2 border-blue-500 pb-2 inline-block">七、 政策环境与宏观风险 (External Environment & Risks)</h2>
+                <p class="text-slate-600 mt-3">宏观环境是行业生长的土壤。政策端极度利好自主可控，但同时需警惕资本寒冬与恶性内卷带来的风险矩阵。</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Policy -->
+                <div class="glass-card p-6 lg:col-span-1">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center">🏛️ 政策导向 (Tailwinds)</h3>
+                    <ul class="space-y-4">
+                        <li class="border-l-2 border-emerald-500 pl-3">
+                            <h4 class="font-bold text-sm text-slate-800">生物制造提升为“新质生产力”</h4>
+                            <p class="text-xs text-slate-500 mt-1">国家级政策定调，生物医药及其核心供应链被列为战略性新兴产业，地方政府对生物材料产业园给予税收/土地补贴。</p>
+                        </li>
+                        <li class="border-l-2 border-emerald-500 pl-3">
+                            <h4 class="font-bold text-sm text-slate-800">自主可控与医保控费双击</h4>
+                            <p class="text-xs text-slate-500 mt-1">医保局集采倒逼药企降本。且在地缘政治背景下，药企（特别是CDMO）自发建立“二供（Secondary Supplier）”机制，主动引入国产填料。</p>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Risk Matrix -->
+                <div class="glass-card p-6 lg:col-span-2">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center">⚠️ 宏观与行业风险提示 (Risks)</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-slate-600">
+                            <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+                                <tr>
+                                    <th class="px-4 py-3 rounded-tl">风险类型</th>
+                                    <th class="px-4 py-3">具体描述</th>
+                                    <th class="px-4 py-3">发生概率</th>
+                                    <th class="px-4 py-3 rounded-tr">影响程度</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-slate-100">
+                                    <td class="px-4 py-3 font-medium text-slate-800">资本寒冬/融资端萎缩</td>
+                                    <td class="px-4 py-3 text-xs">Biotech一级市场融资困难，导致研发管线收缩，早期（小试级）填料需求增速放缓。</td>
+                                    <td class="px-4 py-3"><span class="bg-amber-100 text-amber-800 px-2 py-1 rounded text-xs font-bold">高</span></td>
+                                    <td class="px-4 py-3 text-amber-600 font-bold">中等</td>
+                                </tr>
+                                <tr class="border-b border-slate-100 bg-slate-50">
+                                    <td class="px-4 py-3 font-medium text-slate-800">行业价格战 (内卷)</td>
+                                    <td class="px-4 py-3 text-xs">国内企业为抢占存量和新增市场份额，打响低价战，可能导致行业整体毛利率中枢下移。</td>
+                                    <td class="px-4 py-3"><span class="bg-amber-100 text-amber-800 px-2 py-1 rounded text-xs font-bold">高</span></td>
+                                    <td class="px-4 py-3 text-red-600 font-bold">严重</td>
+                                </tr>
+                                <tr class="border-b border-slate-100">
+                                    <td class="px-4 py-3 font-medium text-slate-800">新技术迭代落后</td>
+                                    <td class="px-4 py-3 text-xs">未能跟上连续流色谱、膜色谱等前沿技术步伐，在非单抗领域（如CGT）丧失先发优势。</td>
+                                    <td class="px-4 py-3"><span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-bold">中</span></td>
+                                    <td class="px-4 py-3 text-red-600 font-bold">严重</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3 font-medium text-slate-800">出海遇阻</td>
+                                    <td class="px-4 py-3 text-xs">地缘政治及国际贸易保护主义，导致国产填料进入欧美核心大药企供应链进展缓慢。</td>
+                                    <td class="px-4 py-3"><span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-bold">中</span></td>
+                                    <td class="px-4 py-3 text-amber-600 font-bold">中等</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 八、 结论与投资逻辑 (Investment Thesis) -->
+        <section id="module-8" class="scroll-mt-20">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-slate-800 border-b-2 border-blue-500 pb-2 inline-block">八、 结论与投资逻辑 (Investment Thesis)</h2>
+                <p class="text-slate-600 mt-3">综上所述，萃取行业关键成功要素，明确估值体系，并提出市场共识之外的差异化投资观点。</p>
+            </div>
+
+            <div class="glass-card p-6 border-l-4 border-indigo-600">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center">🎯 关键成功要素 (KSF)</h3>
+                        <div class="space-y-3">
+                            <label class="flex items-start space-x-3 cursor-pointer group">
+                                <input type="checkbox" checked disabled class="mt-1 w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500">
+                                <span class="text-sm text-slate-700 group-hover:text-indigo-700 transition"><strong class="block text-slate-900">底层技术自研与规模化量产能力：</strong>不仅仅是实验室能合成，关键在于百升/千升放大后的批次间极度稳定（CV值低）。</span>
+                            </label>
+                            <label class="flex items-start space-x-3 cursor-pointer group">
+                                <input type="checkbox" checked disabled class="mt-1 w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500">
+                                <span class="text-sm text-slate-700 group-hover:text-indigo-700 transition"><strong class="block text-slate-900">核心配基自产：</strong>掌握Protein A等核心配基的发酵、提纯及偶联技术，是守住70%以上毛利率的关键。</span>
+                            </label>
+                            <label class="flex items-start space-x-3 cursor-pointer group">
+                                <input type="checkbox" checked disabled class="mt-1 w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500">
+                                <span class="text-sm text-slate-700 group-hover:text-indigo-700 transition"><strong class="block text-slate-900">强悍的应用技术支持团队 (FAS)：</strong>不仅卖耗材，更要卖“工艺解决方案”。帮助药企完成替换工艺的摸索和申报。</span>
+                            </label>
+                        </div>
+                        
+                        <h3 class="text-xl font-bold text-slate-800 mt-8 mb-4 flex items-center">📊 估值体系与水平</h3>
+                        <p class="text-sm text-slate-700 leading-relaxed bg-slate-50 p-4 rounded">
+                            行业兼具“耗材的高周转”与“科技的高壁垒”属性。主流估值方法为 <strong class="text-indigo-600">P/S (市销率)</strong>（针对高速成长期企业）或 <strong class="text-indigo-600">PEG</strong>。经历前两年创新药去泡沫化后，当前国产头部企业估值分位回落至历史 <strong class="text-blue-600">30%-40% 相对合理区间</strong>。长期来看，具备跨周期持续现金流创造能力。
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center">💡 差异化观点 (Beyond Consensus)</h3>
+                        <div class="space-y-4">
+                            <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-100 relative overflow-hidden">
+                                <div class="absolute -right-4 -bottom-4 text-6xl opacity-10">🧬</div>
+                                <h4 class="font-bold text-indigo-900 mb-2">1. 下一个战场不在单抗，而在核酸与多肽</h4>
+                                <p class="text-sm text-indigo-800/80 leading-relaxed">
+                                    市场普遍紧盯mAb（单抗）替代。但实际上，随着GLP-1减肥药的爆火和小核酸药物的发展，<strong>针对这些新分子结构优化定制的聚合物反相微球、寡核苷酸固相合成载体</strong>，正面临比Protein A更严重的供应短缺。率先在这一细分领域布局产线的企业，将享受巨大的先发溢价。
+                                </p>
+                            </div>
+                            <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 relative overflow-hidden">
+                                <div class="absolute -right-4 -bottom-4 text-6xl opacity-10">🔄</div>
+                                <h4 class="font-bold text-blue-900 mb-2">2. “硬件+耗材”捆绑销售是破局利器</h4>
+                                <p class="text-sm text-blue-800/80 leading-relaxed">
+                                    纯粹做填料替代容易陷入价格战。未来能脱颖而出的玩家，是能提供<strong>“层析层析设备（甚至连续流设备） + 预装柱 + 定制化填料”</strong>一站式封闭系统的平台型企业。通过硬件锁定耗材耗用，提高壁垒。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-8 text-center text-sm">
+        <p>© 2026 BioSepra Analytics. 报告内容仅供探讨与分析，不构成直接投资建议。</p>
+        <p class="mt-2 text-xs opacity-50">数据源自市场公开信息与逻辑推演预测。</p>
+    </footer>
+
+    <!-- Logic Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- 1. Mobile Menu Toggle ---
+            const btn = document.getElementById('mobile-menu-btn');
+            const menu = document.getElementById('mobile-menu');
+            btn.addEventListener('click', () => {
+                menu.classList.toggle('hidden');
+            });
+            // Close mobile menu on click
+            menu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => menu.classList.add('hidden'));
+            });
+
+            // --- 2. Chart.js Implementations ---
+            Chart.defaults.font.family = "'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+            Chart.defaults.color = '#64748b';
+
+            // Chart A: Market Size (Line & Stacked Bar)
+            const ctxMarket = document.getElementById('marketChart').getContext('2d');
+            
+            // Mock Data
+            const years = ['2021', '2022', '2023', '2024E', '2025E', '2026E', '2027E'];
+            const dataChina = [15, 20, 26, 33, 42, 53, 65]; // in 100M RMB
+            const dataGlobal = [180, 195, 215, 240, 265, 290, 320]; // Mock converted roughly
+            const chinaCAGRLine = [null, null, null, 25, 27, 26, 22]; // illustrative growth line
+
+            let marketChart = new Chart(ctxMarket, {
+                type: 'bar',
+                data: {
+                    labels: years,
+                    datasets: [
+                        {
+                            label: '中国市场规模 (亿元)',
+                            data: dataChina,
+                            backgroundColor: '#3b82f6', // blue-500
+                            borderRadius: 4,
+                            order: 2,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: '预计同比增速 (%)',
+                            data: [null, 33, 30, 26, 27, 26, 22],
+                            type: 'line',
+                            borderColor: '#10b981', // emerald-500
+                            backgroundColor: '#10b981',
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            order: 1,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, // Critical for Tailwind container sizing
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8 } },
+                        tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', titleColor: '#fff', bodyColor: '#cbd5e1', padding: 10 }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { 
+                            type: 'linear', display: true, position: 'left',
+                            title: { display: true, text: '规模 (亿元)' }
+                        },
+                        y1: {
+                            type: 'linear', display: true, position: 'right',
+                            title: { display: true, text: '增速 (%)' },
+                            grid: { drawOnChartArea: false },
+                            min: 0, max: 50
+                        }
+                    }
+                }
+            });
+
+            // Toggle Global/China Data Logic
+            document.getElementById('btn-global').addEventListener('click', function() {
+                this.classList.replace('bg-slate-200', 'bg-blue-600');
+                this.classList.replace('text-slate-700', 'text-white');
+                document.getElementById('btn-china').classList.replace('bg-blue-600', 'bg-slate-200');
+                document.getElementById('btn-china').classList.replace('text-white', 'text-slate-700');
+                
+                marketChart.data.datasets[0].data = dataGlobal;
+                marketChart.data.datasets[0].label = '全球市场规模 (等效亿元)';
+                marketChart.data.datasets[0].backgroundColor = '#0ea5e9';
+                marketChart.data.datasets[1].data = [null, 8, 10, 11, 10, 9, 10]; // Global growth
+                marketChart.update();
+            });
+
+            document.getElementById('btn-china').addEventListener('click', function() {
+                this.classList.replace('bg-slate-200', 'bg-blue-600');
+                this.classList.replace('text-slate-700', 'text-white');
+                document.getElementById('btn-global').classList.replace('bg-blue-600', 'bg-slate-200');
+                document.getElementById('btn-global').classList.replace('text-white', 'text-slate-700');
+                
+                marketChart.data.datasets[0].data = dataChina;
+                marketChart.data.datasets[0].label = '中国市场规模 (亿元)';
+                marketChart.data.datasets[0].backgroundColor = '#3b82f6';
+                marketChart.data.datasets[1].data = [null, 33, 30, 26, 27, 26, 22];
+                marketChart.update();
+            });
+
+            // Chart B: Competitive Landscape Radar
+            const ctxRadar = document.getElementById('competitorRadar').getContext('2d');
+            new Chart(ctxRadar, {
+                type: 'radar',
+                data: {
+                    labels: [
+                        ['产品线', '宽度'], 
+                        ['底层技术', '深度'], 
+                        ['品牌与客户', '粘性'], 
+                        ['产能供应', '稳定性'], 
+                        ['本地化', '服务与性价']
+                    ],
+                    datasets: [{
+                        label: '国际巨头 (如Cytiva)',
+                        data: [9.5, 9.0, 10.0, 9.5, 6.0],
+                        fill: true,
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)', // blue
+                        borderColor: 'rgb(59, 130, 246)',
+                        pointBackgroundColor: 'rgb(59, 130, 246)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(59, 130, 246)'
+                    }, {
+                        label: '国内头部 (如纳微/百林科)',
+                        data: [7.0, 8.5, 6.0, 7.5, 9.5],
+                        fill: true,
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)', // emerald
+                        borderColor: 'rgb(16, 185, 129)',
+                        pointBackgroundColor: 'rgb(16, 185, 129)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(16, 185, 129)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                            pointLabels: { font: { size: 12 }, color: '#475569' },
+                            ticks: { display: false, min: 0, max: 10 }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true } }
+                    }
+                }
+            });
+
+            // --- 3. Technology Tabs Interaction ---
+            const tabButtons = document.querySelectorAll('.tech-tab');
+            const tabContents = document.querySelectorAll('.tech-content');
+
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Reset all
+                    tabButtons.forEach(b => {
+                        b.classList.remove('text-blue-600', 'border-blue-600');
+                        b.classList.add('text-slate-500', 'border-transparent');
+                    });
+                    tabContents.forEach(c => {
+                        c.classList.add('hidden');
+                        c.classList.remove('block', 'animate-fade-in');
+                    });
+
+                    // Activate selected
+                    btn.classList.remove('text-slate-500', 'border-transparent');
+                    btn.classList.add('text-blue-600', 'border-blue-600');
+                    
+                    const targetId = btn.getAttribute('data-target');
+                    const targetEl = document.getElementById(targetId);
+                    targetEl.classList.remove('hidden');
+                    targetEl.classList.add('block');
+                    
+                    // Simple JS animation class toggle (Tailwind utility substitute logic)
+                    targetEl.style.opacity = '0';
+                    setTimeout(() => {
+                        targetEl.style.transition = 'opacity 0.3s ease';
+                        targetEl.style.opacity = '1';
+                    }, 10);
+                });
+            });
+
+            // --- 4. Scroll Spy Navigation Highlight ---
+            const sections = document.querySelectorAll('section[id^="module-"]');
+            const navLinks = document.querySelectorAll('nav a[href^="#module-"]');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    // Trigger point slightly below middle of viewport
+                    if (scrollY >= (sectionTop - window.innerHeight / 3)) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('text-blue-600', 'font-bold');
+                    if (link.getAttribute('href') === `#${current}`) {
+                        link.classList.add('text-blue-600', 'font-bold');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

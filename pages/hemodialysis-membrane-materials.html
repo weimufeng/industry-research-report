@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深度研究：血液透析膜材料行业全景报告</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; color: #1e293b; }
+        html { scroll-behavior: smooth; }
+        .chart-container { position: relative; width: 100%; max-width: 800px; margin-left: auto; margin-right: auto; height: 400px; max-height: 500px; }
+        .radar-container { position: relative; width: 100%; max-width: 500px; margin-left: auto; margin-right: auto; height: 350px; max-height: 400px; }
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8); }
+        .nav-link.active { background-color: #eff6ff; color: #1d4ed8; border-right: 4px solid #1d4ed8; font-weight: 600; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .tab-btn.active { border-bottom: 2px solid #2563eb; color: #2563eb; font-weight: 600; }
+        .vc-item { cursor: pointer; transition: all 0.2s ease-in-out; }
+        .vc-item:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .vc-item.active { border: 2px solid #0d9488; background-color: #f0fdfa; }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row min-h-screen">
+
+    <!-- Chosen Palette: Clean Medical Slate & Blue. Primary: Blue-600, Secondary: Teal-500, Background: Slate-50, Text: Slate-800 -->
+    <!-- Application Structure Plan: The SPA is structured as a professional, interactive dashboard layout. A fixed left sidebar provides persistent navigation across the 8 required analytical modules. The main content area uses scrolling sections. Interactions include dynamic Chart.js visualizations for market and competition data, a clickable value-chain explorer to prevent information overload while allowing deep dives, and a tabbed interface for technology comparisons. This design organizes dense industry data into digestible, task-oriented chunks, prioritizing user exploration and clarity over a static, linear document. -->
+    <!-- Visualization & Content Choices: 
+         1. Exec Summary: Metric Cards (Goal: Inform) -> Rapid communication of top-level KPIs.
+         2. Market Analysis: Bar/Line Combo Chart (Goal: Compare & Trend) -> Chart.js; shows TAM volume vs CAGR clearly.
+         3. Value Chain: Interactive Grid (Goal: Organize & Explore) -> HTML/JS; lets users click upstream/midstream/downstream to reveal specific BOM and player details.
+         4. Competition: Doughnut Chart & Radar Chart (Goal: Proportions & Multi-variable comparison) -> Chart.js; Doughnut for market share, Radar for Porter's Five Forces.
+         5. Tech Roadmap: Tabbed Interface (Goal: Compare) -> JS Tab logic; compares PES, Cellulose, PMMA without vertical bloat. 
+         All visualizations are Canvas or DOM-based, strictly avoiding SVG/Mermaid. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <nav class="w-full md:w-64 bg-white shadow-xl fixed md:h-screen z-50 flex flex-col transition-all duration-300">
+        <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-bold text-blue-800 tracking-tight">🩸 膜材料智库</h1>
+                <p class="text-xs text-slate-500 mt-1">行业深度研究系统 v2.0</p>
+            </div>
+            <button id="mobile-menu-btn" class="md:hidden text-2xl">☰</button>
+        </div>
+        <div id="nav-links" class="flex-1 overflow-y-auto hidden md:block py-4">
+            <a href="#exec-summary" class="nav-link block py-3 px-6 text-sm text-slate-600 hover:bg-slate-50 transition-colors">一、 执行摘要</a>
+            <a href="#overview" class="nav-link block py-3 px-6 text-sm text-slate-600 hover:bg-slate-50 transition-colors">二、 行业概况</a>
+            <a href="#market" class="nav-link block py-3 px-6 text-sm text-slate-600 hover:bg-slate-50 transition-colors">三、 市场分析</a>
+            <a href="#value-chain" class="nav-link block py-3 px-6 text-sm text-slate-600 hover:bg-slate-50 transition-colors">四、 产业链图谱</a>
+            <a href="#competition" class="nav-link block py-3 px-6 text-sm text-slate-600 hover:bg-slate-50 transition-colors">五、 竞争格局</a>
+            <a href="#tech" class="nav-link block py-3 px-6 text-sm text-slate-600 hover:bg-slate-50 transition-colors">六、 技术趋势</a>
+            <a href="#policy" class="nav-link block py-3 px-6 text-sm text-slate-600 hover:bg-slate-50 transition-colors">七、 宏观风险</a>
+            <a href="#investment" class="nav-link block py-3 px-6 text-sm text-slate-600 hover:bg-slate-50 transition-colors">八、 投资逻辑</a>
+        </div>
+    </nav>
+
+    <main class="flex-1 md:ml-64 p-4 md:p-10 lg:p-12 overflow-x-hidden">
+        
+        <header class="mb-12 border-b border-slate-200 pb-8 mt-16 md:mt-0">
+            <div class="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold tracking-wide mb-4">医疗器械 / 高值耗材</div>
+            <h2 class="text-3xl md:text-5xl font-extrabold text-slate-900 mb-4 leading-tight">血液透析膜材料行业全景报告</h2>
+            <p class="text-lg text-slate-600 max-w-4xl">本系统动态整合全球顶尖学术文献、券商研报及产业链一线数据，为您呈现透析器核心底层材料（透析膜）的深度商业分析与技术演进全景。</p>
+        </header>
+
+        <section id="exec-summary" class="mb-20 scroll-mt-10">
+            <h3 class="text-2xl font-bold text-slate-800 mb-4 flex items-center"><span>🎯 一、 执行摘要 (Executive Summary)</span></h3>
+            <p class="text-slate-600 mb-6">本模块提炼了行业最核心的判断。主要展示血液透析膜行业目前的生命周期定位、投资价值研判以及驱动未来演变的三个核心要素，为您提供宏观决策锚点。</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass-card rounded-xl p-6 shadow-sm border-l-4 border-blue-500">
+                    <h4 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">核心结论：行业阶段</h4>
+                    <div class="text-2xl font-bold text-slate-800 mb-2">快速成长期 <span class="text-sm font-normal text-slate-500">(成长期中后段)</span></div>
+                    <p class="text-sm text-slate-600">全球处于成熟平稳期，但**中国市场正处于进口替代加速的黄金成长期**。受政策集采驱动，国产透析器及中上游膜材料正经历份额的暴力重塑。</p>
+                </div>
+                <div class="glass-card rounded-xl p-6 shadow-sm border-l-4 border-teal-500">
+                    <h4 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">投资建议：评价</h4>
+                    <div class="text-2xl font-bold text-teal-600 mb-2">强烈建议关注上游突破</div>
+                    <p class="text-sm text-slate-600">下游组装已成红海（低毛利），核心利润和投资价值上移至**掌握核心纺丝工艺及底层高分子原料（PES/PS）改性能力**的“隐形冠军”企业。</p>
+                </div>
+                <div class="glass-card rounded-xl p-6 shadow-sm border-l-4 border-purple-500">
+                    <h4 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">Top 3 核心关键词</h4>
+                    <ul class="space-y-3 mt-3 text-sm text-slate-700 font-medium">
+                        <li class="flex items-center">✅ <span class="ml-2 text-purple-700 bg-purple-100 px-2 py-1 rounded">集采放量 (VBP)</span></li>
+                        <li class="flex items-center">✅ <span class="ml-2 text-blue-700 bg-blue-100 px-2 py-1 rounded">高通量替代 (High-Flux)</span></li>
+                        <li class="flex items-center">✅ <span class="ml-2 text-teal-700 bg-teal-100 px-2 py-1 rounded">底层供应链自主可控</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="overview" class="mb-20 scroll-mt-10">
+            <h3 class="text-2xl font-bold text-slate-800 mb-4 flex items-center"><span>📖 二、 行业概况与基本属性</span></h3>
+            <p class="text-slate-600 mb-6">明确本研究的研究边界与基本概念。梳理透析膜材料从早期的天然纤维素向现代合成高分子材料演变的历程，并拆解该行业的底层商业运转逻辑。</p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                    <h4 class="text-lg font-bold text-slate-800 mb-4">🔬 定义与分类 (研究边界)</h4>
+                    <p class="text-sm text-slate-600 mb-4 leading-relaxed">
+                        本报告的研究对象为**血液透析器（人工肾）的核心组件——中空纤维透析膜**。它是实现血液与透析液之间溶质交换的半透膜。<br><br>
+                        按材质主要分为三大类：<br>
+                        1. **纤维素类膜**：铜仿膜、醋酸纤维素膜（已处于淘汰边缘）。<br>
+                        2. **合成聚合物膜**：以<span class="font-bold text-blue-600">聚砜(PS)</span>和<span class="font-bold text-blue-600">聚醚砜(PES)</span>为主流，占据全球90%以上市场份额，是本报告的**核心研究主体**。<br>
+                        3. **其他材料**：如聚甲基丙烯酸甲酯(PMMA)、聚丙烯腈(PAN)等（针对特定吸附需求）。
+                    </p>
+                </div>
+                
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                    <h4 class="text-lg font-bold text-slate-800 mb-4">⚙️ 商业模式剖析</h4>
+                    <ul class="space-y-4 text-sm text-slate-600">
+                        <li class="flex items-start">
+                            <span class="text-xl mr-3">💰</span>
+                            <div>
+                                <strong class="text-slate-800 block mb-1">“剃须刀+刀片”耗材模式</strong>
+                                血液透析机为固定资产（剃须刀），透析器及管路为高频消耗品（刀片）。透析患者每周需治疗2-3次，单次消耗一个透析器，产生极强的**高粘性、经常性经常性收入（Recurring Revenue）**。
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-xl mr-3">🛡️</span>
+                            <div>
+                                <strong class="text-slate-800 block mb-1">技术溢价与规模效应并重</strong>
+                                上游膜材料改性及精密纺丝工艺具有极高的**技术溢价**（毛利率可达60%+）；下游透析器组装则依靠自动化产线打拼**规模效应**，在集采环境下，没有万支以上日产能的企业将快速出局。
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mt-8 bg-slate-100 p-6 rounded-xl border border-slate-200">
+                <h4 class="text-md font-bold text-slate-800 mb-4">⏳ 发展历程关键节点</h4>
+                <div class="flex flex-col md:flex-row justify-between text-sm relative">
+                    <div class="absolute w-full h-1 bg-blue-200 top-4 left-0 hidden md:block"></div>
+                    <div class="z-10 bg-slate-100 px-2 md:w-1/4 mb-4 md:mb-0">
+                        <div class="w-4 h-4 bg-blue-500 rounded-full mx-auto md:ml-0 mb-2"></div>
+                        <strong class="text-slate-800">1960s-1980s</strong><br>
+                        <span class="text-slate-600 text-xs">铜仿膜时代。生物相容性差，易引发过敏，清除率极低。</span>
+                    </div>
+                    <div class="z-10 bg-slate-100 px-2 md:w-1/4 mb-4 md:mb-0">
+                        <div class="w-4 h-4 bg-blue-500 rounded-full mx-auto md:ml-0 mb-2"></div>
+                        <strong class="text-slate-800">1990s-2000s</strong><br>
+                        <span class="text-slate-600 text-xs">高分子材料突破。Fresenius推出聚砜(PS)膜，确立了优异生物相容性+高通量的行业基调。</span>
+                    </div>
+                    <div class="z-10 bg-slate-100 px-2 md:w-1/4 mb-4 md:mb-0">
+                        <div class="w-4 h-4 bg-blue-500 rounded-full mx-auto md:ml-0 mb-2"></div>
+                        <strong class="text-slate-800">2010s-2020</strong><br>
+                        <span class="text-slate-600 text-xs">中国企业入局组装环节，威高、宝莱特崛起。但核心膜丝仍严重依赖德国等进口。</span>
+                    </div>
+                    <div class="z-10 bg-slate-100 px-2 md:w-1/4">
+                        <div class="w-4 h-4 bg-teal-500 rounded-full mx-auto md:ml-0 mb-2 shadow-[0_0_10px_rgba(20,184,166,0.8)]"></div>
+                        <strong class="text-teal-700">2021-至今</strong><br>
+                        <span class="text-slate-600 text-xs">集采常态化。倒逼国内企业向产业链上游延伸，自研纺丝产线，实现真正的“膜丝国产化”。</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="market" class="mb-20 scroll-mt-10">
+            <h3 class="text-2xl font-bold text-slate-800 mb-4 flex items-center"><span>📈 三、 市场规模与需求分析</span></h3>
+            <p class="text-slate-600 mb-6">利用可视化图表展示中国血液透析市场的宏观体量（TAM）及未来预测，并深度剖析推动需求持续增长的底层逻辑以及当前的渗透率瓶颈。</p>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-8">
+                <h4 class="text-center font-bold text-slate-800 mb-2">中国血液透析器市场规模及预测 (百万元人民币)</h4>
+                <div class="chart-container">
+                    <canvas id="marketChart"></canvas>
+                </div>
+                <p class="text-xs text-center text-slate-400 mt-4">*数据来源：中研普华、券商行业预估整理分析</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-blue-50 p-6 rounded-xl border border-blue-100">
+                    <h4 class="text-md font-bold text-blue-800 mb-3">🔥 需求驱动底层逻辑</h4>
+                    <ul class="list-disc pl-5 text-sm text-slate-700 space-y-2">
+                        <li><strong>人口老龄化与慢性病蔓延：</strong> 糖尿病、高血压引发的终末期肾病（ESRD）患者基数每年以约8-10%的速度刚性增长。</li>
+                        <li><strong>医保覆盖深化（大病医保）：</strong> 报销比例的提升释放了大量农村及下沉市场的原本被压抑的透析治疗需求。</li>
+                        <li><strong>高质量生存需求：</strong> 从“活下来”到“活得好”，临床对清除中大分子毒素的需求增加，推动了<strong>高通量透析器（单价更高、消耗更快）</strong>的放量。</li>
+                    </ul>
+                </div>
+                <div class="bg-teal-50 p-6 rounded-xl border border-teal-100">
+                    <h4 class="text-md font-bold text-teal-800 mb-3">📊 渗透率深度分析</h4>
+                    <div class="flex items-end mb-3">
+                        <span class="text-4xl font-extrabold text-teal-600">~25%</span>
+                        <span class="text-sm text-slate-600 mb-1 ml-2">当前中国 ESRD 患者透析治疗率</span>
+                    </div>
+                    <p class="text-sm text-slate-700 mb-2">
+                        对比欧美日等发达国家（透析治疗率达 70%-90%），中国市场渗透率仍处于绝对的<strong>“爆发前夜”或“加速爬坡期”</strong>。
+                    </p>
+                    <p class="text-sm text-slate-700">
+                        尽管整机与组装端因集采呈现“红海竞争”的表象，但基于庞大未满足基数，耗材总消耗量仍将保持长达10年的稳定复合增长。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="value-chain" class="mb-20 scroll-mt-10">
+            <h3 class="text-2xl font-bold text-slate-800 mb-4 flex items-center"><span>🔗 四、 产业链全景图谱</span></h3>
+            <p class="text-slate-600 mb-6">这是透析行业的价值核心。点击下方各个产业链环节，可动态查看每个环节的成本结构、工艺流程及核心“卡脖子”所在。</p>
+
+            <div class="grid grid-cols-3 gap-2 md:gap-4 text-center mb-6">
+                <div class="vc-item active bg-white p-4 rounded-xl border-2 border-slate-200" data-target="vc-up">
+                    <div class="text-3xl mb-2">🛢️</div>
+                    <h4 class="font-bold text-slate-800">上游原材料</h4>
+                    <p class="text-xs text-slate-500 mt-1 hidden md:block">高分子聚合物与致孔剂</p>
+                </div>
+                <div class="vc-item bg-white p-4 rounded-xl border border-slate-200" data-target="vc-mid">
+                    <div class="text-3xl mb-2">🏭</div>
+                    <h4 class="font-bold text-slate-800">中游制造</h4>
+                    <p class="text-xs text-slate-500 mt-1 hidden md:block">膜丝纺制与透析器封装</p>
+                </div>
+                <div class="vc-item bg-white p-4 rounded-xl border border-slate-200" data-target="vc-down">
+                    <div class="text-3xl mb-2">🏥</div>
+                    <h4 class="font-bold text-slate-800">下游应用</h4>
+                    <p class="text-xs text-slate-500 mt-1 hidden md:block">血透中心与终端患者</p>
+                </div>
+            </div>
+
+            <div id="vc-details" class="bg-white p-6 md:p-8 rounded-2xl shadow-md border border-slate-200 min-h-[250px] transition-all">
+                <div id="vc-up" class="vc-content block">
+                    <h4 class="text-xl font-bold text-blue-700 border-b border-blue-100 pb-2 mb-4">上游：核心原材料供应 (卡脖子环节)</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <strong class="text-slate-800 block mb-2">核心物料拆解：</strong>
+                            <ul class="list-disc pl-5 text-sm text-slate-600 space-y-1">
+                                <li><strong>主材 (PES/PS)：</strong> 占膜成本极高。需医疗级、窄分子量分布。目前绝大部分依赖进口。</li>
+                                <li><strong>致孔剂 (PVP)：</strong> 决定膜孔径及亲水性，技术门槛高。</li>
+                                <li><strong>溶剂 (NMP/DMAC)：</strong> 环保要求严苛。</li>
+                            </ul>
+                        </div>
+                        <div class="bg-red-50 p-4 rounded-lg border border-red-100">
+                            <strong class="text-red-700 block mb-2">⚠️ 痛点与话语权：</strong>
+                            <p class="text-sm text-slate-700">
+                                医疗级PES/PS树脂合成技术壁垒极高，全球话语权长期掌握在<strong>巴斯夫(BASF)、索尔维(Solvay)</strong>等化工巨头手中。国内厂商面临较大的上游议价压力及供应链安全风险。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="vc-mid" class="vc-content hidden">
+                    <h4 class="text-xl font-bold text-teal-700 border-b border-teal-100 pb-2 mb-4">中游：膜丝制备与器械封装 (价值创造核心)</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <strong class="text-slate-800 block mb-2">工艺流程 (NIPS相转化法)：</strong>
+                            <p class="text-sm text-slate-600 bg-slate-50 p-3 rounded">
+                                配液调配 ➔ 喷丝头挤出 (干湿纺丝) ➔ 凝固浴成膜 ➔ 水洗脱溶剂 ➔ 干燥波纹化 ➔ 封装进壳 ➔ 灭菌
+                            </p>
+                        </div>
+                        <div>
+                            <strong class="text-slate-800 block mb-2">BOM成本结构概览：</strong>
+                            <div class="w-full bg-slate-200 rounded-full h-4 mb-1 flex overflow-hidden">
+                                <div class="bg-blue-500 h-4" style="width: 45%" title="膜丝 45%"></div>
+                                <div class="bg-teal-500 h-4" style="width: 25%" title="外壳/PC 25%"></div>
+                                <div class="bg-purple-500 h-4" style="width: 15%" title="封胶/聚氨酯 15%"></div>
+                                <div class="bg-gray-500 h-4" style="width: 15%" title="其他制造 10%"></div>
+                            </div>
+                            <p class="text-xs text-slate-500 flex justify-between">
+                                <span>膜丝(45%)</span><span>外壳(25%)</span><span>胶(15%)</span><span>其他(15%)</span>
+                            </p>
+                            <p class="text-xs mt-2 text-slate-600">掌握自主拉丝能力的中游企业，其毛利率可显著领先纯组装代工企业20个百分点以上。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="vc-down" class="vc-content hidden">
+                    <h4 class="text-xl font-bold text-purple-700 border-b border-purple-100 pb-2 mb-4">下游：临床终端与采购决策</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <strong class="text-slate-800 block mb-2">客户画像：</strong>
+                            <ul class="list-disc pl-5 text-sm text-slate-600 space-y-1">
+                                <li>公立医院血液净化中心 (占主导，集采执行主体)</li>
+                                <li>独立血液透析中心 (民营，增长迅速，极度关注性价比)</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <strong class="text-slate-800 block mb-2">采购决策路径变化：</strong>
+                            <p class="text-sm text-slate-600">
+                                <strong>过去：</strong> 依靠经销商网络客情关系，临床医生对进口品牌(费森尤斯)存在使用惯性与信任依赖。<br><br>
+                                <strong>现在(集采后)：</strong> 医保局主导，由价格、产能供应稳定性以及基础参数（超滤系数、筛查系数）决定准入。品牌溢价被大幅压缩。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="competition" class="mb-20 scroll-mt-10">
+            <h3 class="text-2xl font-bold text-slate-800 mb-4 flex items-center"><span>⚔️ 五、 竞争格局与护城河</span></h3>
+            <p class="text-slate-600 mb-6">解析市场玩家分布，分析巨头的竞争优势以及国产化率的演进态势。利用波特五力模型直观呈现行业所面临的各种竞争压力。</p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h4 class="text-center font-bold text-slate-800 mb-4">国内透析器市场份额概况 (预估)</h4>
+                    <div class="chart-container" style="height: 300px; max-height: 350px;">
+                        <canvas id="compChart"></canvas>
+                    </div>
+                    <p class="text-xs text-center text-slate-500 mt-2">外资双巨头（费森、百特）优势依然明显，国产头部（威高、宝莱特）正加速抢占份额。国产化率目前约在40%-50%，且向头部高度集中（寡头化趋势）。</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h4 class="text-center font-bold text-slate-800 mb-4">行业波特五力模型分析</h4>
+                    <div class="radar-container">
+                        <canvas id="fiveForcesChart"></canvas>
+                    </div>
+                    <p class="text-xs text-center text-slate-500 mt-2">规模越大，压力值越高。当前上游供应商及下游客户（集采局）话语权极强。</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                <h4 class="font-bold text-slate-800 mb-4">重点企业画像速览</h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-slate-600">
+                        <thead class="text-xs text-slate-700 uppercase bg-slate-200">
+                            <tr>
+                                <th class="px-4 py-3">企业性质</th>
+                                <th class="px-4 py-3">代表企业</th>
+                                <th class="px-4 py-3">核心壁垒与护城河</th>
+                                <th class="px-4 py-3">当前战略方向</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="bg-white border-b">
+                                <td class="px-4 py-4 font-semibold text-slate-800">外资巨头</td>
+                                <td class="px-4 py-4">Fresenius (费森尤斯), Baxter (百特)</td>
+                                <td class="px-4 py-4">完整的全产业链生态（耗材+设备+服务）、顶级材料配方、医生学术信任背书。</td>
+                                <td class="px-4 py-4">下沉抗衡集采，主推更高端的MCO膜及智能化透析机。</td>
+                            </tr>
+                            <tr class="bg-white border-b">
+                                <td class="px-4 py-4 font-semibold text-slate-800">国产头部</td>
+                                <td class="px-4 py-4">威高血液、宝莱特、三鑫医疗</td>
+                                <td class="px-4 py-4">强大的本土渠道能力、具备自制膜丝及设备配套能力、超低制造边际成本。</td>
+                                <td class="px-4 py-4">凭借集采扩大放量，向上游攻坚树脂合成，布局透析粉液及管路全赛道。</td>
+                            </tr>
+                            <tr class="bg-white">
+                                <td class="px-4 py-4 font-semibold text-slate-800">国产新锐</td>
+                                <td class="px-4 py-4">健帆生物 (吸附领域)、沛嘉等跨界者</td>
+                                <td class="px-4 py-4">差异化技术路径（如血液灌流专利树脂），特定适应症的垄断地位。</td>
+                                <td class="px-4 py-4">拓宽适应症，或通过资本并购整合透析器标的。</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="tech" class="mb-20 scroll-mt-10">
+            <h3 class="text-2xl font-bold text-slate-800 mb-4 flex items-center"><span>🔬 六、 技术路径与研发趋势</span></h3>
+            <p class="text-slate-600 mb-6">不同的高分子材料决定了透析器的性能上限。本节对比主流技术路径，并前瞻未来3-5年可能改变行业格局的颠覆性技术。</p>
+
+            <div class="mb-6 border-b border-slate-200 flex space-x-4">
+                <button class="tab-btn active pb-2 text-sm md:text-base" data-tab="tab-pes">聚砜/聚醚砜 (PS/PES)</button>
+                <button class="tab-btn pb-2 text-sm md:text-base text-slate-500 hover:text-slate-700" data-tab="tab-cell">纤维素类膜</button>
+                <button class="tab-btn pb-2 text-sm md:text-base text-slate-500 hover:text-slate-700" data-tab="tab-pmma">PMMA等其他改性膜</button>
+            </div>
+
+            <div id="tab-pes" class="tab-panel block bg-white p-6 rounded-xl shadow-sm border border-blue-100">
+                <div class="flex justify-between items-start mb-4">
+                    <h4 class="text-lg font-bold text-blue-800">绝对主流：聚砜 (PS) / 聚醚砜 (PES)</h4>
+                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">市占率 >90%</span>
+                </div>
+                <p class="text-sm text-slate-600 mb-4">
+                    当前透析膜的“黄金标准”。采用非对称结构，内层极薄用于筛分毒素，外层海绵状用于机械支撑。
+                </p>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div><strong class="text-green-600">优势：</strong> 超滤率极高、生物相容性极佳、耐高温高压灭菌、毒素清除谱广。</div>
+                    <div><strong class="text-red-600">劣势：</strong> 材料本身疏水，必须共混PVP等亲水剂，若工艺不佳易导致PVP溶出引发血液反应。</div>
+                </div>
+            </div>
+
+            <div id="tab-cell" class="tab-panel hidden bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <div class="flex justify-between items-start mb-4">
+                    <h4 class="text-lg font-bold text-slate-700">正在被淘汰：纤维素类膜</h4>
+                    <span class="bg-gray-100 text-gray-800 text-xs font-semibold px-2.5 py-0.5 rounded">市占率 <5%</span>
+                </div>
+                <p class="text-sm text-slate-600 mb-4">
+                    行业早期的主导材料，天然棉籽绒提取。后发展为二醋酸、三醋酸纤维素膜。
+                </p>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div><strong class="text-green-600">优势：</strong> 天然亲水，微孔分布极其均匀，无需添加亲水剂。</div>
+                    <div><strong class="text-red-600">劣势：</strong> 存在游离羟基，极易激活补体系统（生物相容性差），超滤系数低，难以做成高通量。逐步退出历史舞台。</div>
+                </div>
+            </div>
+
+            <div id="tab-pmma" class="tab-panel hidden bg-white p-6 rounded-xl shadow-sm border border-purple-100">
+                <div class="flex justify-between items-start mb-4">
+                    <h4 class="text-lg font-bold text-purple-800">特殊专精：聚甲基丙烯酸甲酯 (PMMA)</h4>
+                    <span class="bg-purple-100 text-purple-800 text-xs font-semibold px-2.5 py-0.5 rounded">市占率 细分领域</span>
+                </div>
+                <p class="text-sm text-slate-600 mb-4">
+                    主要由日本东丽(Toray)掌握核心技术，非海绵体结构，具备特殊的蛋白吸附特性。
+                </p>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div><strong class="text-green-600">优势：</strong> 除了扩散和对流，具备独特的<strong>“吸附”</strong>功能，对游离轻链等特殊大分子毒素清除极佳，常用于瘙痒严重的透析患者。</div>
+                    <div><strong class="text-red-600">劣势：</strong> 机械强度差，纺丝工艺极难，成本高昂，无法成为大规模普适性耗材。</div>
+                </div>
+            </div>
+
+            <div class="mt-8 bg-gradient-to-r from-slate-800 to-slate-900 p-6 rounded-xl text-white">
+                <h4 class="font-bold text-lg mb-3 flex items-center">🚀 前沿与颠覆性技术预测 (3-5年)</h4>
+                <ul class="space-y-3 text-sm text-slate-200">
+                    <li><strong class="text-teal-300">中截留分子量(MCO)膜：</strong> 正在迅速普及。精准扩大孔径，有效清除导致并发症的超大型中分子毒素，同时防止白蛋白流失。</li>
+                    <li><strong class="text-teal-300">硅基纳米孔膜 (SNM)：</strong> 实验室前沿。利用半导体光刻技术制造完美的均匀孔径，彻底解决高分子膜孔径分布不均的问题，是微型化/可穿戴人工肾的核心前提。</li>
+                    <li><strong class="text-teal-300">仿生共价接枝技术：</strong> 解决PVP溶出痛点，利用表面化学技术在膜表面接枝类肝素物质，实现“无肝素”透析。</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="policy" class="mb-20 scroll-mt-10">
+            <h3 class="text-2xl font-bold text-slate-800 mb-4 flex items-center"><span>⚠️ 七、 政策环境与宏观风险</span></h3>
+            <p class="text-slate-600 mb-6">医疗器械行业受政策指导极强。理解集采的规则及供应链的宏观风险，是规避投资陷阱的关键。</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-xl border-l-4 border-orange-500 shadow-sm">
+                    <h4 class="font-bold text-slate-800 mb-2">📜 政策导向：VBP (带量采购)</h4>
+                    <p class="text-sm text-slate-600 mb-3">
+                        透析器已全面进入省级联盟及国家集采。中标价格平均降幅达 <strong>40%-60%</strong>。
+                    </p>
+                    <div class="text-xs bg-orange-50 p-2 text-orange-800 rounded">
+                        <strong>影响：</strong> 彻底重塑出厂价及渠道利润分配。经销商利润被挤干，缺乏“降本造血”能力的低端组装厂被迫停产。反向加速了头部国产品牌通过“以价换量”完成对外资垄断的国产替代进击。
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl border-l-4 border-red-500 shadow-sm">
+                    <h4 class="font-bold text-slate-800 mb-2">🚨 宏观风险提示</h4>
+                    <ul class="list-disc pl-5 text-sm text-slate-600 space-y-2">
+                        <li><strong>集采降价超预期风险：</strong> 若后续续约规则趋严，导致终端价格跌破出厂现金成本，全行业将面临戴维斯双杀。</li>
+                        <li><strong>上游“卡脖子”断供风险：</strong> 全球医疗级PES/PS产能高度集中于欧美。地缘政治或贸易摩擦可能导致原料断供或价格剧烈波动。</li>
+                        <li><strong>技术迭代风险：</strong> 异种器官移植（如基因编辑猪肾）或再生医学若取得突破性进展，将从根本上削减血液透析市场的长期天花板。</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="investment" class="mb-20 scroll-mt-10">
+            <h3 class="text-2xl font-bold text-slate-800 mb-4 flex items-center"><span>💡 八、 结论与投资逻辑</span></h3>
+            <p class="text-slate-600 mb-6">基于全盘分析，总结出能够在下一阶段跑赢市场的关键成功要素，并提供估值参考与逆向思考视角。</p>
+
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-slate-200">
+                
+                <div class="mb-8">
+                    <h4 class="text-lg font-bold text-blue-800 mb-3 border-b border-slate-100 pb-2">🔑 关键成功要素 (KSF)</h4>
+                    <div class="flex flex-wrap gap-3">
+                        <span class="bg-slate-100 text-slate-700 px-4 py-2 rounded-full text-sm font-semibold">自研纺丝产线 (控成本的核心)</span>
+                        <span class="bg-slate-100 text-slate-700 px-4 py-2 rounded-full text-sm font-semibold">全产业链布局 (粉液+管路+设备组合拳)</span>
+                        <span class="bg-slate-100 text-slate-700 px-4 py-2 rounded-full text-sm font-semibold">强合规的下沉渠道渗透力</span>
+                        <span class="bg-slate-100 text-slate-700 px-4 py-2 rounded-full text-sm font-semibold">高通量/MCO膜的研发储备</span>
+                    </div>
+                </div>
+
+                <div class="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-lg font-bold text-slate-800 mb-3 border-b border-slate-100 pb-2">📊 估值逻辑</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed">
+                            医疗耗材标的通常采用 <strong>P/E (市盈率)</strong> 进行估值。
+                            <br><br>
+                            在集采落地后的现阶段，市场给予透析耗材企业的估值中枢已从早期的 40-50x 回落至理性的 <strong>20x-30x (动态PE)</strong>。具有全赛道整合能力及海外出口逻辑的龙头企业享有估值溢价。
+                        </p>
+                    </div>
+                    <div class="bg-teal-50 p-4 rounded-xl border border-teal-100">
+                        <h4 class="text-lg font-bold text-teal-800 mb-3">👁️ 差异化观点 (市场共识之外)</h4>
+                        <p class="text-sm text-teal-900 leading-relaxed">
+                            市场共识认为“组装产能扩张”就能吃下集采红利。但我们认为，<strong>真正的利润转移和核心壁垒不在中游的物理拉丝，而在更上游的高分子改性与设备设计。</strong><br><br>
+                            未来三年，不能实现<span class="font-bold underline">“聚醚砜原料配方自研研制”</span>和<span class="font-bold underline">“纺丝机台核心部件（喷丝板）自主优化”</span>的企业，仅仅是干着高端纺织女工的活，随时会被上游成本挤压致死。投资眼光必须向上游穿透。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mt-8 text-center">
+                    <p class="text-sm font-bold text-slate-800 mb-2">行业研究评价结论：</p>
+                    <div class="inline-block bg-blue-600 text-white text-xl font-bold px-8 py-3 rounded-xl shadow-md">
+                        确立长坡厚雪赛道属性，逢低布局具备核心“膜技术”的上游一体化企业
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <footer class="border-t border-slate-200 pt-8 mt-12 text-center text-sm text-slate-400">
+            <p>本交互报告基于公开行业数据、研报及底层逻辑推演生成。呈现结构经专属设计以优化信息吸收率。</p>
+        </footer>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const navLinks = document.getElementById('nav-links');
+            
+            mobileMenuBtn.addEventListener('click', () => {
+                navLinks.classList.toggle('hidden');
+            });
+
+            const sections = document.querySelectorAll('section');
+            const navItems = document.querySelectorAll('.nav-link');
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '-20% 0px -70% 0px',
+                threshold: 0
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const currentId = entry.target.id;
+                        navItems.forEach(item => {
+                            item.classList.remove('active');
+                            if (item.getAttribute('href') === `#${currentId}`) {
+                                item.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+
+            const marketCtx = document.getElementById('marketChart').getContext('2d');
+            new Chart(marketCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['2020', '2021', '2022', '2023', '2024E', '2025E', '2026E'],
+                    datasets: [
+                        {
+                            label: '透析器市场规模 (百万元)',
+                            data: [4200, 4700, 5300, 5900, 6500, 7200, 8000],
+                            backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            borderWidth: 1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: '同比增速 (%)',
+                            type: 'line',
+                            data: [10, 11.9, 12.7, 11.3, 10.1, 10.7, 11.1],
+                            borderColor: 'rgba(20, 184, 166, 1)',
+                            backgroundColor: 'rgba(20, 184, 166, 0.2)',
+                            borderWidth: 3,
+                            tension: 0.3,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    },
+                    scales: {
+                        y: { type: 'linear', display: true, position: 'left', title: {display: true, text: '规模 (百万元)'} },
+                        y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false }, title: {display: true, text: '增速 (%)'} }
+                    }
+                }
+            });
+
+            const compCtx = document.getElementById('compChart').getContext('2d');
+            new Chart(compCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['费森尤斯 (外资)', '威高血液 (国产头部)', '百特 (外资)', '尼普洛 (外资)', '宝莱特/三鑫等 (国产阵营)', '其他'],
+                    datasets: [{
+                        data: [35, 18, 15, 12, 12, 8],
+                        backgroundColor: [
+                            'rgba(30, 64, 175, 0.8)',
+                            'rgba(20, 184, 166, 0.8)',
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(147, 197, 253, 0.8)',
+                            'rgba(45, 212, 191, 0.8)',
+                            'rgba(203, 213, 225, 0.8)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { boxWidth: 12 } }
+                    },
+                    cutout: '60%'
+                }
+            });
+
+            const fiveForcesCtx = document.getElementById('fiveForcesChart').getContext('2d');
+            new Chart(fiveForcesCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['现有竞争强度', '供应商议价能力 (上游原料)', '买方议价能力 (集采/医院)', '替代品威胁 (腹透/新疗法)', '潜在进入者威胁 (跨界者)'],
+                    datasets: [{
+                        label: '行业竞争压力指数 (1-10)',
+                        data: [8, 9, 9, 4, 3],
+                        fill: true,
+                        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                        borderColor: 'rgba(99, 102, 241, 1)',
+                        pointBackgroundColor: 'rgba(99, 102, 241, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(99, 102, 241, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { display: true },
+                            suggestedMin: 0,
+                            suggestedMax: 10
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabPanels = document.querySelectorAll('.tab-panel');
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabBtns.forEach(b => {
+                        b.classList.remove('active', 'border-bottom', 'border-blue-600', 'text-blue-600', 'font-semibold');
+                        b.classList.add('text-slate-500');
+                    });
+                    
+                    btn.classList.add('active', 'text-blue-600', 'font-semibold');
+                    btn.classList.remove('text-slate-500');
+
+                    tabPanels.forEach(panel => {
+                        panel.classList.add('hidden');
+                        panel.classList.remove('block');
+                    });
+
+                    const targetId = btn.getAttribute('data-tab');
+                    document.getElementById(targetId).classList.remove('hidden');
+                    document.getElementById(targetId).classList.add('block');
+                });
+            });
+
+            const vcItems = document.querySelectorAll('.vc-item');
+            const vcContents = document.querySelectorAll('.vc-content');
+
+            vcItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    vcItems.forEach(i => {
+                        i.classList.remove('active', 'border-teal-600', 'bg-teal-50');
+                        i.classList.add('border-slate-200');
+                    });
+                    
+                    item.classList.add('active', 'border-teal-600', 'bg-teal-50');
+                    item.classList.remove('border-slate-200');
+
+                    vcContents.forEach(content => {
+                        content.classList.add('hidden');
+                        content.classList.remove('block');
+                    });
+
+                    const targetId = item.getAttribute('data-target');
+                    document.getElementById(targetId).classList.remove('hidden');
+                    document.getElementById(targetId).classList.add('block');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

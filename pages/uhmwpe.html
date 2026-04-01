@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>超高分子量聚乙烯 (UHMWPE) 行业深度报告</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Chosen Palette: Slate & Teal Professional (Slate-50 bg, Slate-800 text, Teal-600 & Sky-500 accents for a clean, scientific, and financial aesthetic.) -->
+    <!-- Application Structure Plan: The SPA is structured as an interactive executive dashboard with a persistent left sidebar navigation (hamburger menu on mobile) and a dynamic main content area. This structure was chosen because industry reports are information-dense; a nonlinear dashboard allows users to jump directly to sections of interest (e.g., investors to 'Investment Thesis', researchers to 'Tech Roadmap') without endless scrolling. The content is grouped into 4 logical views combining the 8 required modules to maintain flow and reduce cognitive load. -->
+    <!-- Visualization & Content Choices: 
+         1. Market Size (Module 3) -> Goal: Show growth -> Bar/Line combo chart (Chart.js) -> Hover for exact YoY -> Justification: Clear visualization of TAM evolution.
+         2. Value Chain (Module 4) -> Goal: Explain ecosystem -> CSS Grid/Flex based flowchart -> Hover for details -> Justification: Shows upstream/midstream/downstream dependencies without SVG.
+         3. Competitive Landscape (Module 5) -> Goal: Show concentration -> Doughnut chart (Chart.js) -> Click legend to isolate -> Justification: Best for market share visualization.
+         4. Key Success Factors (Module 8) -> Goal: Evaluate player capabilities -> Radar chart (Chart.js) -> Justification: Multi-dimensional comparison of attributes. 
+         Library: Chart.js for all dynamic visuals. Tailwind for structure. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            background-color: #f8fafc;
+            color: #1e293b;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 250px;
+                max-height: 300px;
+            }
+        }
+
+        .view-section {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .nav-item.active {
+            background-color: #e0f2fe;
+            color: #0284c7;
+            border-right: 4px solid #0284c7;
+            font-weight: 600;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .value-chain-box {
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .value-chain-box:hover {
+            transform: scale(1.02);
+        }
+        .vc-up { background: linear-gradient(135deg, #475569, #334155); }
+        .vc-mid { background: linear-gradient(135deg, #0284c7, #0369a1); }
+        .vc-down { background: linear-gradient(135deg, #0d9488, #0f766e); }
+        
+        .arrow-down::after {
+            content: "▼";
+            display: block;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 1.5rem;
+            margin: 0.5rem 0;
+        }
+        
+        .arrow-right::after {
+            content: "▶";
+            display: inline-block;
+            color: #94a3b8;
+            font-size: 1.5rem;
+            margin: 0 0.5rem;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800">
+
+    <aside id="sidebar" class="w-64 bg-white border-r border-slate-200 flex-shrink-0 flex flex-col transition-transform duration-300 z-20 absolute md:relative h-full -translate-x-full md:translate-x-0 shadow-lg md:shadow-none">
+        <div class="p-6 border-b border-slate-200 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-slate-800 leading-tight">UHMWPE<br><span class="text-sm text-sky-600 font-medium">行业深度研报</span></h1>
+            <button id="close-sidebar" class="md:hidden text-slate-500 text-2xl">&times;</button>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-1">
+                <li><button onclick="switchView('view-exec')" class="nav-item active w-full text-left px-6 py-3 text-slate-600 hover:bg-slate-50 transition-colors">1 & 2. 摘要与行业概况</button></li>
+                <li><button onclick="switchView('view-market')" class="nav-item w-full text-left px-6 py-3 text-slate-600 hover:bg-slate-50 transition-colors">3 & 4. 市场与产业链图谱</button></li>
+                <li><button onclick="switchView('view-compete')" class="nav-item w-full text-left px-6 py-3 text-slate-600 hover:bg-slate-50 transition-colors">5 & 6. 竞争格局与技术路线</button></li>
+                <li><button onclick="switchView('view-invest')" class="nav-item w-full text-left px-6 py-3 text-slate-600 hover:bg-slate-50 transition-colors">7 & 8. 政策风险与投资逻辑</button></li>
+            </ul>
+        </nav>
+        <div class="p-4 border-t border-slate-200 text-xs text-slate-400">
+            内部研究资料 · 交互式数据面板
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
+        <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-4 lg:px-8 shadow-sm z-10">
+            <div class="flex items-center">
+                <button id="open-sidebar" class="md:hidden text-slate-600 mr-4 text-2xl">☰</button>
+                <h2 id="header-title" class="text-lg font-semibold text-slate-800">一、执行摘要与二、行业概况</h2>
+            </div>
+            <div class="flex items-center space-x-2 text-sm text-slate-500">
+                <span class="hidden sm:inline">评级：</span>
+                <span class="bg-green-100 text-green-700 px-2 py-1 rounded font-bold">强于大市 (Overweight)</span>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-4 lg:p-8 bg-slate-50">
+            <div id="view-exec" class="view-section active max-w-6xl mx-auto space-y-8">
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+                    <p class="text-slate-600 leading-relaxed text-lg">
+                        本部分包含报告的<strong class="text-sky-600">一、执行摘要</strong>与<strong class="text-sky-600">二、行业概况</strong>。旨在为读者提供超高分子量聚乙烯（UHMWPE）行业的宏观视角，明确定位行业目前所处的生命周期阶段，并界定该材料的基本属性与商业逻辑。通过提炼核心关键词，快速建立对该赛道投资价值的初步判断。
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 space-y-6">
+                        <h3 class="text-xl font-bold text-slate-800 flex items-center">
+                            <span class="text-sky-500 mr-2">▌</span> 一、执行摘要 (Executive Summary)
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-white p-5 rounded-lg border border-slate-200 shadow-sm card-hover border-l-4 border-l-sky-500">
+                                <h4 class="text-sm text-slate-500 uppercase font-semibold mb-1">核心结论 - 行业阶段</h4>
+                                <div class="text-2xl font-bold text-slate-800">高速成长期</div>
+                                <p class="text-sm text-slate-600 mt-2">行业正从传统矿用/管材等低端应用，加速向锂电池隔膜、航空航天、医疗器械等高附加值领域切换，需求呈现爆发式增长态势。</p>
+                            </div>
+                            <div class="bg-white p-5 rounded-lg border border-slate-200 shadow-sm card-hover border-l-4 border-l-emerald-500">
+                                <h4 class="text-sm text-slate-500 uppercase font-semibold mb-1">投资建议/评价</h4>
+                                <div class="text-2xl font-bold text-slate-800">强烈推荐配置</div>
+                                <p class="text-sm text-slate-600 mt-2">具备极高的投资价值。建议重点关注掌握高端催化剂自研能力、以及打通下游锂电或医疗客户认证体系的头部树脂粉料及纤维企业。</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
+                            <h4 class="font-bold text-slate-800 mb-4">Top 3 行业关键词</h4>
+                            <div class="flex flex-wrap gap-3">
+                                <span class="px-4 py-2 bg-slate-100 text-slate-700 rounded-full font-medium text-sm flex items-center"><span class="text-sky-500 mr-2">★</span> 国产替代与升级</span>
+                                <span class="px-4 py-2 bg-slate-100 text-slate-700 rounded-full font-medium text-sm flex items-center"><span class="text-emerald-500 mr-2">★</span> 锂电隔膜激增</span>
+                                <span class="px-4 py-2 bg-slate-100 text-slate-700 rounded-full font-medium text-sm flex items-center"><span class="text-amber-500 mr-2">★</span> 军工防护刚需</span>
+                            </div>
+                            <p class="text-sm text-slate-600 mt-4 leading-relaxed">
+                                国内低端产能相对饱和，但高端特种料（分子量>500万，高纯度）仍高度依赖进口。随着国内企业在茂金属催化剂等技术上的突破，高端领域的国产替代是未来5年最大的Alpha来源。
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <h3 class="text-xl font-bold text-slate-800 flex items-center">
+                            <span class="text-sky-500 mr-2">▌</span> 二、行业概况与基本属性
+                        </h3>
+                        <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm h-full">
+                            <div class="space-y-4">
+                                <div>
+                                    <h4 class="font-bold text-slate-800 text-sm">定义与分类边界</h4>
+                                    <p class="text-sm text-slate-600 mt-1 pb-3 border-b border-slate-100">本报告研究对象特指粘均分子量在 <strong class="text-sky-600">150万及以上</strong> 的线性结构聚乙烯（UHMWPE）。分子量的高低直接决定了其耐磨、抗冲击、耐腐蚀等极端物理性能。</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800 text-sm">发展历程关键节点</h4>
+                                    <ul class="text-sm text-slate-600 mt-1 space-y-2 pb-3 border-b border-slate-100">
+                                        <li><span class="font-semibold text-slate-700">1950s:</span> 德国赫斯特公司率先实现聚合技术突破。</li>
+                                        <li><span class="font-semibold text-slate-700">1990s:</span> 凝胶纺丝法成熟，高强高模聚乙烯纤维问世。</li>
+                                        <li><span class="font-semibold text-slate-700">2010s-至今:</span> 中国从完全依赖进口到实现低端自给，目前正处于向高端隔膜料和细旦丝突破的攻坚期。</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800 text-sm">底层商业模式</h4>
+                                    <p class="text-sm text-slate-600 mt-1">呈现两极分化：低端管材/板材市场依赖 <strong class="text-slate-700">规模效应与成本控制（资产周转）</strong>；而高端医疗、锂电隔膜、防弹装甲市场则主要依靠 <strong class="text-sky-600">技术溢价与配方壁垒</strong> 获取超额利润。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-market" class="view-section max-w-6xl mx-auto space-y-8">
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+                    <p class="text-slate-600 leading-relaxed text-lg">
+                        本部分包含<strong class="text-sky-600">三、市场规模与需求分析</strong>及<strong class="text-sky-600">四、产业链全景图谱</strong>。通过可视化数据展示行业的市场空间扩张趋势（TAM），并深度拆解产业链的上下游价值流转，揭示利润分布与核心卡脖子环节。您可以通过点击产业链模块查看各环节的底层逻辑。
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
+                        <h3 class="text-xl font-bold text-slate-800 flex items-center mb-6">
+                            <span class="text-sky-500 mr-2">▌</span> 三、市场规模预测 (TAM/CAGR)
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="marketChart"></canvas>
+                        </div>
+                        <div class="mt-6 grid grid-cols-3 gap-2 text-center">
+                            <div class="bg-slate-50 p-3 rounded">
+                                <div class="text-xl font-bold text-sky-600">12.5%</div>
+                                <div class="text-xs text-slate-500">全球预期复合增速</div>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded">
+                                <div class="text-xl font-bold text-emerald-600">18.2%</div>
+                                <div class="text-xs text-slate-500">中国区预期增速</div>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded">
+                                <div class="text-xl font-bold text-amber-600">2% - 5%</div>
+                                <div class="text-xs text-slate-500">高端领域渗透率</div>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-slate-100">
+                            <h4 class="font-bold text-sm text-slate-800">需求驱动因素底层逻辑：</h4>
+                            <p class="text-sm text-slate-600 mt-2">动力电池及储能电池产能激增带动 <strong class="text-sky-600">湿法隔膜</strong> 需求爆发（强制替换/新增）；地缘政治摩擦背景下，单兵防护装备及防弹装甲的 <strong class="text-sky-600">存量替换与升级</strong> 需求硬挺。</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm flex flex-col">
+                        <h3 class="text-xl font-bold text-slate-800 flex items-center mb-6">
+                            <span class="text-sky-500 mr-2">▌</span> 四、产业链全景图谱 (价值链拆解)
+                        </h3>
+                        <p class="text-xs text-slate-400 mb-4">点击下方各环节模块，查看利润结构与壁垒分析。</p>
+                        
+                        <div class="flex-1 flex flex-col justify-center max-w-md mx-auto w-full space-y-2">
+                            <div class="value-chain-box vc-up arrow-down" onclick="updateChainDetails('up')">
+                                上游：原材料与催化剂
+                            </div>
+                            <div class="value-chain-box vc-mid arrow-down" onclick="updateChainDetails('mid')">
+                                中游：树脂粉料合成与成型
+                            </div>
+                            <div class="value-chain-box vc-down" onclick="updateChainDetails('down')">
+                                下游：终端应用场景
+                            </div>
+                        </div>
+
+                        <div id="chain-details" class="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-lg min-h-[140px] transition-all duration-300">
+                            <h4 class="font-bold text-slate-800 text-sm mb-2">请选择左侧产业链环节</h4>
+                            <p class="text-sm text-slate-600">系统将在此处展示对应环节的话语权分析、工艺拆解或终端客户决策路径。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-compete" class="view-section max-w-6xl mx-auto space-y-8">
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+                    <p class="text-slate-600 leading-relaxed text-lg">
+                        本部分包含<strong class="text-sky-600">五、竞争格局与护城河</strong>及<strong class="text-sky-600">六、技术路径与研发趋势</strong>。聚焦企业间的微观博弈与核心技术演进。图表展示了高端树脂市场的份额集中度，并对比了决定行业未来的关键工艺路径。
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
+                        <h3 class="text-xl font-bold text-slate-800 flex items-center mb-6">
+                            <span class="text-sky-500 mr-2">▌</span> 五、竞争格局与寡头垄断
+                        </h3>
+                        <div class="mb-4">
+                            <h4 class="font-bold text-sm text-slate-800">全球高端UHMWPE树脂产能占比估算</h4>
+                            <p class="text-xs text-slate-500">高度集中（CR3 > 60%），国际巨头掌握高端话语权</p>
+                        </div>
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="competeChart"></canvas>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-slate-100 space-y-3">
+                            <div>
+                                <h4 class="font-bold text-sm text-slate-800">五力模型核心判断：</h4>
+                                <p class="text-sm text-slate-600">供应商（乙烯）议价能力弱；替代品威胁极低（目前无综合性能与成本可媲美的材料）；但在低端管材领域，客户议价能力极强。</p>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-sm text-slate-800">护城河构建：</h4>
+                                <p class="text-sm text-slate-600">专利池（海外巨头壁垒）、定制化催化剂体系、以及长达2-3年的下游医疗/军工客户严格认证周期。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
+                        <h3 class="text-xl font-bold text-slate-800 flex items-center mb-6">
+                            <span class="text-sky-500 mr-2">▌</span> 六、技术路径与研发趋势
+                        </h3>
+                        
+                        <div class="space-y-6">
+                            <div class="border border-slate-200 rounded-lg overflow-hidden">
+                                <table class="w-full text-sm text-left">
+                                    <thead class="bg-slate-50 text-slate-700">
+                                        <tr>
+                                            <th class="px-4 py-3 font-semibold">纤维成型工艺</th>
+                                            <th class="px-4 py-3 font-semibold text-center">湿法工艺 (Wet)</th>
+                                            <th class="px-4 py-3 font-semibold text-center">干法工艺 (Dry)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-200">
+                                        <tr>
+                                            <td class="px-4 py-3 font-medium text-slate-800">原理特点</td>
+                                            <td class="px-4 py-3 text-slate-600 text-center">高沸点溶剂，萃取工序复杂</td>
+                                            <td class="px-4 py-3 text-slate-600 text-center">高挥发溶剂，环保成本高</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-3 font-medium text-slate-800">产品性能</td>
+                                            <td class="px-4 py-3 text-emerald-600 font-medium text-center">强度极高，适合防弹装甲</td>
+                                            <td class="px-4 py-3 text-sky-600 font-medium text-center">手感柔软，抗蠕变性好</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-3 font-medium text-slate-800">典型企业</td>
+                                            <td class="px-4 py-3 text-slate-600 text-center">主要为国内龙头企业</td>
+                                            <td class="px-4 py-3 text-slate-600 text-center">帝斯曼(DSM)等外企主导</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                                <h4 class="font-bold text-blue-800 mb-2 flex items-center"><span class="mr-2">🚀</span> 颠覆性技术预测 (未来3-5年)</h4>
+                                <ul class="list-disc list-inside text-sm text-blue-900 space-y-1">
+                                    <li><strong class="font-semibold">茂金属催化剂体系商业化：</strong> 能够精准控制分子量分布，合成出无缠结或少缠结的超高分子量聚乙烯粉料。</li>
+                                    <li><strong class="font-semibold">熔融纺丝技术的突破：</strong> 若能彻底解决高粘度无法直接熔融纺丝的难题，将直接使成本下降50%以上，具有行业洗牌潜力。</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-invest" class="view-section max-w-6xl mx-auto space-y-8">
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+                    <p class="text-slate-600 leading-relaxed text-lg">
+                        本部分包含<strong class="text-sky-600">七、政策环境与宏观风险</strong>及<strong class="text-sky-600">八、结论与投资逻辑</strong>。综合内外部因素，提炼行业的关键成功要素（KSF），并给出指导性的估值体系和具有差异化的投资观点。雷达图多维度量化了优秀标的应具备的核心能力。
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="space-y-6">
+                        <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
+                            <h3 class="text-xl font-bold text-slate-800 flex items-center mb-4">
+                                <span class="text-sky-500 mr-2">▌</span> 七、宏观政策与风险提示
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="border-l-4 border-emerald-500 pl-4">
+                                    <h4 class="font-bold text-slate-800 text-sm">政策红利导向</h4>
+                                    <p class="text-sm text-slate-600 mt-1">UHMWPE多次被列入工信部《重点新材料首批次应用示范指导目录》。高端隔膜与航空航天纤维享受国家战略新兴产业补贴及税收优惠，准入门槛针对环保（VOCs排放）不断收紧。</p>
+                                </div>
+                                <div class="border-l-4 border-red-500 pl-4">
+                                    <h4 class="font-bold text-slate-800 text-sm">核心风险点</h4>
+                                    <ul class="text-sm text-slate-600 mt-1 space-y-1 list-disc list-inside">
+                                        <li><strong class="text-slate-700">低端内卷化：</strong> 常规管材/板材用粉料面临阶段性产能过剩，价格战激烈。</li>
+                                        <li><strong class="text-slate-700">原材料波动：</strong> 作为石化下游，受国际原油及乙烯单体价格波动影响利润率。</li>
+                                        <li><strong class="text-slate-700">技术迭代风险：</strong> 固态电池若超预期提前大规模商业化，将削弱对传统湿法锂电隔膜的需求。</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm border-t-4 border-t-sky-500">
+                            <h3 class="text-xl font-bold text-slate-800 mb-4">差异化投资观点 (Alpha挖掘)</h3>
+                            <p class="text-sm text-slate-600 leading-relaxed mb-3">
+                                市场共识认为行业整体增速较高，但容易忽略结构性分化。我们认为，最大的陷阱在于盲目投资仅具规模扩张能力而无配方研发能力的低端粉料厂。
+                            </p>
+                            <p class="text-sm text-slate-600 leading-relaxed font-semibold">
+                                真正的Alpha存在于：<br>1) 能够打通“专用催化剂自研 ➔ 特种粉料 ➔ 高端医疗/军工客户认证”一体化的企业；<br>2) 具备极细旦丝生产能力，有望在防切割手套消费升级中占据主导地位的纤维成型企业。
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
+                        <h3 class="text-xl font-bold text-slate-800 flex items-center mb-6">
+                            <span class="text-sky-500 mr-2">▌</span> 八、关键成功要素 (KSF) 与估值
+                        </h3>
+                        
+                        <div class="chart-container" style="height: 320px;">
+                            <canvas id="ksfChart"></canvas>
+                        </div>
+                        
+                        <div class="mt-4 pt-4 border-t border-slate-100">
+                            <h4 class="font-bold text-sm text-slate-800">估值体系与水平：</h4>
+                            <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+                                行业根据下游应用不同，估值差异巨大。以大宗工业品应用为主的企业，按周期品估值（P/E 10-15x）；而成功切入<strong class="text-sky-600">锂电隔膜、医疗器械或军工</strong>供应链的企业，享有科技/新材料成长股溢价，合理估值中枢在 <strong class="text-emerald-600">P/E 25-35x</strong>。目前行业整体处于历史估值的近40%分位，具备配置安全边际。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="mt-12 text-center text-slate-400 text-sm pb-6">
+                &copy; 2024 行业研究分析系统 - 超高分子量聚乙烯 (UHMWPE) 深度洞察
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        const chainData = {
+            up: {
+                title: "上游：核心技术“卡脖子”环节",
+                content: "核心原材料为乙烯单体及催化剂。乙烯属大宗石化产品，供应充足但受原油价格影响。核心痛点在于<strong class='text-sky-600'>高效催化剂（如茂金属）</strong>。海外巨头掌控核心专利，国内企业在催化剂活性、聚合动力学控制上仍存在差距，是限制高端粉料突破的关键所在。"
+            },
+            mid: {
+                title: "中游：工艺流程与BOM拆解",
+                content: "工艺流程：催化剂制备 ➔ 乙烯聚合 ➔ 干燥粉料 ➔ 熔融挤出/凝胶纺丝成型。成本结构（BOM）中，原材料（乙烯）占近50%-60%，制造费用及能耗占20-30%。<strong class='text-emerald-600'>凝胶纺丝法（Gel Spinning）</strong>工艺极为复杂，涉及高粘度流体控制与多次超倍热拉伸，废品率控制是中游企业拉开毛利率差距的核心壁垒。"
+            },
+            down: {
+                title: "下游：终端场景与决策路径",
+                content: "终端应用高度分散但附加值极高：军工防弹、海洋缆绳、锂电池隔膜、人工关节植入物。采购决策路径极其苛刻，医疗和军工资质认证通常需要2-3年以上的时间，形成极强的<strong class='text-sky-600'>客户先发黏性与替换成本壁垒</strong>。下游客户对价格敏感度低，对产品性能稳定性要求极高。"
+            }
+        };
+
+        let marketChartInstance = null;
+        let competeChartInstance = null;
+        let ksfChartInstance = null;
+
+        function updateChainDetails(key) {
+            const container = document.getElementById('chain-details');
+            container.style.opacity = '0';
+            setTimeout(() => {
+                container.innerHTML = `<h4 class="font-bold text-slate-800 text-base mb-2">${chainData[key].title}</h4>
+                                       <p class="text-sm text-slate-600 leading-relaxed">${chainData[key].content}</p>`;
+                container.style.opacity = '1';
+            }, 150);
+        }
+
+        function initMarketChart() {
+            const ctx = document.getElementById('marketChart').getContext('2d');
+            if(marketChartInstance) marketChartInstance.destroy();
+            marketChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['2020', '2021', '2022', '2023', '2024E', '2025E', '2026E'],
+                    datasets: [
+                        {
+                            type: 'line',
+                            label: '市场规模增速 (%)',
+                            data: [5, 12, 18, 15, 16, 17, 18],
+                            borderColor: '#0284c7',
+                            backgroundColor: '#0284c7',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            yAxisID: 'y1'
+                        },
+                        {
+                            type: 'bar',
+                            label: '全球市场需求规模 (万吨)',
+                            data: [25, 28, 33, 38, 44, 51, 60],
+                            backgroundColor: 'rgba(14, 165, 233, 0.2)',
+                            borderColor: '#0ea5e9',
+                            borderWidth: 1,
+                            yAxisID: 'y'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', titleFont: { size: 13 }, bodyFont: { size: 13 } },
+                        legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8 } }
+                    },
+                    scales: {
+                        y: { type: 'linear', display: true, position: 'left', title: { display: true, text: '规模 (万吨)' } },
+                        y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: '增速 (%)' } }
+                    }
+                }
+            });
+        }
+
+        function initCompeteChart() {
+            const ctx = document.getElementById('competeChart').getContext('2d');
+            if(competeChartInstance) competeChartInstance.destroy();
+            competeChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['塞拉尼斯 (Celanese) - 约28%', '帝斯曼 (DSM) - 约20%', '三井化学 (Mitsui) - 约15%', '国内龙头 (如九九久) - 约12%', '其他 - 25%'],
+                    datasets: [{
+                        data: [28, 20, 15, 12, 25],
+                        backgroundColor: ['#0369a1', '#0ea5e9', '#38bdf8', '#10b981', '#cbd5e1'],
+                        borderWidth: 1,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label.split('-')[0].trim() + ': ' + context.parsed + '%份额';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initKsfChart() {
+            const ctx = document.getElementById('ksfChart').getContext('2d');
+            if(ksfChartInstance) ksfChartInstance.destroy();
+            ksfChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['催化剂自研能力', '粉料分子量一致性', '下游大客户认证', '产能扩张规模效应', '工艺降本能力', '专利布局与规避'],
+                    datasets: [
+                        {
+                            label: '高端医用/军工壁垒模型',
+                            data: [9, 10, 10, 4, 6, 9],
+                            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                            borderColor: '#10b981',
+                            pointBackgroundColor: '#10b981',
+                            borderWidth: 2
+                        },
+                        {
+                            label: '低端管材/板材生存模型',
+                            data: [3, 5, 2, 9, 10, 3],
+                            backgroundColor: 'rgba(148, 163, 184, 0.2)',
+                            borderColor: '#94a3b8',
+                            pointBackgroundColor: '#94a3b8',
+                            borderWidth: 2,
+                            borderDash: [5, 5]
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                            pointLabels: { font: { size: 11, family: 'sans-serif' }, color: '#475569' },
+                            ticks: { display: false, min: 0, max: 10 }
+                        }
+                    },
+                    plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } }
+                }
+            });
+        }
+
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const clickedBtn = Array.from(document.querySelectorAll('.nav-item')).find(btn => btn.getAttribute('onclick').includes(viewId));
+            if(clickedBtn) clickedBtn.classList.add('active');
+
+            const titles = {
+                'view-exec': '一、执行摘要与二、行业概况',
+                'view-market': '三、市场规模与四、产业链图谱',
+                'view-compete': '五、竞争格局与六、技术路线',
+                'view-invest': '七、政策风险与八、投资逻辑'
+            };
+            document.getElementById('header-title').innerText = titles[viewId];
+
+            if(viewId === 'view-market' && !marketChartInstance) {
+                setTimeout(initMarketChart, 100);
+            } else if (viewId === 'view-compete' && !competeChartInstance) {
+                setTimeout(initCompeteChart, 100);
+            } else if (viewId === 'view-invest' && !ksfChartInstance) {
+                setTimeout(initKsfChart, 100);
+            }
+
+            if(window.innerWidth < 768) {
+                toggleSidebar();
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+            }
+        }
+
+        document.getElementById('open-sidebar').addEventListener('click', toggleSidebar);
+        document.getElementById('close-sidebar').addEventListener('click', toggleSidebar);
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) {
+                document.getElementById('sidebar').classList.remove('-translate-x-full');
+            } else if (!document.getElementById('sidebar').classList.contains('-translate-x-full') && document.querySelector('.view-section.active')) {
+                document.getElementById('sidebar').classList.add('-translate-x-full');
+            }
+        });
+    </script>
+</body>
+</html>
